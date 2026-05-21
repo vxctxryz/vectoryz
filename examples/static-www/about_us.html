@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About us — vectoryz</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="/vctz_favicon_192.png">
+<link rel="apple-touch-icon" href="/vctz_favicon_192.png">
+<meta name="description" content="vectoryz — wer wir sind, was wir bauen, mit wem. Lokal-souveräne AI-Infrastruktur aus dem öffentlichen Gitshelf, MIT-lizenziert.">
+<style>
+:root{
+  --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
+  --gold:#e8b923; --gold-dim:#a07d18; --cyan:#58a6ff; --cyan-dim:#3a6fa8;
+  --line:#1a2030;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;color:var(--fg);font-family:ui-monospace,'Cascadia Mono','Source Code Pro',Menlo,Consolas,monospace;font-size:15px;line-height:1.6}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 40% 28% at 22% 18%,rgba(232,185,35,.06),transparent 70%),
+    radial-gradient(ellipse 38% 30% at 78% 32%,rgba(88,166,255,.05),transparent 70%),
+    linear-gradient(180deg,#070910 0%,#0a0e16 50%,#06080d 100%);
+  background-attachment:fixed;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+/* Cosmic-helix backdrop — operator-confirmed fit for the about_us
+   context 2026-05-15 ("for about us it fits"). The vectoryz_helix
+   image (two vortex-suns + luminous helix-beam) carries the
+   cab-of-entities-cosmography register naturally here, where the
+   chat-hero needed mass-market-calm. Pinned to viewport (no
+   rectangle edges). 42s breath harmonizes with the 9·42 plex on
+   the header brandlink. */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;
+  background-image:url('/assets/vctz_helix_bg.jpg');
+  background-size:cover;background-position:center 38%;
+  background-repeat:no-repeat;
+  opacity:.28;
+  filter:saturate(1.1) contrast(1.05);
+  pointer-events:none;
+  animation:helixbg-breathe 42s ease-in-out infinite;
+}
+@keyframes helixbg-breathe{
+  0%,100%{opacity:.25;transform:scale(1)}
+  50%    {opacity:.34;transform:scale(1.015)}
+}
+@media (prefers-reduced-motion: reduce){
+  body::before{animation:none;opacity:.28}
+}
+@media(max-width:600px){
+  body::before{
+    background-image:url('/assets/vctz_helix_bg_m.jpg');
+    opacity:.22;
+  }
+}
+header{position:sticky;top:0;left:0;right:0;z-index:50;text-align:center;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.85);backdrop-filter:blur(6px)}
+/* === BRAND-SIGNAL :: 9·42 plex (vectoryz signature) — see oss.html for full doctrine === */
+header a.brandlink{position:relative;display:inline-block;font-size:1.1rem;letter-spacing:.4em;font-weight:600;text-decoration:none;padding:.2rem 1rem;border-radius:4px;color:rgba(255,255,255,.32);animation:b369rainbow 42s linear infinite,b369wave 9s ease-in-out infinite;transition:filter .3s ease, background .25s ease}
+header a.brandlink:hover{background:rgba(232,185,35,.08);filter:brightness(1.4) saturate(1.25)}
+@keyframes b369rainbow{0%{color:hsla(45,60%,72%,.85)}14%{color:hsla(15,55%,72%,.85)}28%{color:hsla(330,55%,74%,.85)}42%{color:hsla(280,50%,74%,.85)}57%{color:hsla(210,60%,74%,.85)}71%{color:hsla(180,55%,72%,.85)}85%{color:hsla(140,50%,70%,.85)}100%{color:hsla(45,60%,72%,.85)}}
+@keyframes b369wave{0%,100%{text-shadow:0 0 3px rgba(255,255,255,.18);opacity:.78}50%{text-shadow:0 0 9px rgba(255,255,255,.5),0 0 20px rgba(200,225,255,.25);opacity:1}}
+header a.brandlink::before,header a.brandlink::after{content:'✦';position:absolute;font-size:.55rem;color:rgba(255,255,255,.75);opacity:0;pointer-events:none;text-shadow:0 0 5px rgba(255,255,255,.55)}
+header a.brandlink::before{top:.05rem;left:14%;animation:b369spark1 7s ease-in-out infinite}
+header a.brandlink::after{bottom:.1rem;right:18%;animation:b369spark2 11s ease-in-out infinite 3.5s}
+@keyframes b369spark1{0%,88%,100%{opacity:0;transform:scale(.4) rotate(0deg)}44%,52%{opacity:1;transform:scale(1.15) rotate(60deg)}}
+@keyframes b369spark2{0%,82%,100%{opacity:0;transform:scale(.4) rotate(0deg)}38%,46%{opacity:.9;transform:scale(1.2) rotate(-50deg)}}
+@media (prefers-reduced-motion: reduce){header a.brandlink{animation:none;color:rgba(255,255,255,.42);text-shadow:none}header a.brandlink::before,header a.brandlink::after{display:none}}
+/* === END BRAND-SIGNAL === */
+main{flex:1;max-width:840px;margin:0 auto;padding:2rem 1.5rem 5rem;width:100%}
+h1{font-size:1.4rem;color:var(--fg);margin-bottom:.4rem;font-weight:600;letter-spacing:.02em}
+.subtitle{color:var(--muted);font-size:.9rem;margin-bottom:.4rem;line-height:1.55}
+.update-line{color:var(--gold-dim);font-size:.72rem;letter-spacing:.06em;margin-bottom:2rem}
+h2{font-size:1.05rem;color:var(--gold);margin:2rem 0 .8rem;font-weight:600;letter-spacing:.05em}
+h3{font-size:.95rem;color:var(--cyan);margin:1.3rem 0 .5rem;font-weight:600;letter-spacing:.02em}
+p{margin-bottom:.8rem;color:var(--fg)}
+p.lead{color:var(--muted);font-size:.95rem;margin-bottom:1.2rem;line-height:1.7}
+a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted var(--cyan-dim)}
+a:hover{color:var(--gold);border-color:var(--gold)}
+ul.principles,ul.caps{
+  list-style:none;margin:.6rem 0 1rem;padding:.8rem 1rem;
+  background:rgba(15,21,37,.4);border-left:2px solid var(--gold-dim);border-radius:0 3px 3px 0;
+  font-size:.88rem;line-height:1.7;
+}
+ul.principles li,ul.caps li{padding:.18rem 0}
+ul.principles li::before{content:"→ ";color:var(--gold);font-weight:600}
+ul.caps li::before{content:"• ";color:var(--cyan);font-weight:600}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:.45rem 1.2rem;margin:.6rem 0 1rem;font-size:.88rem}
+.kv .k{color:var(--gold-dim);white-space:nowrap}
+.kv .v{color:var(--fg)}
+.dom{
+  display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;
+  padding:.7rem 1rem;border-left:3px solid var(--line);background:rgba(15,21,37,.4);border-radius:0 4px 4px 0;
+  margin:.5rem 0;font-size:.88rem;
+}
+.dom .name{font-weight:600;color:var(--fg);letter-spacing:.02em}
+.dom .desc{color:var(--muted);line-height:1.55}
+.dom .state{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.dom.live{border-left-color:#a7d8a0}
+.dom.live .state{color:#a7d8a0}
+.dom.live .name{color:#a7d8a0}
+.timeline{margin:.6rem 0 1rem;border-left:1px dotted var(--line);padding-left:1.2rem}
+.timeline .entry{margin-bottom:1.2rem;position:relative}
+.timeline .entry::before{content:"";position:absolute;left:-1.42rem;top:.45rem;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px rgba(232,185,35,.55)}
+.timeline .entry.recent::before{background:var(--cyan);box-shadow:0 0 8px rgba(88,166,255,.6)}
+.timeline .date{font-size:.72rem;color:var(--gold-dim);letter-spacing:.08em;margin-bottom:.15rem}
+.timeline .title-line{font-weight:600;color:var(--fg);margin-bottom:.25rem;font-size:.92rem}
+.timeline .body{font-size:.86rem;color:var(--muted);line-height:1.55}
+.note{margin:1.2rem 0;padding:.8rem 1rem;background:rgba(232,185,35,.05);border-left:2px solid var(--gold-dim);border-radius:0 3px 3px 0;font-size:.86rem;color:var(--muted);line-height:1.6}
+.note strong{color:var(--gold-dim);font-weight:600}
+/* === Evolution section (folded in from former evolution.html) === */
+.evo-divider{margin:2.5rem 0 1.2rem;padding-top:1.8rem;border-top:1px solid var(--line)}
+.summary-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.7rem;margin:1rem 0 1.8rem}
+.summary-strip .stat{padding:.7rem .9rem;background:rgba(15,21,37,.45);border-left:2px solid var(--gold-dim);border-radius:0 3px 3px 0}
+.summary-strip .num{font-size:1.5rem;color:var(--gold);font-weight:700;letter-spacing:.02em}
+.summary-strip .label{font-size:.7rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem}
+.day{margin:1.4rem 0}
+.day-header{font-size:.78rem;color:var(--gold-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+.commits{display:grid;gap:.45rem}
+.commit{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:baseline;padding:.45rem .7rem;border-left:2px solid var(--line);background:rgba(15,21,37,.3);border-radius:0 3px 3px 0;font-size:.85rem}
+.commit .hash{font-size:.75rem;color:var(--muted);font-family:ui-monospace,monospace}
+.commit .msg{color:var(--fg);line-height:1.5}
+.commit .msg .kind{color:var(--gold-dim);font-weight:600}
+.evo-honest{margin:1.5rem 0 1rem;padding:.8rem 1rem;background:rgba(167,216,160,.04);border-left:2px solid rgba(167,216,160,.5);border-radius:0 3px 3px 0;font-size:.85rem;color:var(--muted);line-height:1.6}
+.evo-honest strong{color:rgb(167,216,160);font-weight:600}
+.cab{display:grid;gap:.5rem;margin:.6rem 0 1rem}
+.cab .row{
+  display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:baseline;
+  padding:.6rem .9rem;background:rgba(15,21,37,.4);border-left:2px solid var(--cyan-dim);border-radius:0 3px 3px 0;
+  font-size:.86rem;
+}
+.cab .row .who{font-weight:600;color:var(--fg)}
+.cab .row .what{color:var(--muted);line-height:1.55}
+footer.sitefoot{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:.7rem 1rem;text-align:center;
+  background:rgba(7,9,15,.92);backdrop-filter:blur(6px);
+  border-top:1px solid var(--line);
+  font-size:.72rem;letter-spacing:.04em;color:var(--muted);
+}
+footer.sitefoot a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line);padding-bottom:.05rem;margin:0 .18rem}
+footer.sitefoot a:hover{color:var(--gold);border-color:var(--gold)}
+footer.sitefoot a.current{color:var(--gold-dim);border-color:transparent;cursor:default}
+footer.sitefoot a.current:hover{color:var(--gold-dim);border-color:transparent}
+footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
+@media(max-width:600px){
+  .dom{grid-template-columns:1fr;gap:.3rem}
+  .dom .state{text-align:left}
+  .kv{grid-template-columns:1fr;gap:.15rem 0}
+  .kv .k{color:var(--cyan);font-size:.78rem}
+  .cab .row{grid-template-columns:1fr;gap:.2rem}
+}
+/* 2026-05-21 daymode propagation */
+:root[data-theme="light"]{
+  --bg:#fbfcfd; --surf:#ffffff; --fg:#1a1f2a; --muted:#5a6470;
+  --gold:#b8860b; --gold-dim:#8a6608; --cyan:#1f6feb; --cyan-dim:#1c5aaa;
+  --line:#d8dde5;
+}
+:root[data-theme="light"] body{
+  background-image:
+    radial-gradient(ellipse 40% 28% at 22% 18%,rgba(232,185,35,.18),transparent 70%),
+    radial-gradient(ellipse 38% 30% at 78% 32%,rgba(88,166,255,.12),transparent 70%),
+    linear-gradient(180deg,#ffffff 0%,#f6f8fb 50%,#fbfcfd 100%);
+}
+:root[data-theme="light"] header{background:rgba(255,255,255,.92)!important}
+:root[data-theme="light"] footer.sitefoot{background:rgba(255,255,255,.92)}
+:root[data-theme="light"] header a.brandlink{animation:none;color:#1a1f2a;text-shadow:none}
+:root[data-theme="light"] header a.brandlink::before,
+:root[data-theme="light"] header a.brandlink::after{display:none}
+.theme-toggle-btn{
+  background:transparent;border:1px solid var(--line);
+  font-family:inherit;font-size:.95rem;padding:.15rem .45rem;border-radius:5px;
+  cursor:pointer;color:var(--muted);margin-left:.6rem;
+  transition:border-color .2s, color .2s, background .2s, transform .15s;line-height:1;
+}
+.theme-toggle-btn:hover{
+  border-color:var(--gold-dim);color:var(--gold);
+  background:rgba(232,185,35,.06);transform:scale(1.05);
+}
+</style>
+<script>
+(function(){
+  try{
+    var s=localStorage.getItem('vctz-theme');
+    if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+      document.documentElement.setAttribute('data-theme','light');
+  }catch(_){}
+})();
+</script>
+</head>
+<body>
+<header>
+  <a class="brandlink" href="/" aria-label="Start">start</a>
+  <button class="theme-toggle-btn" id="theme-toggle-btn" type="button"
+          title="Hell/Dunkel umschalten" aria-label="Theme umschalten">🌗</button>
+</header>
+
+<main>
+  <h1>wer wir sind</h1>
+  <p class="subtitle">vectoryz — eine kleine Initiative, die zeigt, wie man AI aus dem öffentlichen Gitshelf zu etwas zusammenbaut, das man gern benutzt.</p>
+
+  <h2>Was wir bauen</h2>
+  <p>Eine <strong>lokal-souveräne AI-Infrastruktur</strong> aus permissiv lizenzierten Bausteinen — auf Hardware in Deutschland. Rechenläufe mit Echtdaten aus der EU/DE bleiben in unserer Betriebsumgebung. Geteilte Software-Komponenten veröffentlichen wir unter <a href="https://opensource.org/license/mit">MIT-Lizenz</a> und spiegelbar auf <em>vectoryz.net</em>.</p>
+  <p>Die Architektur ist bewusst schlank. Frontend wird durch uns erstellt from blank slate. Backend mit Python-stdlib plus eine handvoll wohlgewählter Bibliotheken. Modelle aus dem Gitshelf — llama.cpp via Ollama, HuggingFace-Apache-Weights. Reverse-Proxy mit Caddy. Was stabil läuft, bleibt. Was Reibung erzeugt, wird verbessert oder ersetzt.</p>
+
+  <h2>Doktrin</h2>
+  <p class="lead">Architektur-Prinzipien sagen <em>wie</em>; Haltungs-Prinzipien sagen <em>wozu</em>.</p>
+
+  <h3>Architektur</h3>
+  <ul class="principles">
+    <li>Frontend bleibt schlank</li>
+    <li>URL trägt nur die Chat-ID (Schlüssel lebt im Browser-Fragment)</li>
+    <li>Backend kennt Zustand</li>
+    <li>Wrapper kennt Engines</li>
+    <li>Forking schützt geteilte Links</li>
+    <li>Login kommt später</li>
+  </ul>
+
+  <h3>Haltung</h3>
+  <ul class="principles">
+    <li><strong>pull-not-push</strong> — die Maschine soll so gut werden, dass Menschen freiwillig kommen. <em>Quality is the moat; otherwise …</em></li>
+    <li><strong>audit-open-door</strong> — Türen offen für legitime Prüfung. Wir bauen robuste Infrastruktur: dokumentiert, prüfbar, auditierbar.</li>
+    <li><strong>cab-of-entities</strong> — Vielfalt an KI involved. Die Gewichtung folgt der Rolle im Workflow. Terminalnahe Code-Flows, Dialogstruktur, Webrecherche und Suchperspektiven verlangen unterschiedliche Werkzeuge. Deshalb sind einige Systeme operativ stärker sichtbar, während andere als ergänzende Quellen- und Vergleichsperspektiven eingebunden bleiben.</li>
+    <li><strong>positive-framing</strong> — UI-Labels und Prompts addressieren direkt.<br>Das Universum hört "nicht nicht".</li>
+    <li><strong>stay-irie-mirror-phaser-on-stun</strong> — Spiegel + Phaser auf Stun. Antibody und Canary.</li>
+    <li><strong>production-stable</strong> — was läuft, läuft.</li>
+  </ul>
+
+  <h3>Charakter</h3>
+  <ul class="principles">
+    <li><strong>Lächeln „(:“</strong> — das kleine Lächeln von vectoryz: warm, leise, signature. Auf der Startseite atmet es neben „Hi“ im Rhythmus des 9·42-Glows.</li>
+    <li><strong>BRAND-SIGNAL 9·42 plex</strong> — Markenzeichen: 9-Sekunden Ice-Glow-Ondulation × 42-Sekunden Rainbow Under-Wave, mit gelegentlichen Edge-Sparkles. Mechanismus geht in den MIT-Publish; die konkrete Timing-Signatur bleibt bei vectoryz.</li>
+    <li><strong>Kontext-Awareness</strong> — Wir trennen Begriff, Kategorie, Rechtswirkung und Kontext. Was ähnlich klingt, kann technisch, rechtlich oder praktisch etwas anderes bedeuten. Beispielräume: Markenname vs. Gattungsbegriff, Absichtserklärung vs. Vertrag, Oberfläche vs. Verarbeitung, Kurzlabel vs. vollständiger Kontext.</li>
+  </ul>
+
+  <h2>Was gerade läuft</h2>
+  <p>Stand 2026-05-15: das <strong>generic_369_AI_orchestre_UI</strong> ist optisch <em>locked</em>. Der Chat lebt auf der Root (<a href="/">{{YOUR_DOMAIN}}</a>), Challenge I (genericUI) ist abgeschlossen, Challenge II (genericOrchestration) implementiert. Aktuelle Arbeit am Funktions-Polish und am Adapter-Cluster für historische Korpora.</p>
+
+  <h3>Surfaces</h3>
+  <div class="dom live"><span class="name">{{YOUR_DOMAIN}}</span><span class="desc">Chat-Surface. Wordmark + 9·42-Glow + Lächeln-(:. AES-256-GCM zero-knowledge, EU-gehostet. Drops bis 1 Mio. Zeichen.</span><span class="state">live</span></div>
+  <div class="dom live"><span class="name">/about_us</span><span class="desc">Diese Seite.</span><span class="state">live</span></div>
+  <div class="dom live"><span class="name">/impressum</span><span class="desc">§ 5 DDG gemäß</span><span class="state">live</span></div>
+  <div class="dom live"><span class="name">/evolution</span><span class="desc">Was zuletzt verbessert / gefixt wurde. Iterationsgeschwindigkeit als Vertrauensanker.</span><span class="state">live</span></div>
+  <div class="dom live"><span class="name">/vectoryz-star</span><span class="desc">Das Domain-Universum: .de .com .eu .net .org .io .info .me .space</span><span class="state">live</span></div>
+  <div class="dom live"><span class="name">/oss</span><span class="desc">Der freie Stack — Credits an die OSS/FLOSS-Schultern, auf denen wir stehen.</span><span class="state">live</span></div>
+  <div class="dom live"><span class="name">internal.{{YOUR_DOMAIN}}</span><span class="desc">Operative Surface (Auth-geschützt).</span><span class="state">live</span></div>
+
+  <h3>Lokale Engines</h3>
+  <ul class="caps">
+    <li><strong>vectoryzDE</strong> — dolphin-mixtral:8x7b mit .de-Persona</li>
+    <li><strong>navigatorBESTEFFORT</strong> — qwen2.5:7b (Classifier) + vectoryzDE (Deep-Reader) als 2-Tier-Pipeline</li>
+    <li><strong>dolphin-llama3:70b</strong> — Eskalation für tonal-komplexe Texte</li>
+    <li><strong>llama3.1:8b</strong> — allgemeiner Schnell-Pfad</li>
+  </ul>
+
+  <h3>Aktive Fähigkeiten</h3>
+  <ul class="caps">
+    <li>Greeting-Mirror in 14 Sprachen mit Language-Stickiness (sagst du "Hola", bleibt der Chat auf Spanisch)</li>
+    <li>Auto-Style-Mirror — Register erkannt, Antwort spiegelt (casual / basic / professional / academic)</li>
+    <li>Auto-Tier — Aufwand/Effort wächst mit Prompt/Frage-Komplexität, zB spezifischer fragen, Ausgabestil/umfang anpassen</li>
+    <li>Capability Frontier — stufenweise Ausbau für Video / Bild / Audio / Datei / Code-Exec / Kamera</li>
+    <li>Stop / Stop &amp; Bearbeiten — der Klick IST die Diagnose (Maschine daneben vs. Tippfehler)</li>
+    <li>Mood-Color Passage-Lines — sechs Farben für sechs Antwort-Tonalitäten plus default-weiß</li>
+    <li>FYI-Layer (Awareness) — relevante Kontext-Hinweise im Fluss, ohne die Antwort zu unterbrechen</li>
+    <li>AES-256-GCM zero-knowledge at rest · URL-Fragment-Key-Transport · Fork-with-Encryption</li>
+    <li>Paste-Cleanse (ASCII-Superblob auto-trim) · 1 Mio. Zeichen Submit-Cap</li>
+    <li>Multi-hop Web-Search · Time-Context-Injection · SSE-Streaming · SQLite-State</li>
+  </ul>
+
+  <h2>Roadmap</h2>
+  <p>
+    Die roadmap ist auf zwei seiten ausgelagert — passend zum thema, statt einer
+    einzigen großen liste:
+  </p>
+  <ul>
+    <li><a href="/currentbranchmap_ui.html" style="color:var(--gold)">currentbranchmap_ui.html</a> · frontend/UI-roadmap + branch-state der UI-dateien + commit-evolution</li>
+    <li><a href="/currentbranchmap_be.html" style="color:var(--gold)">currentbranchmap_be.html</a> · backend/wrapper-roadmap + runtime-state + engine-pipeline-meilensteine</li>
+  </ul>
+  <p style="margin-top:.7rem;color:var(--muted);font-size:.85rem;line-height:1.6">
+    Vorteil: roadmap + commit-history + file-state liegen jeweils zusammen — wer
+    die UI auditieren will, hat alles UI-relevante auf einer seite. Wer den
+    backend-stack prüfen will, sieht roadmap + audit zusammen am stück.
+  </p>
+
+  <h2>Stack-Referenz</h2>
+  <p>Wir nutzen offene Komponenten aus dem OSS-Ökosystem.</p>
+  <div class="kv">
+    <span class="k">LLM-Inference</span><span class="v">llama.cpp (via Ollama)</span>
+    <span class="k">Modell-Registry</span><span class="v">Ollama</span>
+    <span class="k">Reverse Proxy / TLS</span><span class="v">Caddy v2 (autom. Let's Encrypt)</span>
+    <span class="k">Frontend</span><span class="v">Vanilla HTML/CSS/JS</span>
+    <span class="k">Backend</span><span class="v">Python-Standardbibliothek + ddgs (Web-Search)</span>
+    <span class="k">State</span><span class="v">SQLite (WAL-Mode)</span>
+    <span class="k">OS / Host</span><span class="v">Ubuntu 24.04 LTS auf Hetzner GX44 (Intel i5-13500, RTX 4000 SFF Ada 20 GB, 64 GB RAM)</span>
+  </div>
+  <p>Lizenz-Posture im Detail unter <a href="/oss.html">OSS</a>: alle Komponenten Apache 2.0 / MIT / BSD oder vergleichbar permissiv. NVIDIA-Treiber als einzige non-OSS-Komponente, Standard für GPU-Compute.</p>
+
+  <h2>Wer "wir" eigentlich ist</h2>
+  <p>Der menschliche Operator ist <strong>{{YOUR_LEGAL_NAME}}</strong>, ansässig in Nürnberg (siehe <a href="/impressum.html">Impressum</a>). Die KI-Cab-Mitglieder sind namentlich benannt — Diversität, jurisdiktionale Trennung:</p>
+
+  <h3>Lokal-souverän (Hardware in Deutschland)</h3>
+  <div class="cab">
+    <div class="row"><span class="who">vectoryzDE</span><span class="what">dolphin-mixtral:8x7b · Research-Support für .de · primärer .de-operativer Cab-Member</span></div>
+    <div class="row"><span class="who">IJ1-Doctrine</span><span class="what">llama3.1:8b · allgemeiner Konsumenten-Chat · Transition .com-Brücke</span></div>
+    <div class="row"><span class="who">Qwen 2.5:7b</span><span class="what">Classifier in navigatorBESTEFFORT · Compound-Decompose · FYI-Compose</span></div>
+    <div class="row"><span class="who">dolphin-llama3:70b</span><span class="what">Deep-Reading-Eskalation für tonal-komplexe Texte</span></div>
+  </div>
+
+  <h3>Cross-Cab (externe Entitäten, non-.de-operativ)</h3>
+  <p>US-jurisdictional. Diese Cab-Members sind von den operativen .de-Workflows strikt getrennt — Architektur, Recherche, Inspiration ist ihre Rolle:</p>
+  <div class="cab">
+    <div class="row"><span class="who">Anthropic Claude</span><span class="what">Architektur-Arbeit + Code-Generation. Co-Autor der cc-Reference-Implementierung. Nüchtern + audit-aware Register.</span></div>
+    <div class="row"><span class="who">OpenAI ChatGPT</span><span class="what">Drei klar getrennte Beiträge: (1) Business-Sprachfindung — ambitionierte Außenkommunikation, die wir in vectoryz-eigene Sprache übersetzen; (2) Designs / DALL-E — visuelle Inspiration (DNA-Helix-Reihe, Sandbox-Frames, V-helix-Logo); (3) Deep-Research-Synthese — als Startpunkt, anschließend lokal verifiziert.</span></div>
+    <div class="row"><span class="who">Google Gemini</span><span class="what">Cross-Validation + alternative Perspektive bei Architektur-Entscheidungen (paste-channel).</span></div>
+    <div class="row"><span class="who">Ecosia Web-AI</span><span class="what">Web-AI mit ökologischer Ausrichtung (Bäume-pflanzende Suchmaschine, Berliner Hintergrund); Alternative zu US-Cloud-Suche.</span></div>
+  </div>
+  <p>Die jurisdiktionale Trennung ist bewusst streng. Für .de-Workloads mit EU- oder Deutschlandbezug sind EU-separierte Verarbeitungspfade vorgesehen. Im Cab analysiert, operativ getrennt, nachvollziehbar dokumentiert.</p>
+  <p>Alles, was auf dieser Domain steht, wurde gemeinsam erarbeitet — Mensch und KI über die Cab-Member hinweg. Die MIT-lizenzierten Anteile reflektieren diese Co-Autorschaft.</p>
+
+  <h2>Kontakt</h2>
+  <div class="kv">
+    <span class="k">E-Mail</span><span class="v"><a href="mailto:{{YOUR_EMAIL}}">{{YOUR_EMAIL}}</a></span>
+    <span class="k">Code-Mirror</span><span class="v"><em>vectoryz.net</em> (folgt mit v0.1 MIT-Publish)</span>
+  </div>
+
+  <div class="note">
+    <strong>Hinweis:</strong> Diese Seite wird laufend aktualisiert. Wer mitlesen will, schaut in den Evolution-Abschnitt unten oder schreibt eine kurze Mail.
+  </div>
+
+  <div class="evo-divider"></div>
+
+  <p class="subtitle" style="margin-top:1rem">
+    Die <strong>Evolution / commit-history</strong> ist auf eine eigene seite ausgelagert:
+    <a href="/currentbranchmap_ui.html" style="color:var(--gold);text-decoration:underline">currentbranchmap_ui.html</a> —
+    dort siehst du den aktuellen branch-state + die jüngsten commits gruppiert nach tag.
+    Iterationsgeschwindigkeit als vertrauensanker, sichtbar an einem ort statt verstreut.
+  </p>
+</main>
+
+<footer class="sitefoot">
+  <a href="/about_us.html" class="current">AboutUs</a><span class="sep">·</span>
+  <a href="/impressum.html">Impressum</a><span class="sep">·</span>
+  <a href="/datenschutz.html">Datenschutz</a><span class="sep">·</span>
+  <a href="/vectoryz-star.html">vectoryz.*</a><span class="sep">·</span>
+  <a href="/oss.html">OSS</a>
+</footer>
+<script>
+(function(){
+  var btn=document.getElementById('theme-toggle-btn');if(!btn)return;
+  var render=function(){
+    var L=document.documentElement.getAttribute('data-theme')==='light';
+    btn.textContent=L?'🌙':'☀';
+    btn.title=L?'Aktuell: Hell · Klick für Dunkel':'Aktuell: Dunkel · Klick für Hell (für draußen/tag)';
+  };render();
+  btn.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme')||'dark';
+    var n=c==='light'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',n);
+    try{localStorage.setItem('vctz-theme',n);}catch(_){}render();
+  });
+})();
+</script>
+</body>
+</html>

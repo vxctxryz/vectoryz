@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSS — vectoryz steht auf freier Software</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="/vctz_favicon_192.png">
+<link rel="apple-touch-icon" href="/vctz_favicon_192.png">
+<meta name="description" content="vectoryz dankt der Free / Open Source Software Community — der Stack, der das Ganze trägt.">
+<style>
+:root{
+  --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
+  --gold:#e8b923; --gold-dim:#a07d18; --cyan:#58a6ff; --cyan-dim:#3a6fa8;
+  --line:#1a2030;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;color:var(--fg);font-family:ui-monospace,'Cascadia Mono','Source Code Pro',Menlo,Consolas,monospace;font-size:15px;line-height:1.6}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 40% 28% at 22% 18%,rgba(232,185,35,.06),transparent 70%),
+    radial-gradient(ellipse 38% 30% at 78% 32%,rgba(88,166,255,.05),transparent 70%),
+    linear-gradient(180deg,#070910 0%,#0a0e16 50%,#06080d 100%);
+  background-attachment:fixed;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+header{position:sticky;top:0;left:0;right:0;z-index:50;text-align:center;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.85);backdrop-filter:blur(6px)}
+/* === BRAND-SIGNAL :: 9·42 plex (vectoryz signature) ===
+ * Compound: 9-second ice-glow ondulation × 42-second rainbow under-wave
+ * + asymmetric edge sparkles. Hover brightens.
+ * --
+ * FOR MIT PUBLISH (forks of this UI): the MECHANISM (double-wave +
+ * sparkle plex) is part of the generic_369_AI_orchestre_UI gift to
+ * the community. The specific TIMING (9s, 42s) and the RAINBOW
+ * COLOR PALETTE are the vectoryz brand-signal — they stay with
+ * vectoryz.* (brand_placeholder_doctrine: mechanism gifted, mark kept).
+ *
+ * To strip the signal for a fork (per install-manual):
+ *   1. Stall timing on .brandlink animation property → "none"
+ *   2. Replace b369rainbow keyframes with a single neutral color
+ *   3. Remove ::before / ::after sparkle pseudo-elements
+ * Install manual documents the double-wave function shape; the
+ * specific signal stays with vectoryz.
+ * === */
+header a.brandlink{position:relative;display:inline-block;font-size:1.1rem;letter-spacing:.4em;font-weight:600;text-decoration:none;padding:.2rem 1rem;border-radius:4px;color:rgba(255,255,255,.32);animation:b369rainbow 42s linear infinite,b369wave 9s ease-in-out infinite;transition:filter .3s ease, background .25s ease}
+header a.brandlink:hover{background:rgba(232,185,35,.08);filter:brightness(1.4) saturate(1.25)}
+/* BRAND-SIGNAL :: 42s rainbow under-wave — vectoryz palette */
+@keyframes b369rainbow{
+  0%   {color:hsla(45,60%,72%,.85)}
+  14%  {color:hsla(15,55%,72%,.85)}
+  28%  {color:hsla(330,55%,74%,.85)}
+  42%  {color:hsla(280,50%,74%,.85)}
+  57%  {color:hsla(210,60%,74%,.85)}
+  71%  {color:hsla(180,55%,72%,.85)}
+  85%  {color:hsla(140,50%,70%,.85)}
+  100% {color:hsla(45,60%,72%,.85)}
+}
+/* BRAND-SIGNAL :: 9s ice-glow ondulation — text-shadow + opacity wave */
+@keyframes b369wave{
+  0%,100%{text-shadow:0 0 3px rgba(255,255,255,.18);opacity:.78}
+  50%    {text-shadow:0 0 9px rgba(255,255,255,.5),0 0 20px rgba(200,225,255,.25);opacity:1}
+}
+/* BRAND-SIGNAL :: edge sparkles — asymmetric timing for random feel */
+header a.brandlink::before,
+header a.brandlink::after{content:'✦';position:absolute;font-size:.55rem;color:rgba(255,255,255,.75);opacity:0;pointer-events:none;text-shadow:0 0 5px rgba(255,255,255,.55)}
+header a.brandlink::before{top:.05rem;left:14%;animation:b369spark1 7s ease-in-out infinite}
+header a.brandlink::after{bottom:.1rem;right:18%;animation:b369spark2 11s ease-in-out infinite 3.5s}
+@keyframes b369spark1{0%,88%,100%{opacity:0;transform:scale(.4) rotate(0deg)}44%,52%{opacity:1;transform:scale(1.15) rotate(60deg)}}
+@keyframes b369spark2{0%,82%,100%{opacity:0;transform:scale(.4) rotate(0deg)}38%,46%{opacity:.9;transform:scale(1.2) rotate(-50deg)}}
+@media (prefers-reduced-motion: reduce){
+  header a.brandlink{animation:none;color:rgba(255,255,255,.42);text-shadow:none}
+  header a.brandlink::before,
+  header a.brandlink::after{display:none}
+}
+/* === END BRAND-SIGNAL === */
+main{flex:1;max-width:840px;margin:0 auto;padding:2rem 1.5rem 5rem;width:100%}
+h1{font-size:1.4rem;color:var(--fg);margin-bottom:.4rem;font-weight:600;letter-spacing:.02em}
+h1 .star{color:var(--gold)}
+h1 .deploy-stamp{color:var(--line);margin-left:.6rem;font-weight:400;font-size:.7em;cursor:help;border-bottom:1px dotted transparent;transition:color .15s,border-color .15s}
+h1 .deploy-stamp:hover{color:var(--gold-dim);border-bottom-color:var(--gold-dim)}
+.subtitle{color:var(--muted);font-size:.9rem;margin-bottom:1.8rem;line-height:1.6}
+h2{font-size:1rem;color:var(--gold);margin:2rem 0 .7rem;font-weight:600;letter-spacing:.05em}
+.stack{display:grid;gap:.7rem;margin:1rem 0}
+.dep{
+  display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;
+  padding:.7rem 1rem;background:rgba(15,21,37,.4);border-left:2px solid var(--cyan-dim);border-radius:0 3px 3px 0;
+}
+.dep .name{font-weight:600;color:var(--fg);font-size:.95rem}
+.dep .role{color:var(--muted);font-size:.82rem;line-height:1.5}
+.dep .lic{font-size:.7rem;letter-spacing:.1em;color:var(--gold-dim);text-transform:uppercase;white-space:nowrap}
+.dep .name a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted var(--cyan-dim)}
+.dep .name a:hover{color:var(--gold);border-color:var(--gold)}
+.note{
+  margin:1.8rem 0 1rem;padding:.9rem 1.1rem;background:rgba(167,216,160,.04);
+  border-left:2px solid rgba(167,216,160,.5);border-radius:0 3px 3px 0;
+  font-size:.88rem;color:var(--muted);line-height:1.65;
+}
+.note strong{color:rgb(167,216,160);font-weight:600}
+footer.sitefoot{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:.7rem 1rem;text-align:center;
+  background:rgba(7,9,15,.92);backdrop-filter:blur(6px);
+  border-top:1px solid var(--line);
+  font-size:.72rem;letter-spacing:.04em;color:var(--muted);
+}
+footer.sitefoot a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line);padding-bottom:.05rem;margin:0 .18rem}
+footer.sitefoot a:hover{color:var(--gold);border-color:var(--gold)}
+footer.sitefoot a.current{color:var(--gold-dim);border-color:transparent;cursor:default}
+footer.sitefoot a.current:hover{color:var(--gold-dim);border-color:transparent}
+footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
+@media(max-width:600px){
+  .dep{grid-template-columns:1fr;gap:.3rem}
+  .dep .lic{text-align:left}
+}
+/* 2026-05-21 daymode propagation */
+:root[data-theme="light"]{
+  --bg:#fbfcfd; --surf:#ffffff; --fg:#1a1f2a; --muted:#5a6470;
+  --gold:#b8860b; --gold-dim:#8a6608; --cyan:#1f6feb; --cyan-dim:#1c5aaa;
+  --line:#d8dde5;
+}
+:root[data-theme="light"] body{
+  background-image:
+    radial-gradient(ellipse 40% 28% at 22% 18%,rgba(232,185,35,.18),transparent 70%),
+    radial-gradient(ellipse 38% 30% at 78% 32%,rgba(88,166,255,.12),transparent 70%),
+    linear-gradient(180deg,#ffffff 0%,#f6f8fb 50%,#fbfcfd 100%);
+}
+/* Light-mode: dep-row card (hardcoded rgba(15,21,37,.4) ignored toggle) */
+:root[data-theme="light"] .dep{background:#f6f8fb;border-left-color:#1c5aaa}
+:root[data-theme="light"] .dep .name{color:#1a1f2a}
+:root[data-theme="light"] .dep .lic{color:#8a6608}
+:root[data-theme="light"] .dep .name a{color:#1f6feb;border-color:#1c5aaa}
+:root[data-theme="light"] header{background:rgba(255,255,255,.92)!important}
+:root[data-theme="light"] footer.sitefoot{background:rgba(255,255,255,.92)}
+:root[data-theme="light"] header a.brandlink{animation:none;color:#1a1f2a;text-shadow:none}
+:root[data-theme="light"] header a.brandlink::before,
+:root[data-theme="light"] header a.brandlink::after{display:none}
+.theme-toggle-btn{
+  background:transparent;border:1px solid var(--line);
+  font-family:inherit;font-size:.95rem;padding:.15rem .45rem;border-radius:5px;
+  cursor:pointer;color:var(--muted);margin-left:.6rem;
+  transition:border-color .2s, color .2s, background .2s, transform .15s;line-height:1;
+}
+.theme-toggle-btn:hover{
+  border-color:var(--gold-dim);color:var(--gold);
+  background:rgba(232,185,35,.06);transform:scale(1.05);
+}
+</style>
+<script>
+(function(){
+  try{
+    var s=localStorage.getItem('vctz-theme');
+    if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+      document.documentElement.setAttribute('data-theme','light');
+  }catch(_){}
+})();
+</script>
+</head>
+<body>
+<header>
+  <a class="brandlink" href="/" aria-label="Start">start</a>
+  <button class="theme-toggle-btn" id="theme-toggle-btn" type="button"
+          title="Hell/Dunkel umschalten" aria-label="Theme umschalten">🌗</button>
+</header>
+<script>
+(function(){
+  var btn=document.getElementById('theme-toggle-btn');if(!btn)return;
+  var render=function(){
+    var L=document.documentElement.getAttribute('data-theme')==='light';
+    btn.textContent=L?'🌙':'☀';
+    btn.title=L?'Aktuell: Hell · Klick für Dunkel':'Aktuell: Dunkel · Klick für Hell (für draußen/tag)';
+  };render();
+  btn.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme')||'dark';
+    var n=c==='light'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',n);
+    try{localStorage.setItem('vctz-theme',n);}catch(_){}render();
+  });
+})();
+</script>
+
+<main>
+  <h1>OSS<span class="star">·</span>FLOSS<span class="deploy-stamp" title="deploy: __DEPLOY_VERSION__">·</span></h1>
+  <p class="subtitle">
+    vectoryz nutzt freie und offene Software. Diese Übersicht ist keine
+    vollständige Stückliste und ersetzt keine Lizenzdokumentation; sie
+    nennt die wichtigsten technischen Säulen. Danke an alle
+    Entwickler:innen und Beitragenden.
+  </p>
+
+  <h2>Engine-Layer</h2>
+  <div class="stack">
+    <div class="dep">
+      <span class="name"><a href="https://github.com/ggerganov/llama.cpp" target="_blank" rel="noopener">llama.cpp</a></span>
+      <span class="role">Inference-Engine für lokale LLMs.</span>
+      <span class="lic">MIT</span>
+    </div>
+    <div class="dep">
+      <span class="name"><a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a></span>
+      <span class="role">Model-Daemon und Pull-Mechanik zum Laden und Ausführen lokaler Modelle. Lizenzangabe bezieht sich auf das Ollama-Repository, nicht auf geladene Modelle.</span>
+      <span class="lic">MIT</span>
+    </div>
+  </div>
+
+  <h2>Webserver / Routing</h2>
+  <div class="stack">
+    <div class="dep">
+      <span class="name"><a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a></span>
+      <span class="role">Reverse-Proxy und Static-Server mit automatischem HTTPS.</span>
+      <span class="lic">Apache-2.0</span>
+    </div>
+  </div>
+
+  <h2>Wrapper / Server-Logik</h2>
+  <div class="stack">
+    <div class="dep">
+      <span class="name"><a href="https://www.python.org" target="_blank" rel="noopener">Python Standard Library</a></span>
+      <span class="role">Der vectoryz-Wrapper nutzt die Python-Standardbibliothek, u. a. http.server, urllib, sqlite3, json und re.</span>
+      <span class="lic">PSF</span>
+    </div>
+    <div class="dep">
+      <span class="name"><a href="https://github.com/deedy5/duckduckgo_search" target="_blank" rel="noopener">ddgs</a></span>
+      <span class="role">Suchadapter für den Faktencheck-Workflow.</span>
+      <span class="lic">MIT</span>
+    </div>
+  </div>
+
+  <h2>Frontend</h2>
+  <div class="stack">
+    <div class="dep">
+      <span class="name">WebCrypto / SubtleCrypto</span>
+      <span class="role">Browser-seitige Kryptografie auf Basis der Web Crypto API. Schlüsselmaterial wird nicht als Query-Parameter übertragen, sondern im URL-Fragment gehalten. Keine zusätzliche Library.</span>
+      <span class="lic">Web-Standard</span>
+    </div>
+    <div class="dep">
+      <span class="name">HTML / CSS / JavaScript</span>
+      <span class="role">Kein Framework, kein Build-Step. Die Oberfläche ist als eigenständige HTML/CSS/JS-Datei nachvollziehbar.</span>
+      <span class="lic">—</span>
+    </div>
+  </div>
+
+  <h2>Datenquellen</h2>
+  <div class="stack">
+    <div class="dep">
+      <span class="name"><a href="https://duckduckgo.com" target="_blank" rel="noopener">DuckDuckGo</a></span>
+      <span class="role">Privacy-orientierte Websuche; genutzt als externe Suchquelle.</span>
+      <span class="lic">—</span>
+    </div>
+    <div class="dep">
+      <span class="name"><a href="https://web.archive.org" target="_blank" rel="noopener">Wayback Machine / Internet Archive</a></span>
+      <span class="role">Historische Snapshots — hilfreich für Quellenkontext, Recherchestand und Begriffsgeschichte.</span>
+      <span class="lic">—</span>
+    </div>
+    <div class="dep">
+      <span class="name">sources.yaml</span>
+      <span class="role">Kuratierte Primär- und Referenzquellen, u. a. Bundesbehörden, EU-Institutionen und Standards-Bodies; mit transparentem Quellen-Tiering.</span>
+      <span class="lic">CC0 / operator-kuratiert</span>
+    </div>
+  </div>
+
+  <h2>Eigene Beiträge</h2>
+  <div class="stack">
+    <div class="dep">
+      <span class="name">3·6·9 Orchestration UI</span>
+      <span class="role">vectoryz' Beitrag — eine leichtgewichtige Chat-UI mit Toggle-Architektur, Adapter-Clustern und dokumentierter Baseline. Veröffentlichung als Source-Mirror auf vectoryz.net geplant.</span>
+      <span class="lic">geplante Veröffentlichung unter MIT</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Doktrin:</strong> Der Mechanismus soll offen dokumentiert und,
+    soweit möglich, unter freier Lizenz veröffentlicht werden. Die Marke
+    vectoryz und die konkrete 3·6·9-Identität bleiben Marken- und
+    Produktbestandteil von vectoryz. Kein Lock-in, keine Walled-Garden-
+    Positionierung.
+  </div>
+</main>
+
+<footer class="sitefoot">
+        <a href="/about_us.html">AboutUs</a><span class="sep">·</span>
+  <a href="/impressum.html">Impressum</a><span class="sep">·</span>
+  <a href="/datenschutz.html">Datenschutz</a><span class="sep">·</span>
+  <a href="/vectoryz-star.html">vectoryz.*</a><span class="sep">·</span>
+  <a href="/oss.html" class="current">OSS</a>
+</footer>
+</body>
+</html>

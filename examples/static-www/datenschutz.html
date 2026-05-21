@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Datenschutz — {{YOUR_DOMAIN}}</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="/vctz_favicon_192.png">
+<link rel="apple-touch-icon" href="/vctz_favicon_192.png">
+<meta name="description" content="Datenschutzerklärung {{YOUR_DOMAIN}} — Verantwortlicher, Hosting/Logfiles, Kontaktaufnahme, Cookies, Rechte der Betroffenen gemäß DSGVO.">
+<style>
+:root{
+  --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
+  --gold:#e8b923; --gold-dim:#a07d18; --cyan:#58a6ff; --cyan-dim:#3a6fa8;
+  --line:#1a2030;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;color:var(--fg);font-family:ui-monospace,'Cascadia Mono','Source Code Pro',Menlo,Consolas,monospace;font-size:15px;line-height:1.7}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 40% 28% at 22% 18%,rgba(232,185,35,.06),transparent 70%),
+    radial-gradient(ellipse 38% 30% at 78% 32%,rgba(88,166,255,.05),transparent 70%),
+    linear-gradient(180deg,#070910 0%,#0a0e16 50%,#06080d 100%);
+  background-attachment:fixed;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+header{position:sticky;top:0;left:0;right:0;z-index:50;text-align:center;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.85);backdrop-filter:blur(6px)}
+/* === BRAND-SIGNAL :: 9·42 plex (vectoryz signature) — see oss.html for full doctrine === */
+header a.brandlink{position:relative;display:inline-block;font-size:1.1rem;letter-spacing:.4em;font-weight:600;text-decoration:none;padding:.2rem 1rem;border-radius:4px;color:rgba(255,255,255,.32);animation:b369rainbow 42s linear infinite,b369wave 9s ease-in-out infinite;transition:filter .3s ease, background .25s ease}
+header a.brandlink:hover{background:rgba(232,185,35,.08);filter:brightness(1.4) saturate(1.25)}
+@keyframes b369rainbow{0%{color:hsla(45,60%,72%,.85)}14%{color:hsla(15,55%,72%,.85)}28%{color:hsla(330,55%,74%,.85)}42%{color:hsla(280,50%,74%,.85)}57%{color:hsla(210,60%,74%,.85)}71%{color:hsla(180,55%,72%,.85)}85%{color:hsla(140,50%,70%,.85)}100%{color:hsla(45,60%,72%,.85)}}
+@keyframes b369wave{0%,100%{text-shadow:0 0 3px rgba(255,255,255,.18);opacity:.78}50%{text-shadow:0 0 9px rgba(255,255,255,.5),0 0 20px rgba(200,225,255,.25);opacity:1}}
+header a.brandlink::before,header a.brandlink::after{content:'✦';position:absolute;font-size:.55rem;color:rgba(255,255,255,.75);opacity:0;pointer-events:none;text-shadow:0 0 5px rgba(255,255,255,.55)}
+header a.brandlink::before{top:.05rem;left:14%;animation:b369spark1 7s ease-in-out infinite}
+header a.brandlink::after{bottom:.1rem;right:18%;animation:b369spark2 11s ease-in-out infinite 3.5s}
+@keyframes b369spark1{0%,88%,100%{opacity:0;transform:scale(.4) rotate(0deg)}44%,52%{opacity:1;transform:scale(1.15) rotate(60deg)}}
+@keyframes b369spark2{0%,82%,100%{opacity:0;transform:scale(.4) rotate(0deg)}38%,46%{opacity:.9;transform:scale(1.2) rotate(-50deg)}}
+@media (prefers-reduced-motion: reduce){header a.brandlink{animation:none;color:rgba(255,255,255,.42);text-shadow:none}header a.brandlink::before,header a.brandlink::after{display:none}}
+/* === END BRAND-SIGNAL === */
+main{flex:1;max-width:720px;margin:0 auto;padding:2rem 1.5rem 5rem;width:100%}
+h1{font-size:1.4rem;color:var(--fg);margin-bottom:.4rem;font-weight:600;letter-spacing:.02em}
+.subtitle{color:var(--muted);font-size:.9rem;margin-bottom:2rem;line-height:1.55}
+h2{font-size:1rem;color:var(--gold);margin:2rem 0 .6rem;font-weight:600;letter-spacing:.05em}
+p{margin-bottom:.6rem}
+ul{margin:.4rem 0 .8rem 1.4rem}
+ul li{padding:.08rem 0;color:var(--fg)}
+.addr{font-style:normal;line-height:1.6;color:var(--fg)}
+a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted var(--cyan-dim)}
+a:hover{color:var(--gold);border-color:var(--gold)}
+.stand{margin-top:2.4rem;padding-top:1rem;border-top:1px dotted var(--line);color:var(--muted);font-size:.85rem;font-style:italic}
+.cookiebrag{
+  background:linear-gradient(90deg,rgba(232,185,35,.08),rgba(88,166,255,.05));
+  border:1px solid var(--gold-dim);border-left:3px solid var(--gold);
+  border-radius:3px;padding:.9rem 1.1rem;margin:.4rem 0 .8rem;
+}
+.cookiebrag strong{color:var(--gold);letter-spacing:.02em}
+.cookiebrag-sub{display:block;margin-top:.4rem;color:var(--muted);font-size:.9rem;line-height:1.6}
+/* No-cookie symbol: cookie emoji + overlaid red prohibition circle with diagonal slash */
+.no-cookie{
+  position:relative;display:inline-block;width:1.25em;height:1.25em;
+  line-height:1.25em;text-align:center;font-size:1.1em;
+  vertical-align:-.18em;
+}
+.no-cookie .cookie-glyph{
+  display:inline-block;filter:saturate(.85);
+}
+.no-cookie::after{
+  content:"";position:absolute;inset:0;
+  border:.16em solid #d62828;border-radius:50%;
+  box-shadow:0 0 .12em rgba(214,40,40,.55);
+  pointer-events:none;
+}
+.no-cookie::before{
+  content:"";position:absolute;left:50%;top:50%;
+  width:1.15em;height:.16em;background:#d62828;
+  transform:translate(-50%,-50%) rotate(-45deg);
+  border-radius:.08em;pointer-events:none;
+  box-shadow:0 0 .12em rgba(214,40,40,.45);
+}
+footer.sitefoot{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:.7rem 1rem;text-align:center;
+  background:rgba(7,9,15,.92);backdrop-filter:blur(6px);
+  border-top:1px solid var(--line);
+  font-size:.72rem;letter-spacing:.04em;color:var(--muted);
+}
+footer.sitefoot a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line);padding-bottom:.05rem;margin:0 .18rem}
+footer.sitefoot a:hover{color:var(--gold);border-color:var(--gold)}
+footer.sitefoot a.current{color:var(--gold-dim);border-color:transparent;cursor:default}
+footer.sitefoot a.current:hover{color:var(--gold-dim);border-color:transparent}
+footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
+/* 2026-05-21 daymode propagation */
+:root[data-theme="light"]{
+  --bg:#fbfcfd; --surf:#ffffff; --fg:#1a1f2a; --muted:#5a6470;
+  --gold:#b8860b; --gold-dim:#8a6608; --cyan:#1f6feb; --cyan-dim:#1c5aaa;
+  --line:#d8dde5;
+}
+:root[data-theme="light"] body{
+  background-image:
+    radial-gradient(ellipse 40% 28% at 22% 18%,rgba(232,185,35,.18),transparent 70%),
+    radial-gradient(ellipse 38% 30% at 78% 32%,rgba(88,166,255,.12),transparent 70%),
+    linear-gradient(180deg,#ffffff 0%,#f6f8fb 50%,#fbfcfd 100%);
+}
+:root[data-theme="light"] header{background:rgba(255,255,255,.92)!important}
+:root[data-theme="light"] footer.sitefoot{background:rgba(255,255,255,.92)}
+:root[data-theme="light"] header a.brandlink{animation:none;color:#1a1f2a;text-shadow:none}
+:root[data-theme="light"] header a.brandlink::before,
+:root[data-theme="light"] header a.brandlink::after{display:none}
+.theme-toggle-btn{
+  background:transparent;border:1px solid var(--line);
+  font-family:inherit;font-size:.95rem;padding:.15rem .45rem;border-radius:5px;
+  cursor:pointer;color:var(--muted);margin-left:.6rem;
+  transition:border-color .2s, color .2s, background .2s, transform .15s;line-height:1;
+}
+.theme-toggle-btn:hover{
+  border-color:var(--gold-dim);color:var(--gold);
+  background:rgba(232,185,35,.06);transform:scale(1.05);
+}
+</style>
+<script>
+(function(){
+  try{
+    var s=localStorage.getItem('vctz-theme');
+    if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+      document.documentElement.setAttribute('data-theme','light');
+  }catch(_){}
+})();
+</script>
+</head>
+<body>
+<header>
+  <a class="brandlink" href="/" aria-label="Start">start</a>
+  <button class="theme-toggle-btn" id="theme-toggle-btn" type="button"
+          title="Hell/Dunkel umschalten" aria-label="Theme umschalten">🌗</button>
+</header>
+<script>
+(function(){
+  var btn=document.getElementById('theme-toggle-btn');if(!btn)return;
+  var render=function(){
+    var L=document.documentElement.getAttribute('data-theme')==='light';
+    btn.textContent=L?'🌙':'☀';
+    btn.title=L?'Aktuell: Hell · Klick für Dunkel':'Aktuell: Dunkel · Klick für Hell (für draußen/tag)';
+  };render();
+  btn.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme')||'dark';
+    var n=c==='light'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',n);
+    try{localStorage.setItem('vctz-theme',n);}catch(_){}render();
+  });
+})();
+</script>
+
+<main>
+  <h1>Datenschutzerklärung</h1>
+  <p class="subtitle">Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO</p>
+
+  <h2>1. Verantwortlicher</h2>
+  <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
+  <address class="addr">
+    VECTORYZ<br>
+    {{YOUR_LEGAL_NAME}}<br>
+    {{YOUR_STREET}}<br>
+    {{YOUR_POSTAL_CITY}}<br>
+    Deutschland<br>
+    <br>
+    <a href="https://{{YOUR_DOMAIN}}">https://{{YOUR_DOMAIN}}</a>
+  </address>
+  <p>
+    Kontakt:<br>
+    E-Mail: <a href="mailto:contact@{{YOUR_DOMAIN}}">contact@{{YOUR_DOMAIN}}</a>
+  </p>
+  <p>
+    Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich.
+  </p>
+
+  <h2>2. Allgemeine Hinweise</h2>
+  <p>Der Schutz personenbezogener Daten ist uns wichtig.</p>
+  <p>
+    Wir verarbeiten personenbezogene Daten ausschließlich im Rahmen der
+    geltenden gesetzlichen Datenschutzvorschriften, insbesondere der
+    Datenschutz-Grundverordnung (DSGVO).
+  </p>
+  <p>
+    Diese Website dient der Bereitstellung von Informationen über
+    VECTORYZ sowie der Kommunikation mit Interessierten, Unterstützern
+    und Partnern.
+  </p>
+
+  <h2>3. Hosting und Server-Logfiles</h2>
+  <p>
+    Beim Aufruf dieser Website werden durch den Hostinganbieter
+    automatisch technische Informationen erfasst. Dazu können
+    insbesondere gehören:
+  </p>
+  <ul>
+    <li>IP-Adresse</li>
+    <li>Datum und Uhrzeit des Zugriffs</li>
+    <li>aufgerufene Seiten</li>
+    <li>Browsertyp und Browserversion</li>
+    <li>Betriebssystem</li>
+    <li>Referrer-URL</li>
+  </ul>
+  <p>
+    Die Verarbeitung erfolgt zur technischen Bereitstellung, Stabilität
+    und Sicherheit der Website.
+  </p>
+  <p>
+    Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse
+    an sicherem und stabilem Betrieb).
+  </p>
+
+  <h2>4. Kontaktaufnahme</h2>
+  <p>
+    Wenn Sie uns per E-Mail oder Kontaktformular kontaktieren, werden
+    die übermittelten Daten ausschließlich zur Bearbeitung der Anfrage
+    verwendet.
+  </p>
+  <p>
+    Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO
+    oder Art. 6 Abs. 1 lit. f DSGVO.
+  </p>
+
+  <h2>5. Spenden und Unterstützungsanfragen</h2>
+  <p>
+    Sofern Unterstützungs- oder Spendenmöglichkeiten angeboten werden,
+    können zur Abwicklung personenbezogene Daten verarbeitet werden.
+  </p>
+  <p>
+    Die konkrete Verarbeitung richtet sich zusätzlich nach den
+    Datenschutzbestimmungen des jeweiligen Zahlungs- oder
+    Plattformanbieters.
+  </p>
+
+  <h2>6. Externe Dienste und Inhalte</h2>
+  <p>
+    <strong>Derzeit bindet {{YOUR_DOMAIN}} keine externen Dienste oder
+    Inhalte ein.</strong> Sollte sich dies künftig ändern, wird diese
+    Erklärung entsprechend aktualisiert.
+  </p>
+  <p>
+    Sofern in Zukunft externe Dienste oder Inhalte eingebunden werden,
+    kann es technisch erforderlich sein, personenbezogene Daten wie
+    die IP-Adresse an Drittanbieter zu übermitteln. Mögliche Kategorien
+    wären beispielsweise:
+  </p>
+  <ul>
+    <li>Zahlungsanbieter</li>
+    <li>Kartenmaterial</li>
+    <li>Schriftarten</li>
+    <li>eingebettete Medien</li>
+    <li>Sicherheits- oder Infrastrukturservices</li>
+  </ul>
+
+  <h2 id="cookies">7. Cookies — bröselfrei <span class="no-cookie" aria-label="cookie-free"><span class="cookie-glyph">🍪</span></span></h2>
+  <p class="cookiebrag">
+    <strong>{{YOUR_DOMAIN}} ist eine cookie-free webpage.</strong>
+    <span class="cookiebrag-sub">Wir setzen zero Cookies. Zero Tracking-Cookies, zero Session-Cookies, zero Drittanbieter-Cookies, zero "technisch notwendigen" Cookies. Bröselfrei.</span>
+  </p>
+  <p>
+    Schlüssel zur verschlüsselten Kommunikation (z. B. AES-Sessionkeys
+    im Chat) verbleiben ausschließlich im Browser — als URL-Fragment
+    oder im Browser-Memory, niemals als Cookie und niemals auf unseren
+    Servern.
+  </p>
+
+  <h2>8. Ihre Rechte</h2>
+  <p>
+    Sie haben im Rahmen der gesetzlichen Bestimmungen insbesondere das
+    Recht auf:
+  </p>
+  <ul>
+    <li>Auskunft</li>
+    <li>Berichtigung</li>
+    <li>Löschung</li>
+    <li>Einschränkung der Verarbeitung</li>
+    <li>Widerspruch gegen die Verarbeitung</li>
+    <li>Datenübertragbarkeit</li>
+  </ul>
+  <p>
+    Außerdem besteht ein Beschwerderecht bei einer zuständigen
+    Datenschutzaufsichtsbehörde.
+  </p>
+
+  <h2>9. Änderungen dieser Datenschutzerklärung</h2>
+  <p>
+    Wir behalten uns vor, diese Datenschutzerklärung anzupassen, sofern
+    dies aufgrund technischer oder rechtlicher Änderungen erforderlich
+    wird.
+  </p>
+
+  <p class="stand">Stand: Mai 2026</p>
+</main>
+
+<footer class="sitefoot">
+  <a href="/about_us.html">AboutUs</a><span class="sep">·</span>
+  <a href="/impressum.html">Impressum</a><span class="sep">·</span>
+  <a href="/datenschutz.html" class="current">Datenschutz</a><span class="sep">·</span>
+  <a href="/vectoryz-star.html">vectoryz.*</a><span class="sep">·</span>
+  <a href="/oss.html">OSS</a>
+</footer>
+</body>
+</html>

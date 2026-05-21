@@ -1,0 +1,40 @@
+{
+  "_doctrine": "Babel-Cascade P-Matrix — per Gemini-blueprint (2026-05-20) + doctrine-class refinement. Mothertongue=P1, max-linguistic-inverse=P2, relatives=P3, lesser-inverse=P4, periphery=P5-P7. Per [[baal_whipper_doctrine]] each labrador uses INDEPENDENT search-path in its own language-space — no shared pre-search-context across labradors.",
+  "_version": "v0.1-alpha",
+  "_naming": "Babel-Cascade",
+  "_authority_split": "Each labrador fetches own context via own per-lang Hebel-B. Voting on text-claims, not on shared embeddings.",
+  "_early_stop": {
+    "phase_1_agree": "If P1+P2 converge 2/2 → fire P3 for confirmation → if 3/3 EARLY STOP",
+    "phase_1_disagree": "If P1+P2 split 1/2 → fire full cascade until 4/7 majority",
+    "morpheme_check": "Before voting, normalize morpheme variants (ECHELON/Echelon/Échelon = same). Outliers (Echeline) → [[ai_chain_morpheme_genesis]] triage, NOT majority-mitteln."
+  },
+  "matrices": {
+    "de": ["DE", "CN", "EN", "JP", "FR", "ES", "RU"],
+    "en": ["EN", "CN", "DE", "JP", "ES", "RU", "FR"],
+    "zh": ["CN", "EN", "JP", "DE", "RU", "FR", "ES"],
+    "ru": ["RU", "CN", "DE", "JP", "FR", "ES", "EN"],
+    "ja": ["JP", "EN", "CN", "DE", "FR", "ES", "RU"],
+    "fr": ["FR", "CN", "ES", "JP", "EN", "DE", "RU"],
+    "es": ["ES", "CN", "FR", "JP", "EN", "DE", "RU"],
+    "pt": ["ES", "CN", "FR", "JP", "EN", "DE", "RU"],
+    "it": ["FR", "CN", "ES", "JP", "EN", "DE", "RU"]
+  },
+  "default_chain": ["EN", "CN", "DE", "JP", "ES", "RU", "FR"],
+  "labrador_assignments": {
+    "_note": "Phase α: only P1+P2 wired with existing infra. Phase β-γ: full stack.",
+    "DE": {"engine": "mixtral", "search_lang": "de", "wiki_domain": "de.wikipedia.org", "status": "available"},
+    "EN": {"engine": "mixtral", "search_lang": "en", "wiki_domain": "en.wikipedia.org", "status": "available"},
+    "CN": {"engine": "qwen3", "search_lang": "zh", "wiki_domain": "zh.wikipedia.org", "status": "available"},
+    "JP": {"engine": "qwen3", "search_lang": "ja", "wiki_domain": "ja.wikipedia.org", "status": "phase_beta"},
+    "FR": {"engine": "mistral_7b", "search_lang": "fr", "wiki_domain": "fr.wikipedia.org", "status": "phase_gamma"},
+    "ES": {"engine": "llama3_8b", "search_lang": "es", "wiki_domain": "es.wikipedia.org", "status": "phase_gamma"},
+    "RU": {"engine": "llama3_8b", "search_lang": "ru", "wiki_domain": "ru.wikipedia.org", "status": "phase_gamma"}
+  },
+  "voting": {
+    "consensus_threshold": "4_of_7",
+    "early_stop_p1p2_agreement": true,
+    "morpheme_coherence_required": true,
+    "outlier_triage_not_average": true,
+    "confidence_aggregation": "median_with_outlier_detection"
+  }
+}
