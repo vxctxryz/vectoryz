@@ -228,7 +228,60 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     Daten existieren nach Ablauf der 7&nbsp;Tage nicht mehr.
   </p>
 
-  <h2>4. Kontaktaufnahme</h2>
+  <h2>4. Chat-Daten (vectoryz Chat-System auf <code>/cc/</code>)</h2>
+  <p>
+    Das Chat-System unter <a href="https://vectoryz.de/cc/">vectoryz.de/cc/</a>
+    speichert Chat-Daten serverseitig in einer SQLite-Datenbank
+    (<code>/var/lib/vectoryz_cc/state.db</code>). Verarbeitet werden:
+  </p>
+  <ul>
+    <li>anonyme Session-UUID (kein Benutzerkonto, keine personenbezogene
+        Identität erforderlich)</li>
+    <li>Chat-ID (zufälliger Bezeichner)</li>
+    <li>Nachrichten-Rolle (<code>user</code> oder <code>assistant</code>)</li>
+    <li>verwendetes Modell (technisches Routing)</li>
+    <li>Erstellungs-Zeitstempel</li>
+    <li>Nachrichteninhalt als <strong>AES-256-GCM-Chiffrat</strong> —
+        <em>der Schl&uuml;ssel verl&auml;sst niemals den Browser des Nutzers</em>
+        (im URL-Fragment <code>#k=...</code> transportiert). Der Server
+        kann die Inhalte technisch <strong>nicht entschl&uuml;sseln</strong>.</li>
+  </ul>
+  <p>
+    <strong>Rechtsgrundlage:</strong> Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO
+    (berechtigtes Interesse am Betrieb des Dienstes); f&uuml;r Nutzer-initiierte
+    Eingaben zus&auml;tzlich Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b (Vertragsanbahnung /
+    nicht-verbindliche Dienstleistung).
+  </p>
+  <p>
+    <strong>Speicherdauer:</strong> Chat-Daten (sowohl Chiffrat als auch
+    Metadaten) werden nach <strong>maximal 7 Tagen</strong> automatisch
+    gel&ouml;scht. Implementiert per systemd-Timer
+    (<code>vectoryz-chat-vault-ttl.timer</code>), t&auml;glicher Job, der
+    Datens&auml;tze mit <code>created_at &lt; now &minus; 7 Tage</code> entfernt.
+    Ein gespeicherter Chat-Link ist nach Ablauf der 7-Tage-Frist
+    funktionslos &mdash; es existieren serverseitig keine Daten mehr,
+    die mit dem URL-Fragment entschl&uuml;sselt werden k&ouml;nnten.
+  </p>
+  <p>
+    <strong>Hinweis zur E2E-Verschl&uuml;sselung:</strong> Da der Schl&uuml;ssel
+    ausschlie&szlig;lich beim Nutzer liegt, kann der Anbieter
+    <em>keine</em> Auskunft &uuml;ber den Chat-Inhalt erteilen &mdash;
+    weder gegen&uuml;ber dem Nutzer noch gegen&uuml;ber Beh&ouml;rden. Auf
+    richterlichen Beschluss (&sect;&nbsp;100g StPO) kann lediglich die Existenz
+    eines Chat-Datensatzes (anonyme UUID, Erstellungszeitpunkt) innerhalb
+    der 7-Tage-Frist best&auml;tigt werden; nicht jedoch sein Inhalt.
+  </p>
+  <p>
+    <strong>Recht auf L&ouml;schung:</strong> &Uuml;ber das normale TTL hinaus
+    k&ouml;nnen Nutzer die sofortige L&ouml;schung eines spezifischen Chats
+    durch Mitteilung der Chat-ID per E-Mail an
+    <a href="mailto:contact@vectoryz.de">contact@vectoryz.de</a> verlangen.
+    Wegen der E2E-Verschl&uuml;sselung ist eine inhaltliche Identifikation
+    des Chats durch den Anbieter nicht m&ouml;glich; die ID muss vom Nutzer
+    selbst mitgeteilt werden.
+  </p>
+
+  <h2>5. Kontaktaufnahme</h2>
   <p>
     Wenn Sie uns per E-Mail oder Kontaktformular kontaktieren, werden
     die übermittelten Daten ausschließlich zur Bearbeitung der Anfrage
@@ -239,7 +292,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     oder Art. 6 Abs. 1 lit. f DSGVO.
   </p>
 
-  <h2>5. Spenden und Unterstützungsanfragen</h2>
+  <h2>6. Spenden und Unterstützungsanfragen</h2>
   <p>
     Sofern Unterstützungs- oder Spendenmöglichkeiten angeboten werden,
     können zur Abwicklung personenbezogene Daten verarbeitet werden.
@@ -250,7 +303,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     Plattformanbieters.
   </p>
 
-  <h2>6. Externe Dienste und Inhalte</h2>
+  <h2>7. Externe Dienste und Inhalte</h2>
   <p>
     <strong>Derzeit bindet vectoryz.de keine externen Dienste oder
     Inhalte ein.</strong> Sollte sich dies künftig ändern, wird diese
@@ -270,7 +323,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     <li>Sicherheits- oder Infrastrukturservices</li>
   </ul>
 
-  <h2 id="cookies">7. Cookies — bröselfrei <span class="no-cookie" aria-label="cookie-free"><span class="cookie-glyph">🍪</span></span></h2>
+  <h2 id="cookies">8. Cookies — bröselfrei <span class="no-cookie" aria-label="cookie-free"><span class="cookie-glyph">🍪</span></span></h2>
   <p class="cookiebrag">
     <strong>vectoryz.de ist eine cookie-free webpage.</strong>
     <span class="cookiebrag-sub">Wir setzen zero Cookies. Zero Tracking-Cookies, zero Session-Cookies, zero Drittanbieter-Cookies, zero "technisch notwendigen" Cookies. Bröselfrei.</span>
@@ -314,7 +367,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     <a href="https://codeberg.org/vxctxryz/vectoryz/issues">codeberg</a>).
   </p>
 
-  <h2>8. Ihre Rechte</h2>
+  <h2>9. Ihre Rechte</h2>
   <p>
     Sie haben im Rahmen der gesetzlichen Bestimmungen insbesondere das
     Recht auf:
@@ -333,7 +386,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     Datenschutzaufsichtsbehörde.
   </p>
 
-  <h2>9. Änderungen dieser Datenschutzerklärung</h2>
+  <h2>10. Änderungen dieser Datenschutzerklärung</h2>
   <p>
     Wir behalten uns vor, diese Datenschutzerklärung anzupassen, sofern
     dies aufgrund technischer oder rechtlicher Änderungen erforderlich
