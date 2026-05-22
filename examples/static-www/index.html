@@ -996,6 +996,17 @@ body.chat-empty .newchat-btn{display:none}
   display:block;font-size:.75rem;color:var(--muted);margin-top:.6rem;
   letter-spacing:.04em;
 }
+.nc-modal .nc-ttl-notice{
+  display:block;margin-top:1rem;padding:.6rem .8rem;
+  background:rgba(88,166,255,.06);border:1px solid var(--cyan-dim);
+  border-left:3px solid var(--cyan);border-radius:3px;
+  font-size:.78rem;line-height:1.55;color:var(--muted);
+  text-align:left;letter-spacing:.01em;
+}
+.nc-modal .nc-ttl-notice strong{color:var(--cyan)}
+.nc-modal .nc-ttl-notice em{color:var(--fg);font-style:italic}
+.nc-modal .nc-ttl-notice a{color:var(--cyan);border-bottom:1px dotted var(--cyan-dim)}
+.nc-modal .nc-ttl-notice a:hover{color:var(--gold);border-color:var(--gold)}
 .nc-modal .nc-actions{
   display:flex;flex-direction:column;gap:.5rem;align-items:stretch;
 }
@@ -1431,7 +1442,7 @@ body.settings-open header .settings-area{cursor:auto}
        Per operator-spec 2026-05-17: header left = bookmark-current-and-new-chat
        affordance; header right = settings panel (ondulating signature). -->
   <button class="newchat-btn" id="newchat-btn" type="button"
-          title="Aktuellen Chat verlassen und neuen starten (mit Lesezeichen-Option)"
+          title="Aktuellen Chat verlassen und neuen starten (mit Lesezeichen-Option) — Hinweis: Chats werden nach 7 Tagen automatisch gelöscht"
           aria-label="Neuer Chat"><span class="plus">+</span>neu</button>
   <button class="theme-toggle-btn" id="theme-toggle-btn" type="button"
           title="Hell/Dunkel umschalten — hell für draußen + tag, dunkel für drinnen + nacht"
@@ -1549,6 +1560,14 @@ body.settings-open header .settings-area{cursor:auto}
       Der Browser-Tab-Titel ist gerade gesetzt auf:
       <span class="nc-bookmark-title" id="nc-bookmark-title">vectoryz.de chat —</span>
       <span class="nc-hint">Drücke <strong>Strg+D</strong> (oder <strong>⌘+D</strong> auf Mac), um zu speichern. Dann auf "Neuer Chat" klicken.</span>
+      <span class="nc-ttl-notice">
+        🕓 <strong>Auto-Delete nach 7 Tagen.</strong>
+        Der Chat-Link wird inert sobald die serverseitigen Daten gelöscht
+        sind (bröselfrei-Doctrine, Datenminimierung). Wer den Inhalt
+        länger braucht: vor Ablauf kopieren oder als
+        <em>Volltext</em>-Bookmark speichern, nicht nur die URL.
+        <a href="/datenschutz.html#chat" tabindex="-1">Datenschutz §4</a>
+      </span>
     </div>
     <div class="nc-actions">
       <button type="button" class="nc-primary" id="nc-proceed-btn">Neuer Chat</button>
