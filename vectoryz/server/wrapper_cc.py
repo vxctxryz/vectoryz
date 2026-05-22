@@ -2000,6 +2000,37 @@ def build_audit_retry_messages(orig_query: str, drifted_response: str,
                     correctives.insert(0, _dc_text)
         except Exception:
             pass
+        # 2026-05-22 P2 — NAIVE-PREMISE-ACCEPTANCE corrective.
+        # The above entity-attribution-mismatch corrective doesn't catch the
+        # thestatica-class failure: wrapper accepted "Thestatica" as a valid
+        # premise + listed Bundesnetzagentur-bureaucracy-steps + silently
+        # swapped to PV mid-paragraph. Doublecheck flagged drift but the
+        # generic retry-corrective wasn't directive enough about premise-
+        # verification. Add an explicit premise-check directive that always
+        # fires when doublecheck triggers, regardless of named-entity-list.
+        # Per [[fact_checker_layer4_doctrine]] + [[p1_audit_recalibration_landed]].
+        correctives.insert(0,
+            "- PRÄMISSE-CHECK (zusätzlich): wenn die User-Frage einen "
+            "spezifischen Begriff/Verfahren/Gerät als gegeben einbringt "
+            "(z.B. ein technisches Verfahren, ein Gerätename, ein Konzept), "
+            "PRÜFE diesen explizit bevor du anweisungen gibst:\n"
+            "  (a) Ist es im pre-search-Kontext als anerkanntes Verfahren "
+            "belegt? Falls JA → fortfahren wie normal.\n"
+            "  (b) Falls NEIN / falls umstritten / falls fringe-science → "
+            "FLAGGE den epistemischen Status EXPLIZIT, z.B.: "
+            "\"<Begriff> ist mir als anerkanntes/verifiziertes Verfahren "
+            "nicht bekannt\" oder \"<Begriff> wird in der Fachliteratur "
+            "kontrovers diskutiert\" oder \"<Begriff> ist kein BNetzA-"
+            "registrierbares Verfahren.\"\n"
+            "  (c) Liefere KEINE bürokratischen Schritte / "
+            "Behörden-Anweisungen / Anleitungen für nicht-anerkannte "
+            "Verfahren, als wären sie regulär.\n"
+            "  (d) Tausche NICHT silent zu einem ANDEREN, ähnlich klingenden "
+            "Begriff (z.B. \"Thestatica\" → \"Solarpanel\" mid-paragraph). "
+            "Falls du den User auf ein etabliertes Alternativ-Verfahren "
+            "hinweisen willst, mach das EXPLIZIT: \"Falls Sie stattdessen "
+            "<bekanntes Verfahren> meinen…\""
+        )
     # 2026-05-21 COVERAGE corrective (smartfaul-loop part A) — when
     # question_coverage_check found ≥1 question UNADDRESSED, force the retry
     # to explicitly complete those questions. Plus part B: SYNTHESIZE-DON'T-LIST
@@ -2793,7 +2824,12 @@ def extract_search_keywords(user_message: str, classifier_model: str = CLASSIFIE
         return ""
     prompt = SEARCH_KEYWORD_PROMPT.format(user_message=user_message[:1000])
     try:
-        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.1, timeout=15)
+        # 2026-05-22 #159: bump 15→30s for classifier-cold-start grace.
+        # RTX 4000 SFF 20GB VRAM can't hold both vectoryzDE (19GB) + qwen2.5:7b
+        # (5GB) → model-swap on every classifier call → 3-5s load + 5-10s
+        # inference = ~8-15s. Old 15s timeout hit edge during eval-load
+        # (70 timeouts/30min observed). 30s gives reliable cold-start grace.
+        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.1, timeout=30)
         # Take first non-empty line only — Qwen sometimes adds "Erklaerung:" after
         for line in raw.splitlines():
             line = line.strip().strip('"').strip("'")
@@ -3952,7 +3988,7 @@ def translate_to_pseudocode(text: str, classifier_model: str = CLASSIFIER_MODEL)
         return ""
     prompt = QUESTION_TO_PSEUDOCODE_PROMPT.format(text=text[:1500])
     try:
-        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.1, timeout=20)
+        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.1, timeout=35)
         # Strip markdown fences if Qwen added them
         cleaned = re.sub(r'^```\w*\s*', '', raw.strip())
         cleaned = re.sub(r'\s*```\s*$', '', cleaned)
@@ -4114,7 +4150,7 @@ def detect_irony_register(text: str, classifier_model: str = CLASSIFIER_MODEL) -
                 "ironic_markers": [], "confidence": 0.0}
     prompt = REGISTER_DETECTION_PROMPT.format(user_message=text[:1500])
     try:
-        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.2, timeout=20, json_mode=True)
+        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.2, timeout=35, json_mode=True)
         parsed = parse_json_object(raw) or {}
         register = str(parsed.get("register", "literal")).lower()
         if register not in ("literal", "ironic", "sarcastic", "playful", "mixed"):
@@ -4290,7 +4326,7 @@ def translate_to_english(text: str, classifier_model: str = CLASSIFIER_MODEL,
         return ""  # already English, no parallel needed
     prompt = TRANSLATE_ANY_TO_EN_PROMPT.format(text=text[:1500])
     try:
-        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.1, timeout=20)
+        raw = call_ollama_blocking(classifier_model, prompt, temperature=0.1, timeout=35)
         return raw.strip()[:2000]
     except Exception:
         return ""
@@ -5800,10 +5836,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return out
 
     def set_session_cookie(self, val):
-        flags = "HttpOnly; SameSite=Lax; Path=/cc/api; Max-Age=31536000"
-        if COOKIE_SECURE:
-            flags += "; Secure"
-        self.send_header("Set-Cookie", f"vctz_session={val}; {flags}")
+        # 2026-05-22 BRÖSELFREI-DOCTRINE: no-op per datenschutzerklärung
+        # claim "vectoryz.de ist eine cookie-free webpage / zero Session-
+        # Cookies / bröselfrei". Wrapper used to set vctz_session for
+        # chat-owner-tracking, but: (a) Path=/cc/api was stale-leftover
+        # from old route (current routes /api/) making cookie effectively
+        # dormant anyway, (b) URL-fragment-AES-key + chat-id already
+        # provide security, (c) public statement must match code-reality.
+        # Per [[vault_guard_doctrine]] + [[audit_open_door_doctrine]].
+        # Plus: emit a "delete" Set-Cookie to clear any vestigial
+        # vctz_session values existing browsers may have stored.
+        self.send_header("Set-Cookie",
+                         "vctz_session=; Path=/cc/api; Max-Age=0; "
+                         "HttpOnly; SameSite=Lax")
 
     # --- response helpers ---
     def send_json(self, code, obj, session_cookie=None):
@@ -6611,6 +6656,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "backend_started_at_epoch": _BACKEND_STARTED_AT_EPOCH,
                 "wrapper_cc_mtime": int(os.path.getmtime(__file__))
                                     if os.path.exists(__file__) else 0,
+            })
+        except Exception:
+            pass
+
+        # 2026-05-22 P1-Fix-3: STREAMING-FIRST UX immediate-thinking-signal.
+        # Emit a "vectoryz is thinking" status the moment SSE stream opens,
+        # before any heavy classifier/pre-search work. Closes the 5-15s
+        # blank-screen-wait window — user sees activity immediately.
+        # Brother-engineering: instrument-visible early, latency-perceived-faster.
+        try:
+            self._safe_sse({
+                "type": "status",
+                "phase": "received",
+                "message": "vectoryz hat deine anfrage empfangen, beginnt verarbeitung...",
             })
         except Exception:
             pass
@@ -8271,6 +8330,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         # Audit infrastructure failure: stop loop quietly
                         if audit.get("_audit_failed") or audit.get("_audit_skipped"):
                             break
+                        # 2026-05-22 P1 audit-recalibration: external drift
+                        # signals (doublecheck/tribunal/coverage) are more
+                        # authoritative than the LLM-judge's overall_score —
+                        # the LLM-judge doesn't see ground-truth, those
+                        # external checkers do. When any external signal
+                        # flagged drift, cap the score below the retry
+                        # threshold so the pass-gate at L8275 correctly fires
+                        # retry. Without this cap, motorsports_olympic + thestatica
+                        # baseline 2026-05-22 shipped with score=1.0 despite
+                        # doublecheck_unsupported being set.
+                        if audit.get("doublecheck_unsupported") or \
+                           audit.get("tribunal_peek_quasinonfact_rate", 0) >= 0.25 or \
+                           audit.get("coverage_missed_count", 0) >= 1:
+                            audit["overall_score"] = min(
+                                audit.get("overall_score", 0.5), 0.5
+                            )
                         # Pass criterion: no drift OR score ≥ threshold
                         passes = (not audit["drift_detected"]
                                   or audit["overall_score"] >= T2E_HARD_RETRY_THRESHOLD)
@@ -8278,6 +8353,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                             break
                         # --- α retry path ---
                         retry_n += 1
+                        # 2026-05-22 P1-Fix-4-mini: emit user-visible "status"
+                        # event alongside tier_retry_starting so UI shows
+                        # "Antwort wird verfeinert..." instead of silence
+                        # during retry-loop. Closes the user-perception-gap
+                        # between main-stream-complete + retry-results-arriving.
+                        # UI already handles 'status' events per earlier audit.
+                        self._safe_sse({
+                            "type": "status",
+                            "phase": "refining",
+                            "message": (
+                                f"Antwort wird verfeinert "
+                                f"(versuch {retry_n}/{T2E_MAX_RETRIES} — "
+                                f"erkannte drift: {audit.get('primary_issue','drift')[:40]})…"
+                            ),
+                        })
                         self._safe_sse({
                             "type": "tier_retry_starting",
                             "retry_n": retry_n,
