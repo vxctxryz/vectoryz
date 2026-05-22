@@ -399,7 +399,7 @@ body.chat-active .empty{display:none}
    R's right leg (operator-celebrated "really nice neat and
    inspiring and subtle ... KEEP").
    --
-   New wordmark from /333/{{YOUR_DOMAIN}}.logo_manual_final.png →
+   New wordmark from /333/vectoryz.de.logo_manual_final.png →
    trimmed to vctz_logo_mm.png (939x105). R-letter spans 58.6-79.1%
    of the trimmed wordmark width → R's right leg at ~79%. */
 .logo-helix{display:flex;flex-direction:column;align-items:flex-start;margin:0 auto 1.4rem;width:88%;max-width:340px}
@@ -1400,9 +1400,10 @@ body.settings-open header .settings-area{cursor:auto}
     if(stored === 'light' || stored === 'dark'){
       document.documentElement.setAttribute('data-theme', stored);
     } else {
-      // First visit: respect system preference
-      var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-      if(prefersLight) document.documentElement.setAttribute('data-theme', 'light');
+      // First visit: respect system dark-pref, else daylight-default
+      // Per operator-decision 2026-05-22: OS-knows-brightness=use-OS, else=daylight
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
     }
   }catch(_e){}
 })();
@@ -1503,7 +1504,7 @@ body.settings-open header .settings-area{cursor:auto}
 <main id="main">
   <div class="messages" id="messages"></div>
   <div class="empty" id="empty">
-    <div class="logo-text" aria-label="{{YOUR_DOMAIN}}">vectoryz<span class="logo-tld">.de</span></div>
+    <div class="logo-text" aria-label="vectoryz.de">vectoryz<span class="logo-tld">.de</span></div>
     <div class="logo-glow-gap" aria-hidden="true"></div>
     <h2>Hi<span class="h2-smile" aria-hidden="true">(:</span></h2>
     <p class="lead">Stell deine Frage — in any language.</p>
@@ -1532,7 +1533,7 @@ body.settings-open header .settings-area{cursor:auto}
     <h3 id="nc-modal-title">Aktuellen Chat als Lesezeichen speichern?</h3>
     <div class="nc-body">
       Der Browser-Tab-Titel ist gerade gesetzt auf:
-      <span class="nc-bookmark-title" id="nc-bookmark-title">{{YOUR_DOMAIN}} chat —</span>
+      <span class="nc-bookmark-title" id="nc-bookmark-title">vectoryz.de chat —</span>
       <span class="nc-hint">Drücke <strong>Strg+D</strong> (oder <strong>⌘+D</strong> auf Mac), um zu speichern. Dann auf "Neuer Chat" klicken.</span>
     </div>
     <div class="nc-actions">
@@ -1992,7 +1993,7 @@ if(headerEl){
 
 // ── New-chat button: bookmark-current + start fresh ──────────────────────────
 // Operator-spec 2026-05-17. When clicked while a chat has content:
-//   1. Set document.title to "{{YOUR_DOMAIN}} chat YYYYMMDDHHMMSS" using the
+//   1. Set document.title to "vectoryz.de chat YYYYMMDDHHMMSS" using the
 //      first message's timestamp (= chat-begin time)
 //   2. Show modal explaining how to bookmark + "Neuer Chat" button to proceed
 //   3. User can press Ctrl+D / ⌘+D to bookmark while modal is showing
@@ -2054,7 +2055,7 @@ if(newchatBtnEl){
     // Active chat: fetch first message ts, set document.title, show modal
     const firstTs = await getFirstMessageTs();
     const ts = firstTs || (Date.now() / 1000);
-    const bookmarkTitle = '{{YOUR_DOMAIN}} chat ' + formatChatTimestamp(ts);
+    const bookmarkTitle = 'vectoryz.de chat ' + formatChatTimestamp(ts);
     document.title = bookmarkTitle;
     showNewChatModal(bookmarkTitle);
   });
@@ -2716,12 +2717,12 @@ function showNetworkProxyError(retryFn){
   box.style.cssText='border-left:3px solid #d4a043;padding:1rem 1.2rem;line-height:1.7';
   box.innerHTML=
     '<div style="font-size:1.05rem;color:#d4a043;margin-bottom:.5rem">⚠ <strong>Server antwortet nicht — Netzwerk-/Proxy-Problem</strong></div>'+
-    '<div style="margin-bottom:.7rem">Der Chat konnte nicht geladen werden. Die Anfrage an {{YOUR_DOMAIN}} wurde gestellt, kam aber nicht zurück innerhalb des Zeitfensters (8 Sek.). Das deutet meist auf:</div>'+
+    '<div style="margin-bottom:.7rem">Der Chat konnte nicht geladen werden. Die Anfrage an vectoryz.de wurde gestellt, kam aber nicht zurück innerhalb des Zeitfensters (8 Sek.). Das deutet meist auf:</div>'+
     '<ul style="margin:.3rem 0 .7rem 1.2rem;font-size:.92rem">'+
     '<li><strong>Corporate Firewall / Web-Proxy</strong> — viele Unternehmens-Netzwerke blockieren oder verzögern API-Endpunkte mit JSON-Antworten (insb. <code>application/json</code> + längere Verbindungen)</li>'+
     '<li><strong>VPN-Konflikt</strong> — Split-Tunneling oder DNS-Override</li>'+
     '<li><strong>Captive-Portal</strong> nicht authentifiziert (Hotel-WLAN, etc.)</li>'+
-    '<li><strong>{{YOUR_DOMAIN}} tatsächlich offline</strong> — sehr selten, aber möglich</li>'+
+    '<li><strong>vectoryz.de tatsächlich offline</strong> — sehr selten, aber möglich</li>'+
     '</ul>'+
     '<div style="margin-bottom:.7rem"><strong>Schnell-Test:</strong> öffnen Sie die gleiche URL über Mobilfunk (Smartphone-Tethering). Funktioniert es dort → Corporate-Netzwerk ist die Ursache, der Chat ist intakt.</div>'+
     '<div><button type="button" class="net-retry-btn" style="background:var(--surf);color:var(--gold);border:1px solid var(--gold-dim);border-radius:3px;padding:.45rem 1rem;font-family:inherit;font-size:.9rem;cursor:pointer">↻ Erneut versuchen</button></div>';
@@ -2760,7 +2761,7 @@ async function loadHistory(){
           '<li>Falls der Original-Besitzer den Chat geteilt hat — diesen bitten, die vollständige URL erneut zu senden (Hinweis: bitte direkt verlinken, nicht via URL-Shortener).</li>'+
           '<li>Falls beides nicht möglich: <a href="/" style="color:var(--gold)">→ Neuen Chat starten</a> (auf der Startseite).</li>'+
           '</ol></div>'+
-          '<div style="font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:.6rem;margin-top:.4rem"><em>Dies ist Feature, nicht Bug:</em> der Server kann den Inhalt nicht entschlüsseln, weil er den Schlüssel architektonisch nie hatte. "We are designed not to know" — das ist die Garantie, die {{YOUR_DOMAIN}} Ihnen gibt. Der Preis: ein verlorener Schlüssel ist endgültig.</div>';
+          '<div style="font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:.6rem;margin-top:.4rem"><em>Dies ist Feature, nicht Bug:</em> der Server kann den Inhalt nicht entschlüsseln, weil er den Schlüssel architektonisch nie hatte. "We are designed not to know" — das ist die Garantie, die vectoryz.de Ihnen gibt. Der Preis: ein verlorener Schlüssel ist endgültig.</div>';
         messagesEl.appendChild(box);
         return;
       }
@@ -3843,7 +3844,7 @@ function updateCharCount(){
 }
 inputEl.addEventListener('keydown',(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();formEl.requestSubmit()}});
 
-// WebCrypto-Precheck am Page-Load: {{YOUR_DOMAIN}} braucht crypto.subtle für
+// WebCrypto-Precheck am Page-Load: vectoryz.de braucht crypto.subtle für
 // alle Chat-Verschlüsselung. Manche Corporate-Group-Policies oder sehr alte
 // Browser deaktivieren das. Statt erst beim Chat-Versuch kryptisch zu
 // scheitern, zeigen wir SOFORT eine klare Diagnose + Lösungswege. Nicht-
@@ -3866,7 +3867,7 @@ function webcryptoPrecheck(){
   ];
   main.innerHTML =
     '<div style="max-width:640px;margin:3rem auto;padding:1.5rem;border-left:3px solid #c66;line-height:1.7;background:rgba(204,102,102,.06)">'+
-    '<h2 style="color:#c66;margin:0 0 1rem 0">🔒 {{YOUR_DOMAIN}} kann hier nicht laufen</h2>'+
+    '<h2 style="color:#c66;margin:0 0 1rem 0">🔒 vectoryz.de kann hier nicht laufen</h2>'+
     '<p>Diese Plattform braucht eine bestimmte Krypto-Funktion Ihres Browsers (<code>WebCrypto / SubtleCrypto API</code>), damit Ihre Chats end-to-end-verschlüsselt werden können — und der Browser meldet zurück dass diese Funktion gerade nicht verfügbar ist.</p>'+
     '<h3 style="font-size:1rem;margin-top:1.2rem">Was wir gefunden haben:</h3>'+
     '<ul>'+reasons.join('')+'</ul>'+
@@ -3891,7 +3892,7 @@ function webcryptoPrecheck(){
   populateContractEngines();  // mirror curated subset into contract-engine dropdown
   await loadHistory();
   updateChatEmptyState();  // sets body.chat-empty / chat-active for centered-composer state
-  // Landing-launcher handoff: {{YOUR_DOMAIN}}/ posts the first message in
+  // Landing-launcher handoff: vectoryz.de/ posts the first message in
   // location.hash as `#prefill=<urlsafe-b64-utf8>`. Decode, run the SAME
   // cleanse + submit-gate the chat's paste handler uses (operator finding
   // 2026-05-14: prefill route was bypassing cleanse — 1M-char hand-off

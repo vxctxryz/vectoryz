@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Datenschutz — {{YOUR_DOMAIN}}</title>
+<title>Datenschutz — vectoryz.de</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="192x192" href="/vctz_favicon_192.png">
 <link rel="apple-touch-icon" href="/vctz_favicon_192.png">
-<meta name="description" content="Datenschutzerklärung {{YOUR_DOMAIN}} — Verantwortlicher, Hosting/Logfiles, Kontaktaufnahme, Cookies, Rechte der Betroffenen gemäß DSGVO.">
+<meta name="description" content="Datenschutzerklärung vectoryz.de — Verantwortlicher, Hosting/Logfiles, Kontaktaufnahme, Cookies, Rechte der Betroffenen gemäß DSGVO.">
 <style>
 :root{
   --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
@@ -124,7 +124,9 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   try{
     var s=localStorage.getItem('vctz-theme');
     if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
-    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      document.documentElement.setAttribute('data-theme','dark');
+    else
       document.documentElement.setAttribute('data-theme','light');
   }catch(_){}
 })();
@@ -161,16 +163,16 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
   <address class="addr">
     VECTORYZ<br>
-    {{YOUR_LEGAL_NAME}}<br>
-    {{YOUR_STREET}}<br>
-    {{YOUR_POSTAL_CITY}}<br>
+    Benjamin Resch<br>
+    Wilhermsdorfer Str. 1<br>
+    90449 Nürnberg<br>
     Deutschland<br>
     <br>
-    <a href="https://{{YOUR_DOMAIN}}">https://{{YOUR_DOMAIN}}</a>
+    <a href="https://vectoryz.de">https://vectoryz.de</a>
   </address>
   <p>
     Kontakt:<br>
-    E-Mail: <a href="mailto:contact@{{YOUR_DOMAIN}}">contact@{{YOUR_DOMAIN}}</a>
+    E-Mail: <a href="mailto:contact@vectoryz.de">contact@vectoryz.de</a>
   </p>
   <p>
     Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich.
@@ -236,7 +238,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 
   <h2>6. Externe Dienste und Inhalte</h2>
   <p>
-    <strong>Derzeit bindet {{YOUR_DOMAIN}} keine externen Dienste oder
+    <strong>Derzeit bindet vectoryz.de keine externen Dienste oder
     Inhalte ein.</strong> Sollte sich dies künftig ändern, wird diese
     Erklärung entsprechend aktualisiert.
   </p>
@@ -256,7 +258,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 
   <h2 id="cookies">7. Cookies — bröselfrei <span class="no-cookie" aria-label="cookie-free"><span class="cookie-glyph">🍪</span></span></h2>
   <p class="cookiebrag">
-    <strong>{{YOUR_DOMAIN}} ist eine cookie-free webpage.</strong>
+    <strong>vectoryz.de ist eine cookie-free webpage.</strong>
     <span class="cookiebrag-sub">Wir setzen zero Cookies. Zero Tracking-Cookies, zero Session-Cookies, zero Drittanbieter-Cookies, zero "technisch notwendigen" Cookies. Bröselfrei.</span>
   </p>
   <p>
@@ -264,6 +266,18 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     im Chat) verbleiben ausschließlich im Browser — als URL-Fragment
     oder im Browser-Memory, niemals als Cookie und niemals auf unseren
     Servern.
+  </p>
+  <p>
+    <strong>Transparenz-Hinweis localStorage:</strong> Für die
+    Theme-Präferenz (Hell-/Dunkel-Modus) nutzen wir ausschließlich den
+    <code>localStorage</code>-Schlüssel <code>vctz-theme</code> mit
+    dem Wert <code>"light"</code> oder <code>"dark"</code>. Diese
+    Information bleibt vollständig in Ihrem Browser, wird nie an unsere
+    Server übertragen, enthält keine personenbezogenen Daten und kann
+    jederzeit über die Browser-Einstellungen gelöscht werden. Wenn
+    nicht gesetzt, respektieren wir <code>prefers-color-scheme</code>
+    (OS-Hell-Dunkel-Einstellung); andernfalls ist die Standard-Ansicht
+    hell (Tages-Modus).
   </p>
 
   <h2>8. Ihre Rechte</h2>
