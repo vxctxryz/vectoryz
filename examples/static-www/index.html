@@ -1407,12 +1407,14 @@ body.settings-open header .settings-area{cursor:auto}
 // indoor/night = dark mode. User choice persisted across visits.
 (function(){
   try{
-    var stored = localStorage.getItem('vctz-theme');
+    // 2026-05-22: theme migrated from localStorage to URL search-param.
+    // Three-layer storage doctrine: localStorage whitelist → empty.
+    // The bookmark IS the state-carrier (vault_guard + audit-open-door).
+    var stored = new URL(location.href).searchParams.get('theme');
     if(stored === 'light' || stored === 'dark'){
       document.documentElement.setAttribute('data-theme', stored);
     } else {
-      // First visit: respect system dark-pref, else daylight-default
-      // Per operator-decision 2026-05-22: OS-knows-brightness=use-OS, else=daylight
+      // First visit / no URL theme: respect system dark-pref, else daylight-default
       var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
     }
@@ -1666,7 +1668,12 @@ function getFrontendStamp(){
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem('vctz-theme', next); } catch(_){}
+    // 2026-05-22: theme persists via URL search-param; bookmark captures it.
+    try {
+      const u = new URL(location.href);
+      u.searchParams.set('theme', next);
+      history.replaceState(null, '', u.toString());
+    } catch(_){}
     renderIcon();
   });
 })();

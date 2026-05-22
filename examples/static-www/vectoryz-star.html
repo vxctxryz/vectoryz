@@ -148,7 +148,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 <script>
 (function(){
   try{
-    var s=localStorage.getItem('vctz-theme');
+    var u=new URL(location.href);var s=u.searchParams.get('theme');
     if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
     else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
       document.documentElement.setAttribute('data-theme','light');
@@ -175,7 +175,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     var c=document.documentElement.getAttribute('data-theme')||'dark';
     var n=c==='light'?'dark':'light';
     document.documentElement.setAttribute('data-theme',n);
-    try{localStorage.setItem('vctz-theme',n);}catch(_){}render();
+    try{var u=new URL(location.href);u.searchParams.set('theme',n);history.replaceState(null,'',u.toString());}catch(_){}render();
   });
 })();
 </script>

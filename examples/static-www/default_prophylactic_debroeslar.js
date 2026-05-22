@@ -5,10 +5,12 @@
  *
  *   Layer 1 — HTTP cookies:  DEPRECATED-VOID. Zero. Sweep + ALARM on any.
  *   Layer 2 — Client-state:  Transparent + minimal + function-bound.
- *                             Whitelist:
- *                               localStorage:   "vctz-theme" only
+ *                             v0.1.2 whitelist (post URL-state migration):
+ *                               localStorage:   (empty)
  *                               sessionStorage: (empty)
  *                               IndexedDB:      (empty in v0.1.x)
+ *                             v0.2 will add: IndexedDB[vectoryz-local-chats,
+ *                                            vectoryz-favorites] for opt-in archive.
  *                             Anything outside whitelist → sweep + ALARM.
  *   Layer 3 — Server-state:  Zero-by-default (Option A v0.2).
  *                             Not browser-observable from here.
@@ -29,7 +31,7 @@
 
   // ─── Whitelist policy (function-bound, declared) ─────────────────────
   var WHITELIST = {
-    localStorage:   new Set(['vctz-theme']),    // theme surrogate, see datenschutz §7
+    localStorage:   new Set(),                  // EMPTY (v0.1.2 — theme migrated to URL search-param)
     sessionStorage: new Set(),                  // empty — no use-case identified
     indexedDB:      new Set()                   // empty in v0.1.x; v0.2 adds user-archive
   };
