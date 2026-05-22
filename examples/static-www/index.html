@@ -966,6 +966,62 @@ body.chat-empty .newchat-btn{display:none}
   border-color:var(--gold-dim);color:var(--gold);
   background:rgba(232,185,35,.06);transform:scale(1.05);
 }
+/* Archive dropdown — chat export menu (Markdown/HTML/PDF).
+   2026-05-22 v0.1.2 — pure client-side, no server upload. */
+.archive-area{position:relative;display:inline-block;margin-left:.5rem}
+.archive-btn{
+  background:transparent;border:1px solid var(--line);
+  font-family:inherit;font-size:.78rem;padding:.22rem .55rem;border-radius:5px;
+  cursor:pointer;color:var(--muted);letter-spacing:.04em;line-height:1;
+  transition:border-color .2s,color .2s,background .2s,transform .15s;
+}
+.archive-btn:hover,.archive-btn[aria-expanded="true"]{
+  border-color:var(--gold-dim);color:var(--gold);
+  background:rgba(232,185,35,.06);
+}
+.archive-btn .arch-arrow{font-size:.7em;opacity:.75;margin-left:.15em}
+.archive-panel{
+  position:absolute;top:calc(100% + .35rem);right:0;z-index:55;
+  min-width:280px;padding:.35rem 0;
+  background:rgba(14,19,32,.97);border:1px solid var(--line);border-radius:5px;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+:root[data-theme="light"] .archive-panel{
+  background:rgba(255,255,255,.98);border-color:var(--line);
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
+.arch-item{
+  display:flex;align-items:center;width:100%;
+  background:transparent;border:0;cursor:pointer;
+  padding:.55rem .8rem;font-family:inherit;font-size:.82rem;
+  color:var(--fg);text-align:left;line-height:1.3;
+  transition:background .15s,color .15s;
+}
+.arch-item:hover,.arch-item:focus{
+  background:rgba(232,185,35,.06);color:var(--gold);outline:none;
+}
+.arch-item .arch-ico{flex:0 0 1.4em;font-size:1em;text-align:center;margin-right:.55rem}
+.arch-item .arch-lbl{flex:1;font-weight:500}
+.arch-item .arch-hint{
+  flex:0 0 auto;font-size:.7em;color:var(--muted);
+  font-style:italic;letter-spacing:.03em;opacity:.8;
+}
+.arch-item.arch-ok{color:#3fa850}
+.arch-sep{height:1px;background:var(--line);margin:.25rem 0;opacity:.5}
+.arch-note{
+  padding:.45rem .8rem .15rem;font-size:.68rem;
+  color:var(--muted);font-style:italic;letter-spacing:.02em;
+  line-height:1.5;
+}
+@media print{
+  /* PDF export via window.print(): hide non-conversation chrome */
+  header,footer,.composer,.archive-area,.theme-toggle-btn,.newchat-btn,
+  .settings-area,#default_prophylactic_debroeslar_badge,
+  #default_prophylactic_debroeslar_alarm{display:none !important}
+  body{background:#fff !important;color:#000 !important}
+  .msg{break-inside:avoid;page-break-inside:avoid;border:1px solid #ddd;
+       margin-bottom:.8rem !important;padding:.6rem .8rem}
+}
 /* New-chat bookmark modal — same overlay aesthetic as Beibehalten? modal. */
 .nc-modal{
   position:fixed;inset:0;z-index:200;display:flex;align-items:center;
@@ -1449,6 +1505,30 @@ body.settings-open header .settings-area{cursor:auto}
   <button class="theme-toggle-btn" id="theme-toggle-btn" type="button"
           title="Hell/Dunkel umschalten — hell für draußen + tag, dunkel für drinnen + nacht"
           aria-label="Theme umschalten">🌗</button>
+  <div class="archive-area">
+    <button class="archive-btn" id="archive-btn" type="button"
+            aria-haspopup="true" aria-expanded="false" aria-controls="archive-panel"
+            title="Chat exportieren — Markdown, HTML, PDF · alles client-side, kein Upload">Archive&nbsp;<span class="arch-arrow">▼</span></button>
+    <div class="archive-panel" id="archive-panel" hidden role="menu">
+      <button type="button" class="arch-item" data-arch-action="md-clip" role="menuitem">
+        <span class="arch-ico">📋</span><span class="arch-lbl">Als Markdown kopieren</span><span class="arch-hint">⇧ in Zwischenablage</span>
+      </button>
+      <button type="button" class="arch-item" data-arch-action="md-dl" role="menuitem">
+        <span class="arch-ico">📄</span><span class="arch-lbl">.md herunterladen</span><span class="arch-hint">Markdown-Datei</span>
+      </button>
+      <button type="button" class="arch-item" data-arch-action="html-dl" role="menuitem">
+        <span class="arch-ico">🌐</span><span class="arch-lbl">.html herunterladen</span><span class="arch-hint">self-contained, offline</span>
+      </button>
+      <button type="button" class="arch-item" data-arch-action="pdf-print" role="menuitem">
+        <span class="arch-ico">📑</span><span class="arch-lbl">Als PDF (Drucken…)</span><span class="arch-hint">Browser-Druckdialog</span>
+      </button>
+      <div class="arch-sep" role="separator"></div>
+      <div class="arch-note">
+        Alle Exporte enthalten die Faktampel-Tags pro Aussage.<br>
+        Reines Client-Side — kein Server-Upload.
+      </div>
+    </div>
+  </div>
   <div class="settings-area">
     <button class="settings-btn" id="settings-btn" type="button"
             aria-haspopup="true" aria-expanded="false" aria-controls="settings-panel"
@@ -2030,6 +2110,235 @@ if(headerEl){
     }
   });
 }
+
+// ── Archive dropdown: export current chat as Markdown / HTML / PDF ──────────
+// 2026-05-22 v0.1.2 — pure client-side export, no server upload.
+// Builds on existing buildCopyText(div, 'thread') for content, plus richer
+// metadata gathering for the export formats. Faktampel + tribunal data
+// travel with the export when present.
+function archGatherChat(){
+  const all = Array.from(messagesEl.querySelectorAll('.msg'));
+  const msgs = [];
+  for(const div of all){
+    const role = div.classList.contains('user') ? 'user'
+               : div.classList.contains('assistant') ? 'assistant'
+               : div.classList.contains('system') ? 'system'
+               : 'msg';
+    const body = (div.querySelector('.content')||{textContent:''}).textContent.trim();
+    if(!body) continue;
+    const ts = div.dataset.ts || '';
+    let meta = null;
+    try{ meta = JSON.parse(div.dataset.meta || 'null'); }catch(_){}
+    // Pull factampel data if rendered (data-* attrs on .content or aria-label spans)
+    const factTags = [];
+    div.querySelectorAll('[data-fact-class]').forEach(el => {
+      const cls = el.getAttribute('data-fact-class');
+      const txt = (el.textContent||'').trim();
+      if(cls && txt) factTags.push({cls, txt});
+    });
+    msgs.push({role, body, ts, meta, factTags});
+  }
+  // chat-level metadata
+  const chatId = (typeof chatId === 'string' ? chatId : null)
+               || new URL(location.href).searchParams.get('id') || null;
+  return {
+    chatId,
+    exportedAt: new Date().toISOString(),
+    origin: location.origin,
+    messages: msgs
+  };
+}
+function archEscapeMd(s){
+  return String(s||'').replace(/([\\`*_{}[\]()#+!-])/g, '\\$1');
+}
+function archEscapeHtml(s){
+  return String(s||'').replace(/[<>&"']/g, c =>
+    ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'})[c]);
+}
+function archDownloadBlob(name, content, mimeType){
+  const blob = new Blob([content], {type: mimeType + ';charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function archStamp(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+
+         pad(d.getHours())+pad(d.getMinutes());
+}
+function archBuildMarkdown(){
+  const c = archGatherChat();
+  if(c.messages.length === 0) return null;
+  const lines = [];
+  lines.push('# vectoryz chat — ' + c.exportedAt);
+  lines.push('');
+  lines.push('- **Source:** ' + c.origin);
+  if(c.chatId) lines.push('- **Chat ID:** `' + c.chatId + '`');
+  lines.push('- **Exported:** ' + c.exportedAt + ' (client-side, no server upload)');
+  lines.push('- **License of content:** owned by the user; vectoryz applies MIT to code only');
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+  for(const m of c.messages){
+    const heading = m.role === 'user' ? '## 🧑 user' :
+                    m.role === 'assistant' ? '## 🤖 assistant' :
+                    '## · ' + m.role;
+    const hdrMeta = [];
+    if(m.ts) hdrMeta.push('`' + m.ts + '`');
+    if(m.meta && m.meta.engine) hdrMeta.push('engine: ' + m.meta.engine);
+    if(m.meta && m.meta.effort) hdrMeta.push('effort: ' + m.meta.effort);
+    lines.push(heading + (hdrMeta.length ? ' — ' + hdrMeta.join(' · ') : ''));
+    lines.push('');
+    // Body — preserve as-is (assume operator-grade input; no aggressive escaping)
+    lines.push(m.body);
+    if(m.factTags.length > 0){
+      lines.push('');
+      lines.push('> **Faktampel:** ' +
+        m.factTags.map(t => '`' + t.cls + '`').join(' · '));
+    }
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+  }
+  lines.push('*Exported from vectoryz — https://vectoryz.de — bröselfrei, MIT-licensed code.*');
+  return lines.join('\n');
+}
+function archBuildHtml(){
+  const c = archGatherChat();
+  if(c.messages.length === 0) return null;
+  const mdLikeBody = c.messages.map(m => {
+    const roleLbl = m.role === 'user' ? '🧑 user' :
+                    m.role === 'assistant' ? '🤖 assistant' : m.role;
+    const hdrMeta = [];
+    if(m.ts) hdrMeta.push('<code>' + archEscapeHtml(m.ts) + '</code>');
+    if(m.meta && m.meta.engine) hdrMeta.push('engine: ' + archEscapeHtml(m.meta.engine));
+    if(m.meta && m.meta.effort) hdrMeta.push('effort: ' + archEscapeHtml(m.meta.effort));
+    const factHtml = m.factTags.length > 0 ?
+      '<div class="fakt"><strong>Faktampel:</strong> ' +
+      m.factTags.map(t => '<code>' + archEscapeHtml(t.cls) + '</code>').join(' · ') +
+      '</div>' : '';
+    return '<section class="msg msg-' + m.role + '">' +
+           '<h2>' + roleLbl + (hdrMeta.length ? ' <span class="meta">— ' + hdrMeta.join(' · ') + '</span>' : '') + '</h2>' +
+           '<pre>' + archEscapeHtml(m.body) + '</pre>' +
+           factHtml +
+           '</section>';
+  }).join('\n');
+  return '<!DOCTYPE html>\n' +
+    '<html lang="de"><head>\n' +
+    '<meta charset="UTF-8">\n' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1.0">\n' +
+    '<title>vectoryz chat — ' + archEscapeHtml(c.exportedAt) + '</title>\n' +
+    '<style>\n' +
+    '  body{font:15px/1.6 ui-monospace,Menlo,Consolas,monospace;max-width:760px;margin:2rem auto;padding:0 1.2rem;color:#1a1f2a;background:#fbfcfd}\n' +
+    '  h1{font-size:1.3rem;border-bottom:1px solid #ddd;padding-bottom:.5rem}\n' +
+    '  h2{font-size:1rem;margin-top:1.5rem;color:#1f6feb}\n' +
+    '  h2 .meta{font-weight:400;font-size:.8em;color:#5a6470}\n' +
+    '  pre{background:#f4f6f8;padding:.8rem 1rem;border-radius:4px;white-space:pre-wrap;word-break:break-word;font-family:inherit;line-height:1.55}\n' +
+    '  .msg-user h2{color:#b8860b}\n' +
+    '  .msg-assistant h2{color:#1f6feb}\n' +
+    '  .fakt{font-size:.8rem;color:#5a6470;margin-top:.3rem;padding-left:.6rem;border-left:2px solid #ddd}\n' +
+    '  .fakt code{background:rgba(63,168,80,.08);padding:.05rem .35rem;border-radius:3px;color:#3fa850}\n' +
+    '  header.export-hdr{color:#5a6470;font-size:.85rem;line-height:1.6;margin-bottom:1.5rem}\n' +
+    '  header.export-hdr code{background:#f0f3f8;padding:.1rem .35rem;border-radius:3px}\n' +
+    '  footer.export-ftr{margin-top:3rem;padding-top:1rem;border-top:1px dotted #ccc;font-size:.78rem;color:#5a6470;font-style:italic;text-align:center}\n' +
+    '</style></head>\n' +
+    '<body>\n' +
+    '<h1>vectoryz chat</h1>\n' +
+    '<header class="export-hdr">' +
+    'Source: <code>' + archEscapeHtml(c.origin) + '</code><br>' +
+    (c.chatId ? 'Chat ID: <code>' + archEscapeHtml(c.chatId) + '</code><br>' : '') +
+    'Exported: <code>' + archEscapeHtml(c.exportedAt) + '</code> (client-side, no server upload)' +
+    '</header>\n' +
+    mdLikeBody +
+    '\n<footer class="export-ftr">' +
+    'Exported from vectoryz · <a href="https://vectoryz.de">vectoryz.de</a> · ' +
+    'bröselfrei, MIT-licensed code, self-contained HTML.' +
+    '</footer></body></html>';
+}
+function archTriggerPdf(){
+  // Browser's print dialog — @media print CSS hides non-conversation chrome.
+  window.print();
+}
+function archCopyMarkdown(btn){
+  const md = archBuildMarkdown();
+  if(!md){ archFlash(btn, '✗', 'empty'); return; }
+  const orig = btn.querySelector('.arch-lbl').textContent;
+  const lbl = btn.querySelector('.arch-lbl');
+  (navigator.clipboard ? navigator.clipboard.writeText(md) : Promise.reject())
+    .then(()=>{ lbl.textContent = '✓ kopiert'; btn.classList.add('arch-ok');
+               setTimeout(()=>{ lbl.textContent = orig; btn.classList.remove('arch-ok');}, 1600); })
+    .catch(()=>{
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = md; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); lbl.textContent='✓ kopiert (fallback)'; }
+      catch(_){ lbl.textContent='✗ Fehler'; }
+      document.body.removeChild(ta);
+      setTimeout(()=>{ lbl.textContent = orig; btn.classList.remove('arch-ok'); }, 1600);
+    });
+}
+function archFlash(btn, mark, mode){
+  const lbl = btn.querySelector('.arch-lbl');
+  if(!lbl) return;
+  const orig = lbl.textContent;
+  lbl.textContent = mark + ' ' + (mode==='empty' ? 'kein Inhalt' : 'fertig');
+  if(mark === '✓') btn.classList.add('arch-ok');
+  setTimeout(()=>{ lbl.textContent = orig; btn.classList.remove('arch-ok'); }, 1600);
+}
+// Wire the Archive dropdown
+(function(){
+  const btn = document.getElementById('archive-btn');
+  const panel = document.getElementById('archive-panel');
+  if(!btn || !panel) return;
+  const close = () => {
+    panel.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+  };
+  const open = () => {
+    panel.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+  };
+  btn.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if(panel.hidden) open(); else close();
+  });
+  document.addEventListener('click', (e) => {
+    if(panel.hidden) return;
+    if(e.target.closest('#archive-panel') || e.target.closest('#archive-btn')) return;
+    close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && !panel.hidden) close();
+  });
+  panel.querySelectorAll('.arch-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const action = item.dataset.archAction;
+      if(action === 'md-clip'){
+        archCopyMarkdown(item);
+      } else if(action === 'md-dl'){
+        const md = archBuildMarkdown();
+        if(!md){ archFlash(item, '✗', 'empty'); return; }
+        archDownloadBlob('vectoryz-chat-' + archStamp() + '.md', md, 'text/markdown');
+        archFlash(item, '✓');
+        setTimeout(close, 1700);
+      } else if(action === 'html-dl'){
+        const html = archBuildHtml();
+        if(!html){ archFlash(item, '✗', 'empty'); return; }
+        archDownloadBlob('vectoryz-chat-' + archStamp() + '.html', html, 'text/html');
+        archFlash(item, '✓');
+        setTimeout(close, 1700);
+      } else if(action === 'pdf-print'){
+        close();
+        setTimeout(archTriggerPdf, 100); // small delay so panel is gone before print
+      }
+    });
+  });
+})();
 
 // ── New-chat button: bookmark-current + start fresh ──────────────────────────
 // Operator-spec 2026-05-17. When clicked while a chat has content:
