@@ -81,6 +81,27 @@
     });
   }
 
+  function sweepIndexedDB(names){
+    // Best-effort delete of each named database. Returns Promise that resolves
+    // when all attempts have completed (regardless of individual success).
+    if(!window.indexedDB || names.length === 0){
+      return Promise.resolve([]);
+    }
+    var attempts = names.map(function(name){
+      return new Promise(function(resolve){
+        try{
+          var req = indexedDB.deleteDatabase(name);
+          req.onsuccess = function(){ resolve({name: name, status: 'deleted'}); };
+          req.onerror   = function(){ resolve({name: name, status: 'error'}); };
+          req.onblocked = function(){ resolve({name: name, status: 'blocked'}); };
+        }catch(e){
+          resolve({name: name, status: 'exception'});
+        }
+      });
+    });
+    return Promise.all(attempts);
+  }
+
   // ─── Sweepers ────────────────────────────────────────────────────────
   function sweepCookies(names){
     var host = location.hostname;
@@ -268,7 +289,7 @@
     rows.push('<a href="/default_prophylactic_debroeslar.js" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">view source</a> · ');
     rows.push('<a href="/datenschutz.html#cookies" style="color:#58a6ff;text-decoration:none">Datenschutz</a>');
     if(hasAlarm){
-      rows.push(' · <a href="https://codeberg.org/vxctxryz/vectoryz/issues" style="color:#58a6ff;text-decoration:none">report</a>');
+      rows.push(' · <a href="https://codeberg.org/vxctxryz/vectoryz/issues" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">report</a>');
     }
     rows.push('</div>');
 
@@ -299,6 +320,7 @@
       allUnauthorized.map(escHtml).join(', ') +
       '</code> &mdash; bitte melden: ' +
       '<a href="https://codeberg.org/vxctxryz/vectoryz/issues" ' +
+      'target="_blank" rel="noopener" ' +
       'style="color:#fff;text-decoration:underline;font-weight:700">Issue-Tracker</a>';
     if(document.body) document.body.insertBefore(banner, document.body.firstChild);
     else document.addEventListener('DOMContentLoaded', function(){ document.body.insertBefore(banner, document.body.firstChild); }, {once:true});
@@ -358,19 +380,44 @@
       setBadgeState(badge, false);
     }
 
-    // IndexedDB scan is async — update tooltip when it lands
+    // IndexedDB scan + sweep (async). v0.1.x whitelist is empty, so any IDB
+    // database on the origin is unauthorized → swept. v0.2 will whitelist
+    // vectoryz-local-chats + vectoryz-favorites for the opt-in user archive.
     scanIndexedDB(WHITELIST.indexedDB).then(function(idbResult){
       scan.indexedDB = idbResult;
       var idbUnauthorized = idbResult.unauthorized || [];
-      if(idbUnauthorized.length > 0){
-        // We don't auto-delete IndexedDB (could hold user-data; v0.2 will declare specific stores).
-        setBadgeState(badge, true);
-        showAlarmBanner(idbUnauthorized);
-        if(window.console && console.warn){
-          console.warn('[default_prophylactic_debroeslar] unauthorized IndexedDB databases:', idbUnauthorized);
-        }
+      if(idbUnauthorized.length === 0){
+        renderTooltip(badge, scan);
+        return;
+      }
+      // Surface alarm immediately with the found names — sweep follows async
+      setBadgeState(badge, true);
+      showAlarmBanner(idbUnauthorized);
+      if(window.console && console.warn){
+        console.warn('[default_prophylactic_debroeslar] unauthorized IndexedDB databases (sweeping):', idbUnauthorized);
       }
       renderTooltip(badge, scan);
+      sweepIndexedDB(idbUnauthorized).then(function(results){
+        if(window.console && console.info){
+          console.info('[default_prophylactic_debroeslar] IndexedDB sweep results:', results);
+        }
+        // Re-scan to refresh tooltip with post-sweep truth
+        scanIndexedDB(WHITELIST.indexedDB).then(function(after){
+          scan.indexedDB = after;
+          renderTooltip(badge, scan);
+          // Clear alarm if everything else is also clean now
+          if((after.unauthorized||[]).length === 0
+             && scan.cookies.unauthorized.length === 0
+             && scan.localStorage.unauthorized.length === 0
+             && scan.sessionStorage.unauthorized.length === 0){
+            setBadgeState(badge, false);
+            var existingBanner = document.getElementById(ALARM_ID);
+            if(existingBanner && existingBanner.parentNode){
+              existingBanner.parentNode.removeChild(existingBanner);
+            }
+          }
+        });
+      });
     });
   }
 
