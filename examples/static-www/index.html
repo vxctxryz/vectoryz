@@ -746,6 +746,39 @@ body.chat-streaming.show-footer-stream footer{
   padding:.55rem .85rem;margin:0 0 1rem;font-size:.82rem;color:var(--muted);border-radius:3px;
 }
 .fork-notice strong{color:var(--gold)}
+/* Phase-timeline strip — audit-open-door for TIME (v0.1.4).
+   Compact one-liner under each assistant message showing
+   "where the seconds went": gen / search / factampel / tribunal / retry. */
+.phase-timeline{
+  margin-top:.65rem;padding:.4rem .65rem;
+  background:rgba(88,166,255,.04);
+  border:1px solid rgba(88,166,255,.15);border-left:2px solid var(--cyan-dim);
+  border-radius:3px;
+  font:.72rem/1.5 ui-monospace,Menlo,Consolas,monospace;
+  color:var(--muted);letter-spacing:.02em;
+  cursor:default;
+}
+.phase-timeline .pt-total{
+  color:var(--cyan);font-weight:600;margin-right:.6em;letter-spacing:.04em;
+}
+.phase-timeline .pt-seg{margin-right:.7em;white-space:nowrap}
+.phase-timeline .pt-seg b{color:var(--fg);font-weight:500}
+.phase-timeline .pt-seg .pt-dur{color:var(--cyan-dim);font-weight:600;margin-left:.15em}
+.phase-timeline .pt-seg.pt-tribunal .pt-dur{color:#9a5fd9}
+.phase-timeline .pt-seg.pt-retry .pt-dur{color:#d4a043}
+.phase-timeline .pt-seg.pt-search .pt-dur{color:#3fa850}
+.phase-timeline .pt-details{
+  display:none;margin-top:.45rem;padding-top:.4rem;
+  border-top:1px dotted rgba(255,255,255,.08);
+  font-size:.68rem;color:var(--muted);line-height:1.55;
+}
+.phase-timeline.pt-expanded .pt-details{display:block}
+.phase-timeline .pt-toggle{
+  cursor:pointer;color:var(--cyan);text-decoration:none;
+  border-bottom:1px dotted rgba(88,166,255,.4);
+  margin-left:.4em;font-size:.95em;
+}
+.phase-timeline .pt-toggle:hover{color:var(--gold);border-color:var(--gold)}
 /* Answer-mood signaling: left-accent rail on the content + colored cursor.
    Two regimes (operator design 2026-05-14 — "really good default sweet
    spot for ui colorplay"):
@@ -3219,9 +3252,117 @@ async function loadHistory(){
   }
 }
 
+// ── Phase-timeline (v0.1.4 — audit-open-door for TIME) ──────────────────────
+// For each assistant turn, record arrival-times of key SSE phase markers so
+// the user can see at-a-glance "where the 5 minutes went": generation,
+// search, factampel, tribunal, retry-cycles. Persistent inline annotation
+// under the assistant message, with an expandable per-event detail view.
+function _ptFmtDur(seconds){
+  if(seconds < 1)   return Math.round(seconds*1000) + 'ms';
+  if(seconds < 60)  return seconds.toFixed(1) + 's';
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return m + 'm' + (s < 10 ? '0' : '') + s + 's';
+}
+function _ptFmtClock(epochSec, started){
+  // Compact "+12.3s" relative to start; absolute clock in details only
+  const delta = epochSec - started;
+  return '+' + _ptFmtDur(delta);
+}
+function renderPhaseTimeline(asstDiv, tl){
+  if(!asstDiv || !tl || !tl.events.length) return;
+  if(asstDiv.querySelector('.phase-timeline')) return;  // idempotent
+  // Derive segments from event sequence
+  const evs   = tl.events;
+  const total = (evs[evs.length-1].t - tl.startedAt);
+  // Bucket logic: walk events, assign each to a phase-bucket by precedence
+  const buckets = {
+    classify:  {label:'classify',  t:0, count:0, cls:''},
+    search:    {label:'search',    t:0, count:0, cls:'pt-search'},
+    generate:  {label:'gen',       t:0, count:0, cls:''},
+    factampel: {label:'factampel', t:0, count:0, cls:''},
+    tribunal:  {label:'tribunal',  t:0, count:0, cls:'pt-tribunal'},
+    retry:     {label:'retry',     t:0, count:0, cls:'pt-retry'},
+    finalize:  {label:'finalize',  t:0, count:0, cls:''},
+  };
+  // Sliding window: each event marks where we ARE; duration spans to NEXT event
+  for(let i = 0; i < evs.length - 1; i++){
+    const cur = evs[i], nxt = evs[i+1];
+    const span = Math.max(0, nxt.t - cur.t);
+    const p = cur.phase;
+    if(p === 'classify_start' || p === 'classify_end')             buckets.classify.t  += span;
+    else if(p === 'search_start' || p === 'search_hop' || p === 'search_results') buckets.search.t += span;
+    else if(p === 'first_token' || p === 'token_streaming')        buckets.generate.t  += span;
+    else if(p === 'factampel_start' || p === 'factampel_tag')      buckets.factampel.t += span;
+    else if(p === 'tribunal_start' || p === 'tribunal_quality')    buckets.tribunal.t  += span;
+    else if(p === 'retry_start')                                   buckets.retry.t     += span;
+    else if(p === 'finalize')                                      buckets.finalize.t  += span;
+    // 'start' / 'done' / unknowns → contribute to nearest active bucket via fallthrough
+    else buckets.generate.t += span;  // default attribution
+  }
+  // Count occurrences of certain markers for display
+  for(const e of evs){
+    if(e.phase === 'tribunal_quality')  buckets.tribunal.count++;
+    if(e.phase === 'search_hop')        buckets.search.count++;
+    if(e.phase === 'retry_start')       buckets.retry.count++;
+    if(e.phase === 'factampel_tag')     buckets.factampel.count++;
+  }
+  // Build compact one-liner
+  const segs = [];
+  for(const key of ['classify','search','generate','factampel','tribunal','retry','finalize']){
+    const b = buckets[key];
+    if(b.t < 0.05) continue;  // skip near-zero buckets
+    let txt = '<span class="pt-seg ' + b.cls + '"><b>' + b.label + '</b>';
+    txt += '<span class="pt-dur">' + _ptFmtDur(b.t) + '</span>';
+    if(b.count > 0 && (key === 'tribunal' || key === 'search' || key === 'retry')){
+      txt += '<span style="color:var(--muted);opacity:.7">[' + b.count + ']</span>';
+    }
+    txt += '</span>';
+    segs.push(txt);
+  }
+  // Container
+  const strip = document.createElement('div');
+  strip.className = 'phase-timeline';
+  strip.innerHTML =
+    '<span class="pt-total">⏱ ' + _ptFmtDur(total) + '</span>' +
+    segs.join(' ') +
+    '<a class="pt-toggle" href="#" data-pt-toggle>details</a>' +
+    '<div class="pt-details"></div>';
+  const details = strip.querySelector('.pt-details');
+  // Detail list: every event with relative timestamp
+  const startedDate = new Date(tl.startedAt * 1000);
+  const startedClock = startedDate.toTimeString().slice(0,8);
+  let detailHtml = '<div style="margin-bottom:.3em">started: ' + startedClock + ' (local)</div>';
+  for(const e of evs){
+    const meta = e.meta && Object.keys(e.meta).length
+                 ? ' <span style="opacity:.7">· ' + Object.entries(e.meta).map(function(kv){return kv[0]+'='+kv[1]}).join(' · ') + '</span>'
+                 : '';
+    detailHtml += '<div style="font-family:inherit">'
+                + '<span style="color:var(--cyan);min-width:5.5em;display:inline-block">' + _ptFmtClock(e.t, tl.startedAt) + '</span>'
+                + '<span style="color:var(--fg)">' + e.phase + '</span>'
+                + meta + '</div>';
+  }
+  details.innerHTML = detailHtml;
+  strip.querySelector('[data-pt-toggle]').addEventListener('click', function(ev){
+    ev.preventDefault();
+    strip.classList.toggle('pt-expanded');
+    ev.target.textContent = strip.classList.contains('pt-expanded') ? 'hide' : 'details';
+  });
+  asstDiv.appendChild(strip);
+}
+
 async function sendMessage(text){
   if(!text.trim()||busy)return;
   setBusy(true);
+  // Phase timeline tracker — v0.1.4 audit-open-door for TIME
+  const phaseTimeline = {
+    startedAt: Date.now() / 1000,
+    events: []
+  };
+  const logPhase = function(phase, meta){
+    try{ phaseTimeline.events.push({phase: phase, t: Date.now()/1000, meta: meta||null}); }catch(_){}
+  };
+  logPhase('start');
   // Capture configuration AT SUBMIT TIME so the provenance strip on the
   // assistant message reflects what produced this answer, even if the
   // user toggles things mid-stream.
@@ -3312,6 +3453,37 @@ async function sendMessage(text){
       for(const line of lines){
         if(!line.startsWith('data: '))continue;
         let evt;try{evt=JSON.parse(line.slice(6))}catch{continue}
+        // v0.1.4 — passive phase observer (does not change existing dispatch).
+        // Records timestamps for the inline phase-timeline strip under the
+        // assistant message. Wrapped in try so any miss is silent.
+        try{
+          if(evt.type==='token'){
+            if(!phaseTimeline._sawFirstToken){
+              phaseTimeline._sawFirstToken = true;
+              logPhase('first_token');
+            }
+          }
+          else if(evt.type==='verifying'){ logPhase('classify_start'); }
+          else if(evt.type==='classification'){ logPhase('classification', {cat: evt.category||evt.label}); }
+          else if(evt.type==='factampel_tags' || evt.type==='factampel_tag'){
+            const _ph = evt.phase || 'final';
+            if(_ph === 'initial' && !phaseTimeline._sawFactampelInit){
+              phaseTimeline._sawFactampelInit = true;
+              logPhase('factampel_start');
+            } else if(_ph === 'tribunal'){
+              logPhase('tribunal_quality');
+            }
+          }
+          else if(evt.type==='status' && evt.phase==='search'){ logPhase('search_start'); }
+          else if(evt.type==='search_results'){ logPhase('search_results', {n: (evt.results||[]).length}); }
+          else if(evt.type==='search_hop'){ logPhase('search_hop'); }
+          else if(evt.type==='forced_search'){ logPhase('search_forced'); }
+          else if(evt.type==='status' && evt.phase==='coherence_check'){ logPhase('coherence_check'); }
+          else if(evt.type==='status' && evt.phase==='coverage_check'){ logPhase('coverage_check'); }
+          else if(evt.type==='status' && evt.phase==='fact_check'){ logPhase('fact_check'); }
+          else if(evt.type==='deploy_stamp'){ /* skip — non-temporal */ }
+          else if(evt.type==='done'){ logPhase('done'); }
+        }catch(_pe){}
         if(evt.type==='chat_id'){
           if(evt.forked){
             const notice=document.createElement('div');notice.className='fork-notice';
@@ -3574,6 +3746,8 @@ async function sendMessage(text){
           const pendingPill=asstDiv.querySelector('.pending-verifying-pill');
           if(pendingPill)pendingPill.remove();
           finalizeStream(asstDiv);
+          // v0.1.4 — render phase-timeline strip (audit-open-door for TIME)
+          try{ renderPhaseTimeline(asstDiv, phaseTimeline); }catch(_){}
           // navigatorBESTEFFORT pulse: highlight info-missing word clusters in soft-violet
           if((engineSel.value||'')==='navigatorBESTEFFORT'){
             highlightMissingInfo(asstDiv.querySelector('.content'));
