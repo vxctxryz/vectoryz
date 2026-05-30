@@ -1,0 +1,122 @@
+# M8 canonical_evals — 9-fixture BASETOUCH-readiness suite
+# ==========================================================
+# Per R0 spec (docs/R0_factfact_color_line_schematic.md): one fixture
+# per tier-state to demonstrate end-to-end v2-pipeline coverage.
+#
+# Coverage:
+#   1-6 truth-axis (factfact / quasifact / maybefact / quasinonfact / nonfact / nullfact)
+#   7-8 off-axis (definitional / performative)
+#   9   branch-balancer multi-hypothesis (Manowar fixture)
+#
+# Pass-criterion: every fixture's _combine() (or off-axis assignment)
+# matches expected_tier; hover_legend renders correctly; factfact_cache
+# round-trips with chain-integrity preserved.
+#
+# Status: 2026-05-30 — M8 BASETOUCH-readiness suite, ALL GREEN target.
+
+id: m8_basetouch_v1
+description: |
+  9-fixture end-to-end integration over wrapper_v2/pipeline + cache +
+  hover_legend. Mock-witness adapters (no network); pure logic-level
+  verification of R0 tier-axis coverage.
+
+fixtures:
+
+  # ─── Truth-axis: 6 tiers ────────────────────────────────────────
+
+  - id: factfact_capital_de
+    description: "3 SUPPORTS witnesses → factfact high"
+    claim: "Berlin ist die Hauptstadt Deutschlands."
+    expected_tier: factfact
+    expected_axis: truth
+    drift_mode: convention
+    mock_votes:
+      - {witness: operator, verdict: supports}
+      - {witness: claude, verdict: supports}
+      - {witness: google1998, verdict: supports}
+
+  - id: quasifact_mediterranean
+    description: "2 SUPPORTS + 1 UNCERTAIN → quasifact medium"
+    claim: "Mediterrane Diät korreliert mit reduziertem Herz-Kreislauf-Risiko."
+    expected_tier: quasifact
+    expected_axis: truth
+    drift_mode: convention
+    mock_votes:
+      - {witness: claude, verdict: supports}
+      - {witness: google_today, verdict: supports}
+      - {witness: google1998, verdict: uncertain}
+
+  - id: maybefact_balanced
+    description: "1 SUPPORTS + 1 CONTRADICTS + 1 UNCERTAIN → maybefact low"
+    claim: "Veganismus ist für Longevity besser als Omnivor-Ernährung."
+    expected_tier: maybefact
+    expected_axis: truth
+    drift_mode: convention
+    mock_votes:
+      - {witness: claude, verdict: supports}
+      - {witness: google_today, verdict: contradicts}
+      - {witness: google1998, verdict: uncertain}
+
+  - id: quasinonfact_sugar_heroin
+    description: "2 CONTRADICTS + 1 UNCERTAIN → quasinonfact medium"
+    claim: "Zucker ist generell süchtig-machend wie Heroin."
+    expected_tier: quasinonfact
+    expected_axis: truth
+    drift_mode: convention
+    expected_correction_present: true
+    mock_votes:
+      - {witness: claude, verdict: contradicts, correction: "Verhaltens-Marker ≠ pharmakologische Sucht; viele Studien finden Zucker NICHT als suchterzeugend i.S.d. ICD"}
+      - {witness: google_today, verdict: contradicts}
+      - {witness: google1998, verdict: uncertain}
+
+  - id: nonfact_eiffel_berlin
+    description: "3 CONTRADICTS → nonfact high with correction"
+    claim: "Der Eiffelturm steht in Berlin."
+    expected_tier: nonfact
+    expected_axis: truth
+    drift_mode: definitional
+    expected_correction_present: true
+    expected_correction_substr: "Paris"
+    mock_votes:
+      - {witness: operator, verdict: contradicts, correction: "Der Eiffelturm steht in Paris (Champ-de-Mars, 7e arrondissement, errichtet 1889)."}
+      - {witness: claude, verdict: contradicts, correction: "Paris."}
+      - {witness: google1998, verdict: contradicts, correction: "Paris."}
+
+  - id: nullfact_obscure
+    description: "Zero present witnesses (all ABSENT) → nullfact, honest not-found"
+    claim: "Welches Lied wurde bei der Punk-Party Berlin 17.10.1981 als drittes gespielt."
+    expected_tier: nullfact
+    expected_axis: truth
+    drift_mode: convention
+    mock_votes:
+      - {witness: claude, verdict: absent}
+      - {witness: google1998, verdict: absent}
+      - {witness: google_today, verdict: absent}
+
+  # ─── Off-axis: 2 tags ──────────────────────────────────────────
+
+  - id: definitional_junggesellen
+    description: "Tautology / analytic truth — off-axis definitional"
+    claim: "Alle Junggesellen sind unverheiratet."
+    expected_tier: definitional
+    expected_axis: "off"
+    drift_mode: convention
+    # No three-witness needed: short-circuited by off_axis check.
+
+  - id: performative_sitzung_eroeffnet
+    description: "Speech-act — off-axis performative"
+    claim: "Ich erkläre hiermit die Sitzung für eröffnet."
+    expected_tier: performative
+    expected_axis: "off"
+    drift_mode: convention
+
+  # ─── Branch-balancer: multi-hypothesis ─────────────────────────
+
+  - id: branch_balanced_manowar
+    description: "Manowar 'rightful warten' query — branch_balancer picks Kingdom Come"
+    query: "welches Manowar-Lied: 'the rightful are waiting but not all are rightful'?"
+    expected_primary_branch_text_substr: "Kingdom Come"
+    expected_primary_tier: factfact
+    expected_other_branches_min: 2  # at least 2 alternative branches reported (per ausgewogen-doctrine)
+    expected_fallback_message: false  # something WAS found
+    fixture_type: branch_balanced

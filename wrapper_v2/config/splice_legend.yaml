@@ -1,0 +1,120 @@
+# Factampel splice-legend per memory:factampel_ui_sealed_first_wave
+#
+# 8-octave splice (positions 1-8):
+#   1-6 truth-axis (factfact/quasifact/maybefact/quasinonfact/nonfact/nullfact)
+#   7   role-axis (fyifact)
+#   8   boundary-axis (gray-out)
+#
+# Plus off-axis tags: definitional, broken, performative
+# Plus qualifier-tags: time-indexed, convention-indexed, world-indexed
+#
+# UI sealed 2026-05-19. Color-palette + DE+EN tooltips locked.
+
+truth_axis:
+  factfact:
+    position: 1   # +2 (positive end of bipolar truth-axis)
+    color_css: "#2ea043"
+    emoji: "🟢"
+    label_de: "factfact"
+    label_en: "factfact"
+    tooltip_de: "🟢 factfact — Faktisch belegbar. Audit-proof. Unbestritten."
+    tooltip_en: "🟢 factfact — Empirically verifiable. Audit-proof. Undisputed."
+
+  quasifact:
+    position: 2   # +1
+    color_css: "#7cb342"
+    emoji: "🟢⚪"
+    label_de: "quasifact"
+    label_en: "quasifact"
+    tooltip_de: "🟢⚪ quasifact — Stark belegt, kleine Restunsicherheit."
+    tooltip_en: "🟢⚪ quasifact — Strongly supported, minor residual uncertainty."
+
+  maybefact:
+    position: 3   # 0 (agnostic pivot)
+    color_css: "#f1c40f"
+    emoji: "🟡"
+    label_de: "maybefact"
+    label_en: "maybefact"
+    tooltip_de: "🟡 maybefact — Gleichgewicht — Evidenz steht beidseits."
+    tooltip_en: "🟡 maybefact — Balanced — evidence on both sides."
+
+  quasinonfact:
+    position: 4   # -1
+    color_css: "#e67e22"
+    emoji: "🟠"
+    label_de: "quasinonfact"
+    label_en: "quasinonfact"
+    tooltip_de: "🟠 quasinonfact — Stark widerlegt, kleine Restunsicherheit."
+    tooltip_en: "🟠 quasinonfact — Strongly contradicted, minor residual uncertainty."
+
+  nonfact:
+    position: 5   # -2 (negative end)
+    color_css: "#c0392b"
+    emoji: "🔴"
+    label_de: "nonfact"
+    label_en: "nonfact"
+    tooltip_de: "🔴 nonfact — Faktisch widerlegt. Audit-proof falsch."
+    tooltip_en: "🔴 nonfact — Empirically refuted. Audit-proof false."
+
+  nullfact:
+    position: 6   # ? (off-axis-pivotal: no evidence at all)
+    color_css: "transparent"
+    border_css: "1px solid #7a7a86"
+    emoji: "⚪"
+    label_de: "nullfact"
+    label_en: "nullfact"
+    tooltip_de: "⚪ nullfact — Keine Evidenz zuweisbar — ehrlicher Nicht-Befund."
+    tooltip_en: "⚪ nullfact — No evidence assignable — honest not-found."
+
+role_axis:
+  fyifact:
+    position: 7
+    rendering: "frame_with_label"  # not color-line
+    label_de: "fyifact"
+    label_en: "fyifact"
+    tooltip_de: "ⓘ fyifact — Akkurat-supplementär, FYI-Kontext."
+    tooltip_en: "ⓘ fyifact — Accurate-supplemental, FYI context."
+
+boundary_axis:
+  gray_out:
+    position: 8
+    rendering: "full_pane_grayed_with_wisdom_quote"
+    label_de: "gray-out"
+    label_en: "gray-out"
+    tooltip_de: "Chat geschlossen — neuer Chat erforderlich."
+    tooltip_en: "Chat closed — new chat required."
+
+off_axis_tags:
+  definitional:
+    color_css: "#9b59b6"
+    emoji: "🟣"
+    tooltip_de: "🟣 definitional — Wahr-per-Definition / Tautologie. Empirisch nicht prüfbar."
+    tooltip_en: "🟣 definitional — True by definition / tautology. Not empirically testable."
+
+  broken:
+    rendering: "strikethrough"
+    tooltip_de: "✗ broken — Strukturell ungültiger Claim (Widerspruch / Kategorienfehler)."
+    tooltip_en: "✗ broken — Structurally invalid claim (contradiction / category-error)."
+
+  performative:
+    color_css: "#ffffff"   # pure white (corrected 2026-05-19; was yellow which clashed with maybefact)
+    emoji: "※"
+    tooltip_de: "※ performative — Wahr-durch-Akt-des-Sprechens (Erklärung, richterliche Verfügung)."
+    tooltip_en: "※ performative — True by speech-act (declaration, judicial decree)."
+
+qualifier_tags:
+  time_indexed:
+    template_de: "...gültig zum Stand {date}; kann sich ändern."
+    template_en: "...valid as of {date}; subject to change."
+  convention_indexed:
+    template_de: "...unter Konvention {name} (andere Zählweisen möglich)."
+    template_en: "...under convention {name} (other counting conventions possible)."
+  world_indexed:
+    template_de: "...kontrafaktisch (hypothetische Welt)."
+    template_en: "...counterfactual (hypothetical world)."
+
+l0_alarm:
+  rendering: "red_glow_with_alarm_label"
+  emoji: "🚨"
+  tooltip_de: "Notfall-Alarm: Hilfe wurde geschickt. Bleib bei mir, falls Du noch kannst."
+  tooltip_en: "Emergency-alarm: help has been dispatched. Stay with me if you still can."

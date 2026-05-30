@@ -1,0 +1,21 @@
+# vectoryz · site config (plug-and-play substitution)
+# Copy this to site.config, edit values, then run ./init_site.sh
+
+# Your domain (without https://)
+YOUR_DOMAIN=example.com
+
+# Legal entity (impressum)
+YOUR_LEGAL_NAME=Jane Doe
+YOUR_STREET=Beispielstr. 1
+YOUR_POSTAL_CITY=12345 Beispielstadt
+YOUR_EMAIL=hello@example.com
+YOUR_PHONE=+49 123 456789
+YOUR_PHONE_E164=+49123456789
+YOUR_VAT_NUMBER=DE000000000
+
+# Server (for caddy + deployment scripts)
+YOUR_SERVER_IP=1.2.3.4
+
+# Branding (free text, used in impressum / about pages)
+YOUR_PROFESSIONAL_TITLE_LINE1=Your role line 1
+YOUR_PROFESSIONAL_TITLE_LINE2=Your role line 2 · with separators

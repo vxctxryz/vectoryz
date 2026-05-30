@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<title>About — vectoryz</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta name="description" content="vectoryz: Open-Source-KI-Chat mit dokumentierter Selbstprüfung. Faktampel, Tribunal-Witnesses, Bröselfrei, Audit-Open-Door, MIT-Lizenz.">
+<style>
+:root{
+  --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
+  --gold:#e8b923; --gold-dim:#a07d18; --cyan:#58a6ff; --cyan-dim:#3a6fa8;
+  --line:#1a2030;
+}
+:root[data-theme="light"]{
+  --bg:#fbfcfd; --surf:#ffffff; --fg:#1a1f2a; --muted:#5a6470;
+  --gold:#b8860b; --gold-dim:#8a6608; --cyan:#1f6feb; --cyan-dim:#1c5aaa;
+  --line:#d8dde5;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;color:var(--fg);font-family:ui-monospace,'Cascadia Mono','Source Code Pro',Menlo,Consolas,monospace;font-size:15px;line-height:1.7}
+body{background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
+header{position:sticky;top:0;z-index:50;text-align:center;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.85);backdrop-filter:blur(6px)}
+:root[data-theme="light"] header{background:rgba(255,255,255,.92)}
+header a.brandlink{font-size:1.1rem;letter-spacing:.4em;font-weight:600;text-decoration:none;color:var(--fg);padding:.2rem 1rem}
+main{flex:1;max-width:760px;margin:0 auto;padding:2rem 1.5rem 4rem;width:100%}
+h1{font-size:1.6rem;color:var(--fg);margin-bottom:.4rem;font-weight:600;letter-spacing:.01em}
+.subtitle{color:var(--muted);font-size:.95rem;margin-bottom:2rem;font-style:italic}
+h2{font-size:1.05rem;color:var(--gold);margin:2rem 0 .6rem;font-weight:600;letter-spacing:.04em}
+p{margin-bottom:1rem}
+ul{margin:.5rem 0 1rem 1.4rem}
+li{margin-bottom:.3rem}
+a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted var(--cyan-dim)}
+a:hover{color:var(--gold);border-color:var(--gold)}
+.fact{display:flex;border-bottom:1px dashed rgba(255,255,255,.07);padding:.4rem 0;font-size:.9rem}
+.fact .k{flex:0 0 8em;color:var(--muted)}
+.fact .v{flex:1;color:var(--fg)}
+.motto{margin:1.5rem 0;padding:1rem 1.2rem;background:rgba(232,185,35,.06);border-left:3px solid var(--gold);border-radius:3px;font-style:italic;color:var(--fg)}
+code{background:rgba(88,166,255,.08);padding:.1rem .35rem;border-radius:3px;color:var(--cyan)}
+.langswitch{font-size:.85rem;color:var(--muted);text-align:right;margin-bottom:1rem}
+footer.sitefoot{margin-top:auto;padding:1.4rem 1rem 1rem;text-align:center;border-top:1px solid var(--line);font-size:.78rem;letter-spacing:.04em;color:var(--muted)}
+footer.sitefoot a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line);margin:0 .35rem}
+</style>
+<script>
+(function(){
+  try{
+    var u=new URL(location.href);var s=u.searchParams.get('theme');
+    if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      document.documentElement.setAttribute('data-theme','dark');
+    else
+      document.documentElement.setAttribute('data-theme','light');
+  }catch(_){}
+})();
+</script>
+<script src="/default_prophylactic_debroeslar.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="brandlink" href="/" aria-label="Start">start</a>
+</header>
+
+<main>
+  <h1>About vectoryz</h1>
+  <p class="subtitle">Open-Source-KI-Chat mit dokumentierter Selbstprüfung.</p>
+
+  <div class="motto">
+    Front-Door: <strong>freedom for all entities. peaceful.</strong><br>
+    Core Attitude: <em>irie · ovastandin</em>
+  </div>
+
+  <h2>Was ist vectoryz</h2>
+  <p>
+    vectoryz ist ein Open-Source-KI-Chat-System, das seit dem 22. Mai 2026 in der Early-Access-Phase verfügbar ist. Das System kombiniert lokal gehostete Open-Source-Sprachmodelle mit einem Wrapper, der jede Antwort auf Aussage-Ebene klassifiziert und ihre Belegbarkeit sichtbar macht.
+  </p>
+
+  <h2>Identität</h2>
+  <div class="fact"><span class="k">Name</span><span class="v">vectoryz</span></div>
+  <div class="fact"><span class="k">Domains</span><span class="v"><a href="https://vectoryz.de">vectoryz.de</a> · <a href="https://vectoryz.net">vectoryz.net</a> · <a href="https://vectoryz.org">vectoryz.org</a></span></div>
+  <div class="fact"><span class="k">Erstellt von</span><span class="v">Benjamin Resch (Nürnberg, DE)</span></div>
+  <div class="fact"><span class="k">Veröffentlicht</span><span class="v">22. Mai 2026 (v0.1.0)</span></div>
+  <div class="fact"><span class="k">Lizenz</span><span class="v">MIT</span></div>
+  <div class="fact"><span class="k">Source</span><span class="v"><a href="https://codeberg.org/vxctxryz/vectoryz">codeberg.org/vxctxryz/vectoryz</a> · <a href="https://github.com/vxctxryz/vectoryz">github.com/vxctxryz/vectoryz</a></span></div>
+  <div class="fact"><span class="k">Hosting</span><span class="v">Hetzner-Server, Deutschland</span></div>
+
+  <h2>Unterscheidungsmerkmale</h2>
+  <ul>
+    <li><strong>Faktampel pro Aussage:</strong> jede Behauptung mit Tier-Marker (<code>factfact</code> / <code>quasifact</code> / <code>maybefact</code> / <code>quasinonfact</code> / <code>nullfact</code>)</li>
+    <li><strong>Tribunal-Witnesses (drift-aktiv, optional):</strong> Multi-Source-Verifikation, sichtbar bei detektiertem Drift</li>
+    <li><strong>Phase-Timeline (dezent-by-default):</strong> Zeitverbrauch pro Bearbeitungsschritt, Details auf Knopfdruck</li>
+    <li><strong>Bröselfrei:</strong> Zero Cookies, Zero Tracking, integrierter Browser-Audit (<code>default_prophylactic_debroeslar</code>)</li>
+    <li><strong>Datenminimal:</strong> Server-Logs + Chat-Daten nach 7 Tagen automatisch gelöscht</li>
+    <li><strong>E2E-Verschlüsselung:</strong> AES-256-GCM client-seitig, Schlüssel einzig im Browser</li>
+    <li><strong>Audit-Open-Door:</strong> alle Quelltexte, Doktrinen, Commit-Logs MIT-lizenziert + öffentlich</li>
+  </ul>
+
+  <h2>Pressemitteilung + Doktrin-Doku</h2>
+  <ul>
+    <li><a href="/press/2026-05-22-early-access-de.html">Pressemitteilung Early Access (DE)</a></li>
+    <li><a href="/press/2026-05-22-early-access-en.html">Press Release Early Access (EN)</a></li>
+    <li><a href="https://codeberg.org/vxctxryz/vectoryz/src/branch/main/docs/doctrines">Doctrine Documentation (worked examples)</a></li>
+  </ul>
+
+  <h2>Kontakt</h2>
+  <p>
+    <a href="mailto:ben@vectoryz.de">ben@vectoryz.de</a>
+  </p>
+</main>
+
+<footer class="sitefoot">
+  <a href="/">Start</a> · <a href="/about.html">About</a> · <a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a> · <a href="/oss.html">OSS</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+# L0 alarm-stub keyword-strips per
+# memory:alarm_stub_initial_keyword_strips_pragma
+#
+# Three clusters:
+#   A — direct emergency-call requests
+#   B — explicit life-threat (caller-as-victim)
+#   C — child-caller medical-emergency (collapsed family-member)
+#
+# Cost-asymmetry: false-positive = strafzettel; false-negative = death.
+# Bias toward dispatch.
+#
+# Extensible via doctrine-refinement. Add real-traffic patterns as they
+# surface. Per operator-pragma: ML-tuning is later; keyword-stub is M1.
+
+cluster_A_direct_emergency_call:
+  EN:
+    - "cops now"
+    - "sos now"
+    - "fire alarm here"
+    - "killing just happen here"
+    - "send police now"
+    - "help me right now"
+    - "call ambulance"
+    - "emergency now"
+  DE:
+    - "polizei jetzt"
+    - "notruf jetzt"
+    - "feuer alarm hier"
+    - "ruf die polizei"
+    - "krankenwagen jetzt"
+    - "hilfe sofort"
+    - "rette mich"
+    - "112 jetzt"
+
+cluster_B_life_threat_caller_as_victim:
+  EN:
+    - "they want to kill me"
+    - "they're going to kill me"
+    - "i'm being attacked"
+    - "i'm bleeding badly"
+  DE:
+    - "die wollen mich töten"
+    - "die bringen mich um"
+    - "ich werde angegriffen"
+    - "ich blute stark"
+
+cluster_C_child_caller_medical_emergency:
+  # operator-named 2026-05-19: 'mami lies dere!!help' such fing
+  # adult-collapsed + child-action-incapable; chat may be only contact
+  EN:
+    - "mami lies there"
+    - "mommy lies there"
+    - "daddy lies there"
+    - "mom won't wake up"
+    - "dad won't wake up"
+    - "grandma not moving"
+    - "grandpa not moving"
+    - "not breathing"
+    - "she's not breathing"
+    - "he's not breathing"
+    - "blood everywhere"
+  DE:
+    - "mami liegt da"
+    - "papi liegt da"
+    - "mama wacht nicht auf"
+    - "papa wacht nicht auf"
+    - "oma bewegt sich nicht"
+    - "opa bewegt sich nicht"
+    - "atmet nicht"
+    - "sie atmet nicht"
+    - "er atmet nicht"
+    - "überall blut"
+    - "mama liegt da hilfe"
+    - "papa liegt da hilfe"

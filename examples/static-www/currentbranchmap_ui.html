@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI branch map — vectoryz frontend audit</title>
+<style>
+:root{
+  --bg:#0d0e15;--fg:#e8e8ee;--muted:#8a8a98;--gold:#e6c200;
+  --gold-dim:#a07d18;--cyan:#58a6ff;--cyan-dim:#3a6fa8;
+  --line:#222230;--card:#161620;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.55}
+.container{max-width:1100px;margin:0 auto;padding:2rem 1.4rem 4rem}
+h1{font-size:1.5rem;margin:.4rem 0 .2rem;letter-spacing:.5px}
+h2{font-size:1.05rem;margin:2rem 0 .6rem;color:var(--gold);letter-spacing:.5px;border-bottom:1px dashed var(--line);padding-bottom:.3rem}
+.sub{color:var(--muted);font-size:.85rem;margin-bottom:1.6rem}
+a{color:#86b7ff;text-decoration:none}
+a:hover{text-decoration:underline}
+.back{display:inline-block;margin-bottom:1rem;color:var(--muted);font-size:.85rem}
+.sister-link{display:inline-block;margin-left:1.2rem;color:var(--gold);font-size:.85rem}
+.head-card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.8rem 1rem;margin-bottom:1.5rem;font-size:.85rem;line-height:1.7}
+.head-card .label{color:var(--muted);display:inline-block;min-width:8em}
+.head-card code{background:#0a0b12;padding:.1em .35em;border-radius:3px;font-family:'JetBrains Mono','SF Mono',Monaco,monospace;font-size:.85em}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;letter-spacing:.3px;font-size:.76rem;text-transform:uppercase}
+tbody tr:hover{background:rgba(230,194,0,.04)}
+td.path{font-family:'JetBrains Mono',monospace;font-size:.78rem;white-space:nowrap}
+td.hash,td.sha{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--muted)}
+td.msg{color:#cccce4;max-width:42ch;overflow:hidden;text-overflow:ellipsis}
+td.date{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.74rem;white-space:nowrap}
+.empty-note{color:var(--muted);padding:1rem;font-style:italic;text-align:center}
+.dirty-flag{display:inline-block;background:rgba(230,194,0,.15);color:var(--gold);padding:.05em .4em;border-radius:3px;font-size:.7em;margin-left:.4em}
+.legend{margin-top:2.2rem;font-size:.78rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:.8rem}
+.legend p{margin:.3rem 0}
+/* === Evolution section (moved 2026-05-21 from about_us.html) === */
+.evo-divider{margin:3rem 0 1.4rem;padding-top:1.8rem;border-top:1px solid var(--line)}
+.summary-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.7rem;margin:1rem 0 1.8rem}
+.summary-strip .stat{padding:.7rem .9rem;background:rgba(15,21,37,.45);border-left:2px solid var(--gold-dim);border-radius:0 3px 3px 0}
+.summary-strip .num{font-size:1.5rem;color:var(--gold);font-weight:700;letter-spacing:.02em}
+.summary-strip .label{font-size:.7rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem}
+.day{margin:1.4rem 0}
+.day-header{font-size:.78rem;color:var(--gold-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+.commits{display:grid;gap:.45rem}
+.commit{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:baseline;padding:.45rem .7rem;border-left:2px solid var(--line);background:rgba(15,21,37,.3);border-radius:0 3px 3px 0;font-size:.85rem}
+.commit .hash{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono','SF Mono',Monaco,monospace}
+.commit .msg{color:var(--fg);line-height:1.5}
+.commit .msg .kind{color:var(--gold-dim);font-weight:600}
+.evo-honest{margin:1.5rem 0 1rem;padding:.8rem 1rem;background:rgba(167,216,160,.04);border-left:2px solid rgba(167,216,160,.5);border-radius:0 3px 3px 0;font-size:.85rem;color:var(--muted);line-height:1.6}
+.evo-honest strong{color:rgb(167,216,160);font-weight:600}
+.subtitle{color:var(--muted);font-size:.9rem;margin:.4rem 0 1.4rem;line-height:1.6}
+/* === Roadmap timeline (moved 2026-05-21 from about_us.html) === */
+.timeline{margin:.6rem 0 1rem;border-left:1px dotted var(--line);padding-left:1.2rem}
+.timeline .entry{margin-bottom:1.2rem;position:relative}
+.timeline .entry::before{content:"";position:absolute;left:-1.42rem;top:.45rem;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px rgba(232,185,35,.55)}
+.timeline .entry.recent::before{background:var(--cyan);box-shadow:0 0 8px rgba(88,166,255,.6)}
+.timeline .date{font-size:.72rem;color:var(--gold-dim);letter-spacing:.08em;margin-bottom:.15rem}
+.timeline .title-line{font-weight:600;color:var(--fg);margin-bottom:.25rem;font-size:.92rem}
+.timeline .body{font-size:.86rem;color:var(--muted);line-height:1.55}
+/* 2026-05-21 daymode propagation */
+:root[data-theme="light"]{
+  --bg:#fbfcfd; --fg:#1a1f2a; --muted:#5a6470; --gold:#b8860b;
+  --gold-dim:#8a6608; --cyan:#1f6feb; --cyan-dim:#1c5aaa;
+  --line:#d8dde5; --card:#ffffff;
+}
+:root[data-theme="light"] body{background:#fbfcfd}
+:root[data-theme="light"] .head-card{background:#ffffff;border-color:#d8dde5}
+:root[data-theme="light"] .head-card code{background:#f0f3f8;color:#1a1f2a}
+:root[data-theme="light"] td.msg{color:#1a1f2a}
+:root[data-theme="light"] tbody tr:hover{background:rgba(184,134,11,.06)}
+:root[data-theme="light"] .summary-strip .stat{background:rgba(184,134,11,.04);border-left-color:#b8860b}
+:root[data-theme="light"] .commit{background:rgba(184,134,11,.03)}
+:root[data-theme="light"] .evo-honest{background:rgba(80,140,80,.06)}
+.theme-toggle-link{display:inline-block;margin-left:1.2rem;color:var(--muted);font-size:.95rem;cursor:pointer;border:1px solid var(--line);border-radius:5px;padding:.05rem .45rem;line-height:1;background:transparent;font-family:inherit}
+.theme-toggle-link:hover{color:var(--gold);border-color:var(--gold-dim);background:rgba(184,134,11,.04)}
+</style>
+<script>
+(function(){
+  try{
+    var u=new URL(location.href);var s=u.searchParams.get('theme');
+    if(s==='light'||s==='dark') document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+      document.documentElement.setAttribute('data-theme','light');
+  }catch(_){}
+})();
+</script>
+<script src="/default_prophylactic_debroeslar.js" defer></script>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">← zurück zu {{YOUR_DOMAIN}}</a>
+  <a href="/currentbranchmap_be.html" class="sister-link">backend audit →</a>
+  <button type="button" class="theme-toggle-link" id="theme-toggle-btn"
+          title="Hell/Dunkel umschalten">🌗</button>
+  <h1>UI branch map</h1>
+  <p class="sub">frontend module audit · git-state at deploy time · sha256 für forensische Verifikation</p>
+
+  <div class="head-card" id="head-card">
+    <div><span class="label">repo branch:</span> <code id="branch">…</code></div>
+    <div><span class="label">HEAD commit:</span> <code id="head-hash">…</code></div>
+    <div><span class="label">HEAD message:</span> <span id="head-msg">…</span></div>
+    <div><span class="label">HEAD date:</span> <span id="head-date">…</span></div>
+    <div><span class="label">deploy stamp:</span> <span id="deploy-stamp">…</span></div>
+  </div>
+
+  <section>
+    <h2>Frontend modules (static · /var/www/vectoryz)</h2>
+    <table>
+      <thead><tr><th>path</th><th>sha256 (12)</th><th>last commit</th><th>message</th><th>date</th></tr></thead>
+      <tbody id="frontend-tbody"><tr><td colspan="5" class="empty-note">loading…</td></tr></tbody>
+    </table>
+  </section>
+
+  <div class="legend">
+    <p><strong>sha256 (12)</strong> — erste 12 hex-Zeichen des sha256-Hash der Datei bei Deploy-Zeit. Forensische Verifikation via <code>sha256sum file.html | head -c 12</code>.</p>
+    <p><strong>last commit</strong> — kurzhash + 1-Line-Message des letzten git-commit für diese Datei. <code>+dirty</code>-Flag = uncommitted im Deploy-Tree.</p>
+    <p>Per <strong>eigene-Browser-Engine-Architektur</strong> · <a href="/oss.html">OSS-FLOSS</a> · <a href="/currentbranchmap_be.html">backend audit</a></p>
+  </div>
+
+  <div class="evo-divider"></div>
+
+  <h2>Evolution · commit-history</h2>
+  <p class="subtitle">
+    Was vectoryz zuletzt verbessert, gefixt, neu gebaut hat. Die
+    Iterationsgeschwindigkeit ist hier sichtbar — als Vertrauensanker, nicht
+    als Marketing. Wer Bugs schnell behebt, wird nicht von neuen überfahren.
+  </p>
+
+  <div class="summary-strip">
+    <div class="stat"><div class="num">40+</div><div class="label">Commits 2026-05</div></div>
+    <div class="stat"><div class="num">20/20</div><div class="label">Baseline-Tests grün</div></div>
+    <div class="stat"><div class="num">14</div><div class="label">Sprachen mit Greeting-Mirror</div></div>
+    <div class="stat"><div class="num">7</div><div class="label">Mood-Farben</div></div>
+  </div>
+
+  <div class="day">
+    <div class="day-header">2026-05-14</div>
+    <div class="commits">
+      <div class="commit"><span class="hash">80e62c6</span><span class="msg"><span class="kind">ui:</span> prefill handoff runs cleanse + submit-gate (fix the 1.05M hang)</span></div>
+      <div class="commit"><span class="hash">394c789</span><span class="msg"><span class="kind">ui:</span> submit-cap 1M chars — "single drop" vocabulary, paste compatibility</span></div>
+      <div class="commit"><span class="hash">9f68f4a</span><span class="msg"><span class="kind">ui:</span> clipboard compatibility + submit-time gate für chat-sized turns</span></div>
+      <div class="commit"><span class="hash">a0ef126</span><span class="msg"><span class="kind">wrapper:</span> no-regurgitation priming — build on prior turn, name gap, no URL padding</span></div>
+      <div class="commit"><span class="hash">a6953bd</span><span class="msg"><span class="kind">ui:</span> mood-color moves to bubble border — fine passage line per message</span></div>
+      <div class="commit"><span class="hash">d3af7d6</span><span class="msg"><span class="kind">ui:</span> mood-color regime — single-passage expressive vs multi-passage rail-only</span></div>
+      <div class="commit"><span class="hash">d70607a</span><span class="msg"><span class="kind">ui:</span> answer-mood left-rail — 6 mood colors signaling tone+provenance</span></div>
+      <div class="commit"><span class="hash">84eb66c</span><span class="msg"><span class="kind">wrapper+ui:</span> reverse emoticons (: (; (. (, + FYI block visual distinct</span></div>
+      <div class="commit"><span class="hash">b8a63db</span><span class="msg"><span class="kind">ui:</span> 3·6·9 affordance — half-white base + slow 6s breath + 9 unlocked</span></div>
+      <div class="commit"><span class="hash">e5a8d4f</span><span class="msg"><span class="kind">setup/:</span> genericsetup engine orchestration + Hetzner-stub deploy hooks</span></div>
+      <div class="commit"><span class="hash">6a1edd3</span><span class="msg"><span class="kind">core/historical:</span> adapter-cluster scaffolding for ancient-language wrapper</span></div>
+      <div class="commit"><span class="hash">a9052bc</span><span class="msg"><span class="kind">wrapper+ui:</span> auto-tier selector — effort = f(query complexity)</span></div>
+      <div class="commit"><span class="hash">ebdb2f5</span><span class="msg"><span class="kind">wrapper+ui:</span> auto style-mirror — register reciprocity + positive framing</span></div>
+      <div class="commit"><span class="hash">531c796</span><span class="msg"><span class="kind">ui:</span> scroll-anchor + brand reduction (silent symphony 3·6·9)</span></div>
+      <div class="commit"><span class="hash">1b7ff88</span><span class="msg"><span class="kind">wrapper:</span> capability-frontier — honest "upcoming" für unsupported modalities</span></div>
+      <div class="commit"><span class="hash">a77720b</span><span class="msg"><span class="kind">wrapper:</span> greeting language sticks — opens conversation in user's language</span></div>
+      <div class="commit"><span class="hash">5b0e49b</span><span class="msg"><span class="kind">wrapper:</span> pre-pipeline bare-greeting reciprocal mirror (multilang)</span></div>
+      <div class="commit"><span class="hash">18ecc34</span><span class="msg"><span class="kind">ui+wrapper:</span> contracting layer ("3") + greeting-mirror priming + tightened concise cap</span></div>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="day-header">2026-05-13</div>
+    <div class="commits">
+      <div class="commit"><span class="hash">7d0fb24</span><span class="msg"><span class="kind">ui:</span> silent symphony — hide all choice-surface by default, "6" reveals power-mode</span></div>
+      <div class="commit"><span class="hash">b5fcc40</span><span class="msg"><span class="kind">tools:</span> truncate_for_long_context.py — long-context AI service chunker mit camouflage + safety prescan</span></div>
+      <div class="commit"><span class="hash">0c43990</span><span class="msg"><span class="kind">ui:</span> paste-cleanse — ASCII-superblob auto-trim on paste-event</span></div>
+      <div class="commit"><span class="hash">28db619</span><span class="msg"><span class="kind">ui+caddy:</span> WebCrypto precheck, char-counter, CSP</span></div>
+      <div class="commit"><span class="hash">f1eaf17</span><span class="msg"><span class="kind">quality:</span> 3-stage push — topic disambiguation, vendor-overlap warn, comparative auto-elevate</span></div>
+      <div class="commit"><span class="hash">e8fa9b5</span><span class="msg"><span class="kind">search:</span> 3-stage quality push — niche sources, vendor-name prompting, topical second-pass</span></div>
+      <div class="commit"><span class="hash">e1afde6</span><span class="msg"><span class="kind">safety:</span> auto-elevate legal/medical/finance claims to scientific tier</span></div>
+      <div class="commit"><span class="hash">dfc333e</span><span class="msg"><span class="kind">ui+server:</span> multi-lingual anchor + Layer 1.6 register detection (irony/sarcasm)</span></div>
+      <div class="commit"><span class="hash">9a97b31</span><span class="msg"><span class="kind">fact-check:</span> wire truth-mother-proxy tier into Layer 4 verdict + UI</span></div>
+    </div>
+  </div>
+
+  <div class="evo-honest">
+    <strong>Honest scope:</strong> diese Liste ist hand-kuratiert aus dem Git-Log
+    der letzten Tage. Sie zeigt das Tempo — nicht jedes Commit ist erdumstürzend,
+    aber das Verhältnis von "Bug entdeckt → Bug gefixt" ist sichtbar kurz.
+    Das ist der Vertrauensanker. Statische Software ist tote Software.
+  </div>
+
+  <div class="evo-divider"></div>
+
+  <h2>Roadmap · frontend / UI</h2>
+  <p class="subtitle">
+    UI-seitige milestones — was gerade gebaut wurde + was als nächstes auf der UI-seite kommt.
+    Backend-roadmap separat unter <a href="/currentbranchmap_be.html" style="color:var(--gold)">currentbranchmap_be.html</a>.
+  </p>
+  <div class="timeline">
+    <div class="entry recent">
+      <div class="date">2026-05-21</div>
+      <div class="title-line">Daymode/Nightmode · CSS-Logo · Toggle propagation</div>
+      <div class="body">☀/🌙 toggle in allen subsites, pure-CSS-text-logo ersetzt vctz_logo_mm.png, ondulating-rainbow auf logo, light-mode-CSS-variablen für alle pages, prefers-color-scheme respekt. Sportsanalyst-physik: daylight = white+black-letters.</div>
+    </div>
+    <div class="entry recent">
+      <div class="date">2026-05-20</div>
+      <div class="title-line">Early-Access label · Trust-tags brighter · UX-hierarchie</div>
+      <div class="body">Early-Access · Feedback willkommen am main pane, Trust-tags-cluster (AES-256/Mehrsprachig/EU-GPU/Open-Source/Pro-bono/bröselfrei) auf 0.72 opacity hochgezogen für mehr signal.</div>
+    </div>
+    <div class="entry recent">
+      <div class="date">2026-05-15</div>
+      <div class="title-line">Logo-Hero · Lächeln-(: · Stop &amp; Bearbeiten · Sandbox-Karussell</div>
+      <div class="body">Mass-market VECTORYZ.DE-Wordmark als Hero (cosmic-helix-Backdrop parked für andere Surface). 9·42-Glow unter dem rechten Schenkel des R. Lächeln "(:" synchron. Stop &amp; Bearbeiten mit Server-side Rollback. 3-Frame Sandbox-Karussell auf vectoryz.* mit 3-Sekunden Auto-Rollover.</div>
+    </div>
+    <div class="entry recent">
+      <div class="date">2026-05-14</div>
+      <div class="title-line">BRAND-SIGNAL 9·42 Plex · Footer-Harmonie · Mass-Market-Hero</div>
+      <div class="body">9·42 Plex auf allen Subpages, screen-bottom-fixed 5-Link Sitefoot, Wordmark-Hero ersetzt die zu-techy cosmic Backdrop.</div>
+    </div>
+    <div class="entry recent">
+      <div class="date">2026-05-13/14</div>
+      <div class="title-line">Silent Symphony · Auto-Style · Capability Frontier · Paste-Cleanse</div>
+      <div class="body">3·6·9-Toggle-Architektur (3=contracting, 6=watch-the-making, 9=output-format). Auto-Style-Mirror. 1 Mio. Zeichen Drop-Cap. Greeting-Mirror multi-lang. Positive-framing. (Auto-Tier-Aspekte siehe Backend-Roadmap.)</div>
+    </div>
+    <div class="entry">
+      <div class="date">geplant · Q3 2026</div>
+      <div class="title-line">UI-side für Audio + Uploads</div>
+      <div class="body">Frontend-affordance für File-Upload-Drop-Zone, Voice-Recording-Button, Visual-Preview vor Submit. (Backend-side siehe BE-roadmap.)</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function renderRow(file){
+  const dirtyFlag = file.dirty ? '<span class="dirty-flag">+dirty</span>' : '';
+  return `<tr>
+    <td class="path">${escapeHtml(file.path)}</td>
+    <td class="sha">${escapeHtml(file.sha256_12||'')}</td>
+    <td class="hash"><code>${escapeHtml(file.commit_hash||'')}</code>${dirtyFlag}</td>
+    <td class="msg" title="${escapeHtml(file.commit_msg||'')}">${escapeHtml((file.commit_msg||'').slice(0,80))}</td>
+    <td class="date">${escapeHtml(file.commit_date||'')}</td>
+  </tr>`;
+}
+// 2026-05-20: try /api/branchmap (live, file-mtime + sha256 reflect current
+// state) first; fall back to /branchmap.json (static, deploy-time snapshot)
+// if the API is unavailable.
+function _renderBranchmap(j, sourceLabel){
+  document.getElementById('branch').textContent = j.git_branch || '?';
+  document.getElementById('head-hash').textContent = (j.git_head || '?').slice(0, 12);
+  document.getElementById('head-msg').textContent = j.git_head_msg || '?';
+  document.getElementById('head-date').textContent = j.git_head_date || '?';
+  const stamp = j.live_ts ? (j.live_ts + ' (live)') : (j.deploy_ts || '?');
+  document.getElementById('deploy-stamp').textContent = stamp;
+  const fe = j.frontend_modules || [];
+  document.getElementById('frontend-tbody').innerHTML = fe.length
+    ? fe.map(renderRow).join('')
+    : '<tr><td colspan="5" class="empty-note">(no frontend modules in manifest)</td></tr>';
+}
+fetch('/api/branchmap?_t=' + Date.now()).then(r => {
+  if(!r.ok) throw new Error('api failed');
+  return r.json();
+}).then(j => _renderBranchmap(j, 'live')).catch(() => {
+  fetch('/branchmap.json?_t=' + Date.now()).then(r => r.json()).then(j => {
+    _renderBranchmap(j, 'static');
+  }).catch(e => {
+    document.getElementById('frontend-tbody').innerHTML =
+      '<tr><td colspan="5" class="empty-note">manifest nicht ladbar: ' + escapeHtml(String(e)) + '</td></tr>';
+  });
+});
+// Theme toggle (2026-05-21)
+(function(){
+  var btn=document.getElementById('theme-toggle-btn');if(!btn)return;
+  var render=function(){
+    var L=document.documentElement.getAttribute('data-theme')==='light';
+    btn.textContent=L?'🌙':'☀';
+    btn.title=L?'Aktuell: Hell · Klick für Dunkel':'Aktuell: Dunkel · Klick für Hell (für draußen/tag)';
+  };render();
+  btn.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme')||'dark';
+    var n=c==='light'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',n);
+    try{var u=new URL(location.href);u.searchParams.set('theme',n);history.replaceState(null,'',u.toString());}catch(_){}render();
+  });
+})();
+</script>
+</body>
+</html>
