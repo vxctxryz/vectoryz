@@ -1,15 +1,11 @@
 # Changelog
 
-## v0.1.0 — 2026-05-21
+## v0.1.0 — Initial public release
 
-- Initial MIT-publish release (Early Access).
-- Babel-Cascade Phase α: language-detection + P-Matrix routing.
-- Disambig-coverage: Wikipedia-Begriffsklärung-pre-fetch.
-- Tribunal-CAB: claude + google-today + google-1998 + wiki-graph witnesses.
-- Coverage→retry wire + synthesize-don't-list discipline.
-- Doff-faul-pattern doctrine (parked-defense).
-- Brand-priority-fetch doctrine (parked-defense).
-- Daymode/Nightmode chat UI.
+- Minimal AI chat wrapper with claim-level verification + audit.
+- Language-detection + linguistic-distance routing (Babel-Cascade).
+- Multi-witness verification (LLM + web search + Wikipedia graph).
+- Coverage-driven retry + synthesize-don't-list discipline.
 - AES-256-GCM zero-knowledge chat-storage (URL-fragment-key transport).
-
-See README.md "wer Fehler findet"-challenge.
+- Reference static-www UI (plug-and-play substitutable via `site.config`).
+- 14 test suites in `wrapper_v2/tests/`.

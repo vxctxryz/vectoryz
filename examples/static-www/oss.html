@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OSS — vectoryz steht auf freier Software</title>
+<title>OSS — {{YOUR_PROJECT_NAME}} steht auf freier Software</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="192x192" href="/vctz_favicon_192.png">
 <link rel="apple-touch-icon" href="/vctz_favicon_192.png">
-<meta name="description" content="vectoryz dankt der Free / Open Source Software Community — der Stack, der das Ganze trägt.">
+<meta name="description" content="{{YOUR_PROJECT_NAME}} dankt der Free / Open Source Software Community — der Stack, der das Ganze trägt.">
 <style>
 :root{
   --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
@@ -26,26 +26,26 @@ body{
   min-height:100vh;display:flex;flex-direction:column;
 }
 header{position:sticky;top:0;left:0;right:0;z-index:50;text-align:center;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.85);backdrop-filter:blur(6px)}
-/* === BRAND-SIGNAL :: 9·42 plex (vectoryz signature) ===
+/* === BRAND-SIGNAL :: 9·42 plex ({{YOUR_PROJECT_NAME}} signature) ===
  * Compound: 9-second ice-glow ondulation × 42-second rainbow under-wave
  * + asymmetric edge sparkles. Hover brightens.
  * --
  * FOR MIT PUBLISH (forks of this UI): the MECHANISM (double-wave +
  * sparkle plex) is part of the generic_369_AI_orchestre_UI gift to
  * the community. The specific TIMING (9s, 42s) and the RAINBOW
- * COLOR PALETTE are the vectoryz brand-signal — they stay with
- * vectoryz.* (brand_placeholder_doctrine: mechanism gifted, mark kept).
+ * COLOR PALETTE are the {{YOUR_PROJECT_NAME}} brand-signal — they stay with
+ * Domains (brand_placeholder_doctrine: mechanism gifted, mark kept).
  *
  * To strip the signal for a fork (per install-manual):
  *   1. Stall timing on .brandlink animation property → "none"
  *   2. Replace b369rainbow keyframes with a single neutral color
  *   3. Remove ::before / ::after sparkle pseudo-elements
  * Install manual documents the double-wave function shape; the
- * specific signal stays with vectoryz.
+ * specific signal stays with {{YOUR_PROJECT_NAME}}.
  * === */
 header a.brandlink{position:relative;display:inline-block;font-size:1.1rem;letter-spacing:.4em;font-weight:600;text-decoration:none;padding:.2rem 1rem;border-radius:4px;color:rgba(255,255,255,.32);animation:b369rainbow 42s linear infinite,b369wave 9s ease-in-out infinite;transition:filter .3s ease, background .25s ease}
 header a.brandlink:hover{background:rgba(232,185,35,.08);filter:brightness(1.4) saturate(1.25)}
-/* BRAND-SIGNAL :: 42s rainbow under-wave — vectoryz palette */
+/* BRAND-SIGNAL :: 42s rainbow under-wave — {{YOUR_PROJECT_NAME}} palette */
 @keyframes b369rainbow{
   0%   {color:hsla(45,60%,72%,.85)}
   14%  {color:hsla(15,55%,72%,.85)}
@@ -184,7 +184,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 <main>
   <h1>OSS<span class="star">·</span>FLOSS<span class="deploy-stamp" title="deploy: __DEPLOY_VERSION__">·</span></h1>
   <p class="subtitle">
-    vectoryz nutzt freie und offene Software. Diese Übersicht ist keine
+    {{YOUR_PROJECT_NAME}} nutzt freie und offene Software. Diese Übersicht ist keine
     vollständige Stückliste und ersetzt keine Lizenzdokumentation; sie
     nennt die wichtigsten technischen Säulen. Danke an alle
     Entwickler:innen und Beitragenden.
@@ -217,7 +217,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   <div class="stack">
     <div class="dep">
       <span class="name"><a href="https://www.python.org" target="_blank" rel="noopener">Python Standard Library</a></span>
-      <span class="role">Der vectoryz-Wrapper nutzt die Python-Standardbibliothek, u. a. http.server, urllib, sqlite3, json und re.</span>
+      <span class="role">Der {{YOUR_PROJECT_NAME}}-Wrapper nutzt die Python-Standardbibliothek, u. a. http.server, urllib, sqlite3, json und re.</span>
       <span class="lic">PSF</span>
     </div>
     <div class="dep">
@@ -264,7 +264,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   <div class="stack">
     <div class="dep">
       <span class="name">3·6·9 Orchestration UI</span>
-      <span class="role">vectoryz' Beitrag — eine leichtgewichtige Chat-UI mit Toggle-Architektur, Adapter-Clustern und dokumentierter Baseline. Veröffentlichung als Source-Mirror auf vectoryz.net geplant.</span>
+      <span class="role">{{YOUR_PROJECT_NAME}}' Beitrag — eine leichtgewichtige Chat-UI mit Toggle-Architektur, Adapter-Clustern und dokumentierter Baseline. Veröffentlichung als Source-Mirror auf {{YOUR_DOMAIN_NET}} geplant.</span>
       <span class="lic">geplante Veröffentlichung unter MIT</span>
     </div>
   </div>
@@ -272,17 +272,17 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   <div class="note">
     <strong>Doktrin:</strong> Der Mechanismus soll offen dokumentiert und,
     soweit möglich, unter freier Lizenz veröffentlicht werden. Die Marke
-    vectoryz und die konkrete 3·6·9-Identität bleiben Marken- und
-    Produktbestandteil von vectoryz. Kein Lock-in, keine Walled-Garden-
+    {{YOUR_PROJECT_NAME}} und die konkrete 3·6·9-Identität bleiben Marken- und
+    Produktbestandteil von {{YOUR_PROJECT_NAME}}. Kein Lock-in, keine Walled-Garden-
     Positionierung.
   </div>
 </main>
 
 <footer class="sitefoot">
-        <a href="/about_us.html">AboutUs</a><span class="sep">·</span>
+        <a href="/about.html">About</a><span class="sep">·</span>
   <a href="/impressum.html">Impressum</a><span class="sep">·</span>
   <a href="/datenschutz.html">Datenschutz</a><span class="sep">·</span>
-  <a href="/vectoryz-star.html">vectoryz.*</a><span class="sep">·</span>
+  <a href="/domains.html">Domains</a><span class="sep">·</span>
   <a href="/oss.html" class="current">OSS</a>
 </footer>
 </body>

@@ -34,7 +34,7 @@ Canonical order (per R2 §3 top-level architecture):
   USER RESPONSE
 
 This module IS the architectural-firing-order. Any production-handler
-(wrapper_cc.py on holodome, future v2 entry/) must follow the same
+(wrapper_cc.py in production deployment, future v2 entry/) must follow the same
 order — verifiable by inspecting THIS module + the test that asserts
 the order.
 

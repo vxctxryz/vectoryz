@@ -1,17 +1,17 @@
-# RFC 9116 — vectoryz security policy
+# RFC 9116 — {{YOUR_PROJECT_NAME}} security policy
 # Bröselfrei, audit-open-door. Reports of any kind welcome.
 
-Contact: mailto:security@vectoryz.de
-Contact: https://codeberg.org/vxctxryz/vectoryz/issues
+Contact: mailto:{{YOUR_SECURITY_EMAIL}}
+Contact: https://{{YOUR_CODEBERG_REPO}}/issues
 
 Expires: 2027-05-22T00:00:00.000Z
 Preferred-Languages: de, en
-Canonical: https://vectoryz.de/.well-known/security.txt
+Canonical: https://{{YOUR_DOMAIN}}/.well-known/security.txt
 
-Policy: https://codeberg.org/vxctxryz/vectoryz#security-policy
-Acknowledgments: https://codeberg.org/vxctxryz/vectoryz#acknowledgments
+Policy: https://{{YOUR_CODEBERG_REPO}}#security-policy
+Acknowledgments: https://{{YOUR_CODEBERG_REPO}}#acknowledgments
 
 # Specific challenges welcome — see also the bröselfrei-2026-decree:
-# https://vectoryz.de/datenschutz.html#cookies
+# https://{{YOUR_DOMAIN}}/datenschutz.html#cookies
 # Counter-examples to the "no technically necessary cookies in 2026" claim
 # are explicitly invited via the issue-tracker linked above.

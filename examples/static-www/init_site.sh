@@ -8,7 +8,7 @@
 #   3. Run: ./init_site.sh
 #   4. Output: ./_output/  — ready to rsync to your web-root
 #
-# 2026-05-21 — vectoryz v0.1 plug-and-play
+# {{YOUR_PROJECT_NAME}} static-site init — plug-and-play
 
 set -euo pipefail
 

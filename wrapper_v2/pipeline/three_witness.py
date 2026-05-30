@@ -1,5 +1,5 @@
 # schiri-ack: 1016 lines — over R2.2 soft-limit (1000). Operator-tested
-# legacy from gx44 (29 commits of M2-iteration). Refactor would risk
+# legacy from prior iteration (29 commits of M2-iteration). Refactor would risk
 # tribunal-logic regression. Acknowledged as documented-debt; revisit
 # during Phase-3 if entry/verify split forces decomposition.
 """Four-witness tribunal — M2 verification layer.

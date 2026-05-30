@@ -1,5 +1,5 @@
 /* default_prophylactic_debroeslar — v2 three-layer-aware
- * 2026-05-22 — operator: bsr@bayaman.de
+ * 2026-05-22 — operator: maintainer@example.com
  *
  * Implements the three-layer storage doctrine:
  *
@@ -9,8 +9,8 @@
  *                               localStorage:   (empty)
  *                               sessionStorage: (empty)
  *                               IndexedDB:      (empty in v0.1.x)
- *                             v0.2 will add: IndexedDB[vectoryz-local-chats,
- *                                            vectoryz-favorites] for opt-in archive.
+ *                             v0.2 will add: IndexedDB[{{YOUR_PROJECT_NAME}}-local-chats,
+ *                                            {{YOUR_PROJECT_NAME}}-favorites] for opt-in archive.
  *                             Anything outside whitelist → sweep + ALARM.
  *   Layer 3 — Server-state:  Zero-by-default (Option A v0.2).
  *                             Not browser-observable from here.
@@ -289,7 +289,7 @@
     rows.push('<a href="/default_prophylactic_debroeslar.js" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">view source</a> · ');
     rows.push('<a href="/datenschutz.html#cookies" style="color:#58a6ff;text-decoration:none">Datenschutz</a>');
     if(hasAlarm){
-      rows.push(' · <a href="https://codeberg.org/vxctxryz/vectoryz/issues" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">report</a>');
+      rows.push(' · <a href="https://{{YOUR_CODEBERG_REPO}}/issues" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">report</a>');
     }
     rows.push('</div>');
 
@@ -319,7 +319,7 @@
       '<code style="background:rgba(255,255,255,.18);padding:.1rem .4rem;border-radius:3px;font-family:inherit">' +
       allUnauthorized.map(escHtml).join(', ') +
       '</code> &mdash; bitte melden: ' +
-      '<a href="https://codeberg.org/vxctxryz/vectoryz/issues" ' +
+      '<a href="https://{{YOUR_CODEBERG_REPO}}/issues" ' +
       'target="_blank" rel="noopener" ' +
       'style="color:#fff;text-decoration:underline;font-weight:700">Issue-Tracker</a>';
     if(document.body) document.body.insertBefore(banner, document.body.firstChild);
@@ -382,7 +382,7 @@
 
     // IndexedDB scan + sweep (async). v0.1.x whitelist is empty, so any IDB
     // database on the origin is unauthorized → swept. v0.2 will whitelist
-    // vectoryz-local-chats + vectoryz-favorites for the opt-in user archive.
+    // {{YOUR_PROJECT_NAME}}-local-chats + {{YOUR_PROJECT_NAME}}-favorites for the opt-in user archive.
     scanIndexedDB(WHITELIST.indexedDB).then(function(idbResult){
       scan.indexedDB = idbResult;
       var idbUnauthorized = idbResult.unauthorized || [];

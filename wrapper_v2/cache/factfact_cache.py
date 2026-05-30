@@ -4,7 +4,7 @@ Per [[factfact_cache_re_labrador_timewindow]] (operator 2026-05-19):
 
     "effort will decrease as we will have our own database for the infos
      collected... a blockchain-like thing... all 24hrs recheck...
-     when user says 'vectoryz du depp etz such weil ich es WEISS!!!!!'
+     when user says 'engine du depp etz such weil ich es WEISS!!!!!'
      dann suchen wir."
 
 Per [[three_drift_modes_of_factfact]]: even Tier-0 factfacts drift along
@@ -156,7 +156,7 @@ CREATE INDEX IF NOT EXISTS idx_factfact_superseded ON factfact_entries(supersede
 class FactfactCache:
     """SQLite-backed factfact cache with hash-chain provenance."""
 
-    def __init__(self, db_path: str, engine_instance: str = "vectoryz_v2"):
+    def __init__(self, db_path: str, engine_instance: str = "wrapper_v2"):
         self.db_path = db_path
         self.engine_instance = engine_instance
         self._init_db()

@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Datenschutz — vectoryz.de</title>
+<title>Datenschutz — {{YOUR_DOMAIN}}</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="192x192" href="/vctz_favicon_192.png">
 <link rel="apple-touch-icon" href="/vctz_favicon_192.png">
-<meta name="description" content="Datenschutzerklärung vectoryz.de — Verantwortlicher, Hosting/Logfiles, Kontaktaufnahme, Cookies, Rechte der Betroffenen gemäß DSGVO.">
+<meta name="description" content="Datenschutzerklärung {{YOUR_DOMAIN}} — Verantwortlicher, Hosting/Logfiles, Kontaktaufnahme, Cookies, Rechte der Betroffenen gemäß DSGVO.">
 <style>
 :root{
   --bg:#07090f; --surf:#0e1320; --fg:#e8eef5; --muted:#8b96a6;
@@ -27,7 +27,7 @@ body{
   min-height:100vh;display:flex;flex-direction:column;
 }
 header{position:sticky;top:0;left:0;right:0;z-index:50;text-align:center;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);background:rgba(7,9,15,.85);backdrop-filter:blur(6px)}
-/* === BRAND-SIGNAL :: 9·42 plex (vectoryz signature) — see oss.html for full doctrine === */
+/* === BRAND-SIGNAL :: 9·42 plex ({{YOUR_PROJECT_NAME}} signature) — see oss.html for full doctrine === */
 header a.brandlink{position:relative;display:inline-block;font-size:1.1rem;letter-spacing:.4em;font-weight:600;text-decoration:none;padding:.2rem 1rem;border-radius:4px;color:rgba(255,255,255,.32);animation:b369rainbow 42s linear infinite,b369wave 9s ease-in-out infinite;transition:filter .3s ease, background .25s ease}
 header a.brandlink:hover{background:rgba(232,185,35,.08);filter:brightness(1.4) saturate(1.25)}
 @keyframes b369rainbow{0%{color:hsla(45,60%,72%,.85)}14%{color:hsla(15,55%,72%,.85)}28%{color:hsla(330,55%,74%,.85)}42%{color:hsla(280,50%,74%,.85)}57%{color:hsla(210,60%,74%,.85)}71%{color:hsla(180,55%,72%,.85)}85%{color:hsla(140,50%,70%,.85)}100%{color:hsla(45,60%,72%,.85)}}
@@ -163,17 +163,17 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   <h2>1. Verantwortlicher</h2>
   <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
   <address class="addr">
-    VECTORYZ<br>
-    Benjamin Resch<br>
-    Wilhermsdorfer Str. 1<br>
-    90449 Nürnberg<br>
+    {{YOUR_PROJECT_NAME_UP}}<br>
+    {{YOUR_LEGAL_NAME}}<br>
+    {{YOUR_STREET}}<br>
+    {{YOUR_POSTAL_CITY}}<br>
     Deutschland<br>
     <br>
-    <a href="https://vectoryz.de">https://vectoryz.de</a>
+    <a href="https://{{YOUR_DOMAIN}}">https://{{YOUR_DOMAIN}}</a>
   </address>
   <p>
     Kontakt:<br>
-    E-Mail: <a href="mailto:contact@vectoryz.de">contact@vectoryz.de</a>
+    E-Mail: <a href="mailto:{{YOUR_CONTACT_EMAIL}}">{{YOUR_CONTACT_EMAIL}}</a>
   </p>
   <p>
     Ein Datenschutzbeauftragter ist gesetzlich nicht erforderlich.
@@ -188,7 +188,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
   </p>
   <p>
     Diese Website dient der Bereitstellung von Informationen über
-    VECTORYZ sowie der Kommunikation mit Interessierten, Unterstützern
+    {{YOUR_PROJECT_NAME_UP}} sowie der Kommunikation mit Interessierten, Unterstützern
     und Partnern.
   </p>
 
@@ -228,11 +228,11 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     Daten existieren nach Ablauf der 7&nbsp;Tage nicht mehr.
   </p>
 
-  <h2 id="chat">4. Chat-Daten (vectoryz Chat-System auf <code>/cc/</code>)</h2>
+  <h2 id="chat">4. Chat-Daten ({{YOUR_PROJECT_NAME}} Chat-System auf <code>/cc/</code>)</h2>
   <p>
-    Das Chat-System unter <a href="https://vectoryz.de/cc/">vectoryz.de/cc/</a>
+    Das Chat-System unter <a href="https://{{YOUR_DOMAIN}}/cc/">{{YOUR_DOMAIN}}/cc/</a>
     speichert Chat-Daten serverseitig in einer SQLite-Datenbank
-    (<code>/var/lib/vectoryz_cc/state.db</code>). Verarbeitet werden:
+    (<code>/var/lib/{{YOUR_PROJECT_NAME}}_cc/state.db</code>). Verarbeitet werden:
   </p>
   <ul>
     <li>anonyme Session-UUID (kein Benutzerkonto, keine personenbezogene
@@ -256,7 +256,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     <strong>Speicherdauer:</strong> Chat-Daten (sowohl Chiffrat als auch
     Metadaten) werden nach <strong>maximal 7 Tagen</strong> automatisch
     gel&ouml;scht. Implementiert per systemd-Timer
-    (<code>vectoryz-chat-vault-ttl.timer</code>), t&auml;glicher Job, der
+    (<code>{{YOUR_PROJECT_NAME}}-chat-vault-ttl.timer</code>), t&auml;glicher Job, der
     Datens&auml;tze mit <code>created_at &lt; now &minus; 7 Tage</code> entfernt.
     Ein gespeicherter Chat-Link ist nach Ablauf der 7-Tage-Frist
     funktionslos &mdash; es existieren serverseitig keine Daten mehr,
@@ -275,7 +275,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     <strong>Recht auf L&ouml;schung:</strong> &Uuml;ber das normale TTL hinaus
     k&ouml;nnen Nutzer die sofortige L&ouml;schung eines spezifischen Chats
     durch Mitteilung der Chat-ID per E-Mail an
-    <a href="mailto:contact@vectoryz.de">contact@vectoryz.de</a> verlangen.
+    <a href="mailto:{{YOUR_CONTACT_EMAIL}}">{{YOUR_CONTACT_EMAIL}}</a> verlangen.
     Wegen der E2E-Verschl&uuml;sselung ist eine inhaltliche Identifikation
     des Chats durch den Anbieter nicht m&ouml;glich; die ID muss vom Nutzer
     selbst mitgeteilt werden.
@@ -305,7 +305,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 
   <h2>7. Externe Dienste und Inhalte</h2>
   <p>
-    <strong>Derzeit bindet vectoryz.de keine externen Dienste oder
+    <strong>Derzeit bindet {{YOUR_DOMAIN}} keine externen Dienste oder
     Inhalte ein.</strong> Sollte sich dies künftig ändern, wird diese
     Erklärung entsprechend aktualisiert.
   </p>
@@ -325,7 +325,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 
   <h2 id="cookies">8. Cookies — bröselfrei <span class="no-cookie" aria-label="cookie-free"><span class="cookie-glyph">🍪</span></span></h2>
   <p class="cookiebrag">
-    <strong>vectoryz.de ist eine cookie-free webpage.</strong>
+    <strong>{{YOUR_DOMAIN}} ist eine cookie-free webpage.</strong>
     <span class="cookiebrag-sub">Wir setzen zero Cookies. Zero Tracking-Cookies, zero Session-Cookies, zero Drittanbieter-Cookies, zero "technisch notwendigen" Cookies. Bröselfrei.</span>
   </p>
   <p>
@@ -360,15 +360,15 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
         minimal, function-bound. v0.1.2 Whitelist: <em>leer</em>
         (die Theme-Präferenz lebt jetzt im URL-Parameter,
         nicht mehr in <code>localStorage</code>). v0.2 plant: opt-in
-        IndexedDB-Stores <code>vectoryz-local-chats</code> +
-        <code>vectoryz-favorites</code> für ein lokales
+        IndexedDB-Stores <code>{{YOUR_PROJECT_NAME}}-local-chats</code> +
+        <code>{{YOUR_PROJECT_NAME}}-favorites</code> für ein lokales
         Nutzer-Archiv.</li>
     <li><strong>Schicht 3 &mdash; Server-State</strong>
         (state.db): siehe §4 Chat-Daten (7-Tage-TTL,
         zero-by-default ab v0.2).</li>
   </ul>
   <p>
-    Details + Begründung: <a href="https://codeberg.org/vxctxryz/vectoryz/src/branch/main/docs/doctrines/three_layer_storage_doctrine.md" rel="noopener">three_layer_storage_doctrine.md</a> + <a href="https://codeberg.org/vxctxryz/vectoryz/src/branch/main/docs/doctrines/cookie_function_surrogates.md" rel="noopener">cookie_function_surrogates.md</a>
+    Details + Begründung: <a href="https://{{YOUR_CODEBERG_REPO}}/src/branch/main/docs/doctrines/three_layer_storage_doctrine.md" rel="noopener">three_layer_storage_doctrine.md</a> + <a href="https://{{YOUR_CODEBERG_REPO}}/src/branch/main/docs/doctrines/cookie_function_surrogates.md" rel="noopener">cookie_function_surrogates.md</a>
     im MIT-Quell-Repository.
   </p>
   <p style="border-left:2px solid var(--gold-dim);padding:.6rem .9rem;background:rgba(232,185,35,.04);margin-top:.8rem">
@@ -381,7 +381,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     bewährte cookie-freie Alternativen (URL-Fragment-Schlüssel,
     Authorization-Header, Passkeys/WebAuthn, <code>localStorage</code>,
     stateless Token-Patterns, <code>Accept-Language</code>-Header,
-    In-Memory-Server-Validierung). vectoryz.de ist Live-Beweis: voll
+    In-Memory-Server-Validierung). {{YOUR_DOMAIN}} ist Live-Beweis: voll
     funktionsfähiges Chat-System mit Ende-zu-Ende-Verschlüsselung,
     Tribunal-Faktampel und Mehrfach-Witness-Audit — vollständig
     bröselfrei. Wir behandeln das Konzept "technisch notwendige Cookies"
@@ -389,7 +389,7 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
     2026-Notwendigkeit. Wer eine Anwendungsklasse benennt, die in 2026
     tatsächlich ein Cookie zwingend braucht — wir freuen uns über das
     Gegenbeispiel (siehe Issue-Tracker auf
-    <a href="https://codeberg.org/vxctxryz/vectoryz/issues">codeberg</a>).
+    <a href="https://{{YOUR_CODEBERG_REPO}}/issues">codeberg</a>).
   </p>
 
   <h2>9. Ihre Rechte</h2>
@@ -422,10 +422,10 @@ footer.sitefoot .sep{color:var(--line);opacity:.7;margin:0 -.05rem}
 </main>
 
 <footer class="sitefoot">
-  <a href="/about_us.html">AboutUs</a><span class="sep">·</span>
+  <a href="/about.html">About</a><span class="sep">·</span>
   <a href="/impressum.html">Impressum</a><span class="sep">·</span>
   <a href="/datenschutz.html" class="current">Datenschutz</a><span class="sep">·</span>
-  <a href="/vectoryz-star.html">vectoryz.*</a><span class="sep">·</span>
+  <a href="/domains.html">Domains</a><span class="sep">·</span>
   <a href="/oss.html">OSS</a>
 </footer>
 </body>

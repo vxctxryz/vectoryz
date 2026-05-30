@@ -10,7 +10,7 @@ This module:
   1. Loads the legend YAML once (memoized).
   2. Exposes typed accessors (color, tooltip, emoji, position, axis).
   3. Renders per-passage HTML matching the sealed prototype CSS in
-     static-www-vectoryz-v1/index.html lines 1273-1313 + the
+     examples/static-www/index.html lines 1273-1313 + the
      legend prototype at benchmark_cc/prototypes/factampel_hover_prototype.html.
   4. Renders a full 11-tier reference legend (used in M4 demo + by R5 schiri).
 
@@ -18,7 +18,7 @@ Why a Python module for client-side UI? Two reasons:
   - The TOOLTIP-TEXT is server-emitted (per-claim) — needs canonical formatter
   - HTML rendering for SSR / static-demo / fixture-tests benefits from typed API
 
-The chat-app inline JS at static-www-vectoryz-v1/index.html::renderFactampelStrip
+The chat-app inline JS at examples/static-www/index.html::renderFactampelStrip
 continues to render dynamically from SSE events. Both paths produce the SAME
 visual output because both read the same source-of-truth (splice_legend.yaml
 via tooltip_de field).
@@ -54,7 +54,7 @@ def _load() -> dict:
         if not _CONFIG_PATH.exists():
             raise FileNotFoundError(
                 f"splice_legend.yaml missing at {_CONFIG_PATH}. "
-                "Recover via: git show remotes/gx44/main:wrapper_v2/config/splice_legend.yaml"
+                "Recover via: git show <reference-branch>:wrapper_v2/config/splice_legend.yaml"
             )
         with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
             _LEGEND = yaml.safe_load(f) or {}

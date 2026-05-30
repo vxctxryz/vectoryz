@@ -1,9 +1,9 @@
-# vectoryz.de — bröselfrei, no tracking, no analytics, no fingerprinting.
-# Source-Mirror (MIT-Lizenz): https://codeberg.org/vxctxryz/vectoryz
-# Security/Disclosure: https://vectoryz.de/.well-known/security.txt
+# {{YOUR_DOMAIN}} — bröselfrei, no tracking, no analytics, no fingerprinting.
+# Source-Mirror (MIT-Lizenz): https://{{YOUR_CODEBERG_REPO}}
+# Security/Disclosure: https://{{YOUR_DOMAIN}}/.well-known/security.txt
 
 User-agent: *
 Allow: /
 Disallow: /cc/
 
-Sitemap: https://vectoryz.de/sitemap.xml
+Sitemap: https://{{YOUR_DOMAIN}}/sitemap.xml

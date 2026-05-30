@@ -66,7 +66,7 @@ def _fetch_url_text(url: str, timeout: float = 10.0,
             url,
             headers={
                 # Light browser UA so most sites don't 403 us as a bot
-                "User-Agent": "Mozilla/5.0 (vectoryz-witness/1.0)",
+                "User-Agent": "Mozilla/5.0 (ai-chat-wrapper-witness/1.0)",
                 "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
                 "Accept-Language": "de,en;q=0.5",
             },
@@ -148,12 +148,12 @@ def _extract_user_urls(message: str, max_urls: int = 3) -> list:
 
 
 # 2026-05-22 P1-Fix-1: FAST-PATH heuristic to skip LLM-classifier for
-# simple queries. On GX44 holodome with VRAM-constraint, qwen2.5:7b
-# classifier-call has 3-15s cold-start every time vectoryzDE is loaded.
+# simple queries. On production hardware with VRAM-constraint, qwen2.5:7b
+# classifier-call has 3-15s cold-start every time the model is loaded.
 # For ~50% of queries (greetings, short confirms, casual chat) we can
 # safely skip the LLM-classifier entirely via cheap regex-heuristic →
 # first-token-time drops to ~1-2 sec vs ~7-9 sec currently.
-# Goal: GX44 = 9-sec-class full-response stable per phase-1 architectural.
+# Goal: target = 9-sec-class full-response stable per phase-1 architectural.
 
 _GREETING_PATTERNS = re.compile(
     r"^(?:hi+|hallo|moin|servus|hey+|grüß\s+gott|guten\s+(?:tag|morgen|abend)|"
@@ -207,7 +207,7 @@ def classify_needs_search(message: str) -> dict:
     """Qwen-classifier: should we pre-fetch for this query?
 
     2026-05-22 P1-Fix-1: FAST-PATH heuristic skips LLM-classifier-call
-    (saves 3-15s GX44 cold-start) for clearly-simple queries (greetings,
+    (saves 3-15s engine cold-start) for clearly-simple queries (greetings,
     short non-question-non-entity). Heuristic catches ~50% of typical
     chat-queries — first-token-time drops 7-9s → 1-2s for those.
     """
@@ -424,7 +424,7 @@ def fetch_search_context(topic: str, user_urls: Optional[list] = None,
 
 
 # schiri-ack: classify_and_fetch = 284 lines, over R2.3 soft-limit (200).
-# Operator-tested gx44-prod code. Splittable into classify_needs_search()
+# Operator-tested in production. Splittable into classify_needs_search()
 # + fetch_search_context() per docstring; deferred to avoid regression on
 # tested fact-lookup pipeline. Acknowledged as documented-debt.
 def classify_and_fetch(message: str, max_snippets: int = 4) -> Optional[dict]:
@@ -517,7 +517,7 @@ def classify_and_fetch(message: str, max_snippets: int = 4) -> Optional[dict]:
     except Exception:
         pass
     # 2026-05-21 SMARTFAUL-A: when disambig found, FORCE skip of web-search
-    # entirely. Empirical finding (ECHELON-test, vectoryzDE:latest): web-search
+    # entirely. Empirical finding (ECHELON-test, your-model:latest): web-search
     # snippets about the dominant meaning (NSA-spy-net) overwhelm the disambig-
     # discipline in attention, model gets locked back into single-meaning answer
     # even with FAILURE-language at LAST sys-msg position. Clean signal beats

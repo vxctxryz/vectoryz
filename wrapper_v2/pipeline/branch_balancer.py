@@ -19,7 +19,7 @@ Composes with the foundation triplet:
 
 Differentiator vs Claude/Google-AI-overview (operator-noted exemplars):
   Both Claude and Google show branches but DON'T tier them
-  factfact/quasifact/nullfact. Vectoryz v2 = branches + per-branch tier.
+  factfact/quasifact/nullfact. wrapper v2 = branches + per-branch tier.
 
 This module is the orchestrator. Heavy callables (branch-identification
 via LLM, three-witness tribunal) are adapter-injected so the module

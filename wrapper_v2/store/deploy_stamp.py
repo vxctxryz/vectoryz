@@ -79,7 +79,7 @@ def compute_deploy_stamp(
 
     Args:
         wrapper_path: file-path to track for mtime (typically
-                      /home/bsr/42/benchmark_cc/wrapper_cc.py); cached
+                      <repo-root>/benchmark_cc/wrapper_cc.py); cached
                       after first lookup
         now_ts: clock override for tests; defaults to time.time().
                 On first call, also seeds the process-start timestamp.

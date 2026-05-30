@@ -1,7 +1,7 @@
 """sse/events — canonical SSE event-type registry + serialization.
 
 Per R2 §4.11. Snapshot of event-types emitted by v1 wrapper_cc.py
-Handler (extracted via baseline_2026_05_30_gx44_latency code-scan).
+Handler (extracted via baseline_2026_05_30_latency code-scan).
 Adding a new event-type? Add it here so the schiri can verify
 end-to-end coverage; orphan types in code without registry-entry are
 treated as drift.

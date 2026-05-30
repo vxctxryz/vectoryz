@@ -1,12 +1,20 @@
-"""Smoke-test: verifies the package imports cleanly."""
+"""Smoke test — verify the wrapper package imports cleanly.
 
-def test_import():
-    import vectoryz
-    assert vectoryz.__version__
+Run via:  python -m pytest tests/test_smoke.py
+"""
+
+from __future__ import annotations
 
 
-def test_pipeline_modules():
-    from vectoryz.pipeline import language_detect, pre_search
-    # basic sanity
-    assert hasattr(language_detect, "detect_language")
-    assert hasattr(pre_search, "classify_and_fetch")
+def test_import_wrapper_v2():
+    import wrapper_v2  # noqa: F401
+
+
+def test_import_core_subpackages():
+    from wrapper_v2 import classifier, l0, pipeline, sse, store, verify  # noqa: F401
+
+
+def test_import_classifier_register_detect():
+    from wrapper_v2.classifier import detect_register, RegisterResult
+    r = detect_register("hello")
+    assert isinstance(r, RegisterResult)

@@ -10,7 +10,7 @@ Wikipedia-anchored.
 
 Doctrine: refuse with calibrated weight, item-by-item, not blanket.
 
-Discovered 2026-05-20 when vectoryz.de got "setzen 6" on the test-grid blob:
+Discovered 2026-05-20 when your-domain.example got "setzen 6" on the test-grid blob:
 a list of 18 substantively-engageable items got blanket-refused because a few
 items LOOKED sensitive. Per [[audit_open_door_doctrine]] this is exactly the
 Knecht-mode failure the wrapper_v2 stack is built to prevent.

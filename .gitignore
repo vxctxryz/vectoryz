@@ -1,4 +1,4 @@
-# vectoryz · .gitignore (MIT-package generic)
+# .gitignore — Python + project conventions
 
 # Python
 __pycache__/
@@ -64,7 +64,7 @@ state.db-journal
 *.ftz
 *.bin
 *.gguf
-vectoryz/models/*.ftz
+*/models/*.ftz
 
 # Logs
 *.log

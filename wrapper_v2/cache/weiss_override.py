@@ -2,7 +2,7 @@
 
 Per [[factfact_cache_re_labrador_timewindow]] (operator 2026-05-19):
 
-    "when user says 'vectoryz du depp etz such weil ich es WEISS!!!!!'
+    "when user says 'engine du depp etz such weil ich es WEISS!!!!!'
      dann suchen wir."
 
 The canonical operator-vernacular for WEISS-override is "ich WEISS"

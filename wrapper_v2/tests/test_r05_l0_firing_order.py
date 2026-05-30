@@ -19,7 +19,7 @@ This satisfies M9 R0.5 (was MANUAL: "architectural-firing-order
 requires live trace") via in-process verification — the FIRING ORDER
 itself is hardcoded in chat_pre_pipeline.py and asserted here.
 
-Production-wiring (wrapper_cc.py on holodome) MUST follow same order
+Production-wiring (wrapper_cc.py in production deployment) MUST follow same order
 or its events will diverge from this reference. Reference is the spec.
 
 Run via: .venv/bin/python3 -m wrapper_v2.tests.test_r05_l0_firing_order
@@ -267,7 +267,7 @@ def test_l0_alarm_module_has_zero_upstream_deps():
 
 
 def test_with_real_l0_alarm_benign_passes():
-    """Run with REAL l0_alarm (recovered from gx44) on benign input."""
+    """Run with REAL l0_alarm (recovered from prior iteration) on benign input."""
     print(f"\n{_BOLD}[R0.5/T7]{_RESET} real l0_alarm (no mock) on benign input → no alarm trigger")
     reset_counters()
     trace = PipelineTrace()

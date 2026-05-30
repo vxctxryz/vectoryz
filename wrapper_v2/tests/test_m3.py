@@ -17,7 +17,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Allow running from /home/bsr/42
+# Allow running from <repo-root>
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from wrapper_v2.pipeline import branch_balancer as bb

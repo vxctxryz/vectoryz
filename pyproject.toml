@@ -3,30 +3,26 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "vectoryz"
+name = "ai-chat-wrapper"
 version = "0.1.0"
-description = "An AI chat-system that audits itself in public."
+description = "A minimal AI chat wrapper with verification + audit features. MIT-licensed; bring your own LLM engine and your own UI brand."
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Benjamin Resch", email = "ben@vectoryz.de"},
+    {name = "Your Name", email = "you@example.com"},
 ]
 keywords = [
     "ai",
-    "audit",
     "chat",
     "llm",
+    "wrapper",
     "fact-checking",
-    "tribunal",
-    "factampel",
-    "transparency",
-    "wikipedia",
-    "search",
+    "verification",
+    "audit",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
@@ -35,14 +31,13 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Natural Language :: German",
-    "Natural Language :: English",
 ]
 requires-python = ">=3.10"
 dependencies = [
     "fasttext>=0.9.3",
     "cryptography>=42.0",
     "ddgs>=9.0",
+    "PyYAML>=6.0",
     # stdlib-first design — most functionality uses stdlib
 ]
 
@@ -51,22 +46,7 @@ dev = [
     "pytest>=7.4",
 ]
 
-[project.urls]
-Homepage = "https://vectoryz.net"
-"Reference Deployment" = "https://vectoryz.de"
-Repository = "https://codeberg.org/vxctxryz/vectoryz"
-"Mirror (GitHub)" = "https://github.com/vxctxryz/vectoryz"
-Issues = "https://codeberg.org/vxctxryz/vectoryz/issues"
-Documentation = "https://vectoryz.net/docs"
-
-[project.scripts]
-vectoryz-server = "vectoryz.server.wrapper_cc:main"
-
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["vectoryz*"]
+include = ["wrapper_v2*"]
 exclude = ["tests*", "examples*", "docs*", "build*"]
-
-[tool.setuptools.package-data]
-"vectoryz.config" = ["*.json", "*.yaml"]
-"vectoryz.classifiers" = ["*.yaml"]

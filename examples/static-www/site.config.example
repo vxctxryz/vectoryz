@@ -1,21 +1,61 @@
-# vectoryz · site config (plug-and-play substitution)
+# {{YOUR_PROJECT_NAME}} · site config (plug-and-play substitution)
 # Copy this to site.config, edit values, then run ./init_site.sh
+#
+# Every {{PLACEHOLDER}} in the HTML/JS/TXT files gets replaced with the
+# value below. Run init_site.sh after editing — if any placeholder is
+# unsubstituted, the script will flag it.
 
-# Your domain (without https://)
+# ── project identity ──────────────────────────────────────────────
+YOUR_PROJECT_NAME=your-project
+YOUR_PROJECT_NAME_CAP=Your-Project
+YOUR_PROJECT_NAME_UP=YOUR-PROJECT
+
+# ── domains ───────────────────────────────────────────────────────
+# Primary domain (no https://). Used for canonical links + meta-tags.
 YOUR_DOMAIN=example.com
+# Optional sibling TLDs — populate the ones you actually run; leave the
+# rest pointing at example.com if you don't intend to use them.
+YOUR_DOMAIN_NET=example.net
+YOUR_DOMAIN_EU=example.eu
+YOUR_DOMAIN_ORG=example.org
+YOUR_DOMAIN_COM=example.com
+YOUR_DOMAIN_SPACE=example.space
+YOUR_DOMAIN_IO=example.io
+YOUR_DOMAIN_INFO=example.info
+YOUR_DOMAIN_ME=example.me
 
-# Legal entity (impressum)
+# ── legal entity (impressum + datenschutz) ────────────────────────
 YOUR_LEGAL_NAME=Jane Doe
 YOUR_STREET=Beispielstr. 1
 YOUR_POSTAL_CITY=12345 Beispielstadt
+YOUR_CITY=Beispielstadt
+YOUR_COUNTRY_CODE=DE
 YOUR_EMAIL=hello@example.com
+YOUR_CONTACT_EMAIL=contact@example.com
+YOUR_SECURITY_EMAIL=security@example.com
 YOUR_PHONE=+49 123 456789
 YOUR_PHONE_E164=+49123456789
 YOUR_VAT_NUMBER=DE000000000
 
-# Server (for caddy + deployment scripts)
+# ── release / version (about page) ────────────────────────────────
+YOUR_RELEASE_DATE=2026
+YOUR_VERSION=v0.1.0
+
+# ── hosting (about page) ──────────────────────────────────────────
+YOUR_HOSTING_PROVIDER=Your-Hosting-Provider
+YOUR_HOSTING_COUNTRY=Country
+
+# ── source repositories ───────────────────────────────────────────
+# Format: host/path (without https://)
+YOUR_CODEBERG_REPO=codeberg.org/yourname/yourproject
+YOUR_GITHUB_REPO=github.com/yourname/yourproject
+
+# ── social ────────────────────────────────────────────────────────
+YOUR_FEDIVERSE_HANDLE=yourhandle
+
+# ── server (for caddy + deployment scripts) ───────────────────────
 YOUR_SERVER_IP=1.2.3.4
 
-# Branding (free text, used in impressum / about pages)
+# ── branding (free text, used in impressum / about pages) ─────────
 YOUR_PROFESSIONAL_TITLE_LINE1=Your role line 1
 YOUR_PROFESSIONAL_TITLE_LINE2=Your role line 2 · with separators

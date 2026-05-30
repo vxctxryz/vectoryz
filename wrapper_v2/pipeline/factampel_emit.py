@@ -370,7 +370,7 @@ def split_into_claims(text: str) -> list[str]:
         "",
         text.strip(),
     )
-    # 2026-05-21: also strip closing-tag (vectoryzDE has started emitting
+    # 2026-05-21: also strip closing-tag (the model has started emitting
     # both opening AND closing scaffolding-tags). Closing-tag standalone is
     # pure noise — no content, just XML-style envelope marker. Could appear
     # multiple times in one response (e.g. once at essay-end, once at end).

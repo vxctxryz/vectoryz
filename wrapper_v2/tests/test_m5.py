@@ -64,7 +64,7 @@ def _fresh_cache():
     """Return a cache backed by a temp SQLite file (caller cleans up)."""
     fd, path = tempfile.mkstemp(suffix=".db")
     os.close(fd)
-    return FactfactCache(path, engine_instance="vectoryz_v2_test"), path
+    return FactfactCache(path, engine_instance="wrapper_v2_test"), path
 
 
 def _rm(path: str) -> None:
@@ -97,7 +97,7 @@ def test_put_get_roundtrip():
     _check("entry_hash populated", bool(e1.entry_hash))
     _check("prev_entry_hash None for first entry", e1.prev_entry_hash is None)
     _check("verified_at set", e1.verified_at > 0)
-    _check("verified_by = engine_instance", e1.verified_by == "vectoryz_v2_test")
+    _check("verified_by = engine_instance", e1.verified_by == "wrapper_v2_test")
 
     got = c.get("Kingdom Come (Manowar, Kings of Metal 1988)")
     _check("get returns entry", got is not None)
@@ -196,7 +196,7 @@ def test_weiss_override_marks_stale():
     c.put("weiss-target", "factfact", drift_mode=DRIFT_MODE_DEFINITIONAL, now_ts=1000)
     # Default-fresh entry (just-verified, definitional 90d TTL) → not stale
     _check("just-verified not stale", c.should_refresh("weiss-target", now_ts=1001) is False)
-    # User says "vectoryz du depp etz such weil ich es WEISS!!!!!"
+    # User says "engine du depp etz such weil ich es WEISS!!!!!"
     flagged = c.mark_weiss_invalidated("weiss-target", now_ts=1002)
     _check("mark_weiss_invalidated returns True", flagged is True)
     _check("post-WEISS should_refresh = True", c.should_refresh("weiss-target", now_ts=1003) is True)

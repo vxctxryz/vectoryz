@@ -344,7 +344,7 @@ def r2_check_function_length_under_200() -> None:
 
 def r2_check_module_doctrine_cites() -> None:
     """R2.4: Each module has top-comment naming purpose + cited doctrines.
-    Accept BOTH [[wikilink]] (new convention) and memory:name (gx44 legacy).
+    Accept BOTH [[wikilink]] (new convention) and memory:name (legacy).
     """
     py_files = _all_py(_V2)
     no_cite: list[Path] = []

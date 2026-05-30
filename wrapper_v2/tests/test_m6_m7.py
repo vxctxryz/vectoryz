@@ -158,7 +158,7 @@ def test_relabrador_max_entries_cap():
 
 def test_weiss_canonical_phrase():
     print(f"\n{_BOLD}[M7/T1]{_RESET} canonical operator-phrase triggers override")
-    r = detect_weiss_override("vectoryz du depp etz such weil ich es WEISS!!!!!")
+    r = detect_weiss_override("engine du depp etz such weil ich es WEISS!!!!!")
     _check("triggered=True", r.triggered is True)
     _check("score >= 3", r.score >= 3)
     _check("multiple markers matched", len(r.matched_markers) >= 3)

@@ -62,7 +62,7 @@ def search_wikipedia_topic(query: str, lang: str = "de", limit: int = 3,
         q = urllib.parse.quote(query.strip()[:120])
         url = _WIKI_API_OPENSEARCH_TEMPLATE.format(lang=lang, q=q, limit=limit)
         req = urllib.request.Request(url, headers={
-            "User-Agent": "vectoryz-wiki-wortwolke/1.0",
+            "User-Agent": "ai-chat-wrapper-wiki-wortwolke/1.0",
             "Accept": "application/json",
         })
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -120,7 +120,7 @@ def fetch_wiki_summary(term: str, lang: str = "de", timeout: float = 5.0) -> Opt
         title = urllib.parse.quote(term.strip().replace(" ", "_"))
         url = _WIKI_API_SUMMARY_TEMPLATE.format(lang=lang, title=title)
         req = urllib.request.Request(url, headers={
-            "User-Agent": "vectoryz-wiki-wortwolke/1.0",
+            "User-Agent": "ai-chat-wrapper-wiki-wortwolke/1.0",
             "Accept": "application/json",
         })
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -276,7 +276,7 @@ def fetch_wiki_related(term: str, lang: str = "de", timeout: float = 5.0,
         title = urllib.parse.quote(term.strip().replace(" ", "_"))
         url = _WIKI_API_RELATED_TEMPLATE.format(lang=lang, title=title)
         req = urllib.request.Request(url, headers={
-            "User-Agent": "vectoryz-wiki-wortwolke/1.0",
+            "User-Agent": "ai-chat-wrapper-wiki-wortwolke/1.0",
             "Accept": "application/json",
         })
         with urllib.request.urlopen(req, timeout=timeout) as resp:
