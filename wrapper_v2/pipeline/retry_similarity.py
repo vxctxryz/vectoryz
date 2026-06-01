@@ -27,11 +27,16 @@ import re
 from difflib import SequenceMatcher
 
 
-# Default threshold: if ≥85% of normalized content matches, treat as
-# "unproductive retry" and abort. Observed Q5 case had 100% identical
-# content (wörtlich), so even higher thresholds would catch it; 0.85
-# gives tolerance for minor reformatting variance.
-DEFAULT_SIMILARITY_THRESHOLD = 0.85
+# Default threshold: if ≥70% of normalized content matches, treat as
+# "unproductive retry" and abort. Tuned 2026-06-01 from initial 0.85
+# based on production-observed cases:
+#   Q5: sim ≈ 1.00 (wörtlich-identical retries) — easy catch
+#   Q4: sim ≈ 0.65 (truncation paraphrase) — was missed at 0.85
+#   Q3 retry-restructure: sim ≈ 0.50 — legitimate variance, NOT abort
+#   Q3 retry-truncation:  sim ≈ 0.70 — was missed at 0.85
+# 0.70 catches truncation-paraphrase without over-aborting legitimate
+# restructures.
+DEFAULT_SIMILARITY_THRESHOLD = 0.70
 
 
 def _normalize(text: str) -> str:

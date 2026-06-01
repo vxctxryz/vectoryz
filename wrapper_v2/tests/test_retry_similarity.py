@@ -99,15 +99,20 @@ def test_t4_retry_header_ignored():
            f"sim = {compute_similarity(a, b):.3f}")
 
 
-def test_t5_partial_overlap_under_threshold():
-    print(f"\n{_BOLD}[T5]{_RESET} partial overlap (50%) → NOT repetition at default threshold")
+def test_t5_threshold_band_behavior():
+    """Default threshold = 0.70 (2026-06-01 tuned). Verify boundary cases.
+    Sample text-pair has similarity ≈ 0.75 (moderate overlap, would be
+    Q4-class truncation-paraphrase)."""
+    print(f"\n{_BOLD}[T5]{_RESET} moderate overlap → repetition at 0.70 but NOT at 0.85")
     a = "Berlin ist die Hauptstadt. München ist die Hauptstadt Bayerns."
     b = "Berlin ist die Hauptstadt. Hamburg ist eine Hansestadt."
     ratio = compute_similarity(a, b)
-    _check(f"partial overlap (got {ratio:.3f})", 0.4 <= ratio <= 0.85)
-    _check("default threshold (0.85): NOT repetition",
-           not is_retry_repetition(a, b))
-    _check("low threshold (0.50): IS repetition",
+    _check(f"moderate overlap (got {ratio:.3f})", 0.65 < ratio < 0.85)
+    _check("at default 0.70: IS repetition",
+           is_retry_repetition(a, b))
+    _check("at strict 0.85: NOT repetition (preserves legitimate restructure)",
+           not is_retry_repetition(a, b, threshold=0.85))
+    _check("at very-low 0.50: IS repetition",
            is_retry_repetition(a, b, threshold=0.50))
 
 
@@ -144,7 +149,7 @@ def main() -> int:
     test_t2_minor_reformatting()
     test_t3_completely_different()
     test_t4_retry_header_ignored()
-    test_t5_partial_overlap_under_threshold()
+    test_t5_threshold_band_behavior()
     test_t6_empty_safe()
     test_t7_threshold_boundaries()
 
