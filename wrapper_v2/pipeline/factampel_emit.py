@@ -433,6 +433,102 @@ def split_into_claims(text: str) -> list[str]:
     return [s for s in merged if s]
 
 
+# 2026-05-31: conversational-chrome filter. Greetings + Q-restatements +
+# answer-frames + closings are NOT truth-apt and must NOT be graded.
+# Triggering case: "Ahoi!" → 🟡 maybefact (Gleichgewicht) was a category-
+# error observed in production chat (Teufel-scan test). Tribunal got
+# called for greetings → wasted cycles + visual noise in ampel-strip.
+_CONVERSATIONAL_CHROME_RX = re.compile(
+    r"^(?:"
+    # greetings (DE-first, then EN/multilang)
+    r"(?:ahoi|hallo|hi|hey|servus|moin|grüezi|grüß\s+gott|"
+    r"guten\s+(?:tag|morgen|abend)|na\s+(?:gut|du)|"
+    r"hello|howdy|greetings|salut|bonjour|hola|ciao|hej)"
+    # optional follow-on filler ("Hi there", "Hi all", "Hallo zusammen", "Hi du")
+    r"(?:\s+(?:there|du|all|alle|zusammen|y'all|folks|miteinander))?"
+    r"\s*[!.,;:—\-…]*\s*$"
+    r"|"
+    # question restatement frames
+    r"(?:du\s+(?:möchtest|willst)\s+wissen|sie\s+(?:möchten|wollen)\s+wissen|"
+    r"du\s+fragst|sie\s+fragen|deine\s+frage|ihre\s+frage|"
+    r"you\s+(?:want|wish|would\s+like)\s+to\s+know|you(?:'re|\s+are)\s+asking|"
+    r"your\s+question)"
+    r".{0,200}[?:.,]?\s*$"
+    r"|"
+    # explicit answer-frames — bounded short to avoid swallowing real content
+    # ("Hier ist meine Antwort: Berlin ist die Hauptstadt" should NOT match;
+    # only standalone frame should). Cap at ~25 chars after frame end.
+    r"(?:hier\s+(?:ist|kommt|folgt)(?:\s+(?:meine|die))?\s+(?:antwort|erklärung)|"
+    r"here\s+(?:is|comes)(?:\s+(?:my|the))?\s+answer|"
+    r"lass\s+(?:mich|uns)(?:\s+das)?\s+(?:erklären|durchgehen)|let\s+me\s+explain|"
+    r"die\s+(?:kurze|knappe)\s+antwort\s+ist|the\s+short\s+answer\s+is|"
+    r"meine\s+antwort|my\s+answer)"
+    r"\s*[:.!?]?\s*$"
+    r"|"
+    # greeting + counter-question class — "Hi, what's up?", "Hallo, wie geht's?",
+    # "Servus, was brauchst du?". Greeting word + punct + short Q + ?
+    # 2026-05-31: observed in production ("Hi" → bot replied "Hi, what's up?"
+    # which got tribunal-graded as a claim — category error)
+    r"(?:ahoi|hallo|hi|hey|servus|moin|grüezi|"
+    r"hello|howdy|greetings|hej)"
+    r"[,;.!:—\-…]+\s*"
+    r"(?:what\s*'?s\s+up|how\s+are\s+you|how\s+can\s+i\s+help|"
+    r"what\s+can\s+i\s+(?:do|help)|"
+    r"wie\s+geht'?s|wie\s+geht\s+es\s+(?:dir|ihnen)|"
+    r"wie\s+kann\s+ich\s+helfen|was\s+kann\s+ich\s+(?:für\s+dich\s+)?tun|"
+    r"was\s+(?:brauchst\s+du|darf'?s\s+sein|gibt'?s)|"
+    r"was\s+führt\s+(?:dich|sie)\s+her)"
+    r"[\s\w'äöüß-]{0,30}[?!.]?\s*$"
+    r"|"
+    # bare counter-question / offer-help (no greeting prefix needed)
+    # 2026-05-31: observed — bot ended response with "Wie kann ich Ihnen
+    # helfen?" as standalone sentence, got tribunal-graded as a claim
+    r"(?:wie\s+kann\s+ich\s+(?:dir|euch|ihnen|sie)\s+(?:dabei\s+)?helfen|"
+    r"wie\s+(?:kann|darf)\s+ich\s+helfen|"
+    r"was\s+kann\s+ich\s+für\s+(?:dich|euch|sie|ihnen)\s+tun|"
+    r"was\s+darf'?s\s+(?:bitte\s+)?sein|"
+    r"was\s+brauchen\s+sie|"
+    r"womit\s+kann\s+ich\s+(?:(?:dir|euch|ihnen)\s+)?helfen|"
+    r"what\s+can\s+i\s+(?:help|do)\s+(?:you|for\s+you)\s+with|"
+    r"how\s+can\s+i\s+(?:help|assist)(?:\s+you)?|"
+    r"how\s+may\s+i\s+(?:help|assist)\s+you|"
+    r"what\s+are\s+you\s+looking\s+for|"
+    r"how\s+are\s+you(?:\s+doing)?|"
+    r"anything\s+else\s+(?:i\s+can\s+)?(?:help|do))"
+    r"\s*[?!.]?\s*$"
+    r"|"
+    # closings + pleasantries
+    r"(?:ich\s+hoffe(?:,?\s+(?:das|dies|es))?\s+(?:hilft|gibt|war|ist))|"
+    r"(?:wenn\s+du\s+(?:noch\s+)?(?:weitere\s+)?fragen)|"
+    r"(?:weitere\s+(?:fragen|infos|details)\??)|"
+    r"(?:stehe?\s+(?:dir|euch|ihnen)?\s+(?:gerne|jederzeit))|"
+    r"(?:zur\s+verfügung)|"
+    r"(?:bei\s+(?:weiteren\s+)?fragen)|"
+    r"(?:i\s+hope\s+(?:this|that))|"
+    r"(?:let\s+me\s+know\s+if)|"
+    r"(?:any\s+(?:other|further)\s+questions)|"
+    r"(?:feel\s+free\s+to\s+ask)|"
+    r"(?:happy\s+to\s+help)"
+    r")",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def is_conversational_chrome(claim_text: str) -> bool:
+    """True if claim is greeting / Q-restatement / answer-frame / closing.
+
+    These make no truth-apt assertion; grading them via factampel is a
+    category error. Per 2026-05-31 chat observation: "Ahoi!" was being
+    graded 🟡 maybefact, "Du möchtest wissen…" was being graded etc.
+
+    Doctrine: [[positive_framing_doctrine]] (filter chrome, surface claims).
+    """
+    text = (claim_text or "").strip()
+    if not text or len(text) < 4:
+        return True
+    return bool(_CONVERSATIONAL_CHROME_RX.match(text))
+
+
 def emit_factampel_tags_for_response(response_text: str,
                                      use_tribunal: bool = False,
                                      max_tribunals: int = 3,
@@ -450,8 +546,13 @@ def emit_factampel_tags_for_response(response_text: str,
 
     Tribunal is applied to the FIRST N claims (sequentially in normal reading
     order). M3 may switch to importance-ranked-selection.
+
+    2026-05-31: conversational chrome (greetings, Q-restatements, closings)
+    is filtered BEFORE grading. See is_conversational_chrome().
     """
     claims = split_into_claims(response_text)
+    # Filter conversational chrome — not truth-apt, must not be graded
+    claims = [c for c in claims if not is_conversational_chrome(c)]
     if not use_tribunal:
         return [emit_factampel_tag(c, use_tribunal=False) for c in claims]
 
