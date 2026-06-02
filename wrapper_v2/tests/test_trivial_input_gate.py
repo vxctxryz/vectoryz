@@ -260,6 +260,24 @@ def test_t12_slang_counter_q():
                f"got {m}")
 
 
+def test_t12b_ey_and_stacked_greetings():
+    """d.1.1 2026-06-02: 'ey' slang opener + stacked greetings ('ey yo')."""
+    print(f"\n{_BOLD}[T12b]{_RESET} 'ey' opener + stacked greetings")
+    for msg in [
+        "ey wie gehts?",
+        "ey what's up?",
+        "ey yo whazzup",
+        "ey yo whazzup (:",
+        "ey yo wie gehts",
+        "hey yo what's up",
+        "hi hello, wie geht's?",
+        "n'abend, wie geht's?",
+    ]:
+        m = detect_trivial_input(msg)
+        _check(f"matched: {msg!r:30s}", m is not None,
+               f"got {m}")
+
+
 def test_t13_cross_language_greeting_plus_q():
     """d.1 2026-06-02: greeting from one language + counter-Q from another.
     Already supported via _GREETING_PREFIX (cross-lang); reply uses
@@ -305,6 +323,7 @@ def main() -> int:
     test_t10_replies_are_warm_and_short()
     test_t11_length_cap()
     test_t12_slang_counter_q()
+    test_t12b_ey_and_stacked_greetings()
     test_t13_cross_language_greeting_plus_q()
 
     print()

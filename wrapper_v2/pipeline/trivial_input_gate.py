@@ -70,16 +70,21 @@ def _strip(message: str) -> str:
 # ─── Pattern table ─────────────────────────────────────────────────────
 
 
-# Greeting prefixes (DE/EN/ES/IT/FR/PT) — kept tight, must precede a counter-Q
-_GREETING_PREFIX = (
-    r"(?:hi+|hello+|hey+|howdy|yo+|"
+# Greeting tokens (DE/EN/ES/IT/FR/PT). Single token; chained below.
+# d.1.1 2026-06-02: added "ey" (DACH/EN slang opener), "n'abend"/"nabend".
+_GREETING_TOKEN = (
+    r"(?:hi+|hello+|hey+|ey+|howdy|yo+|"
     r"hallo+|hallöchen|ahoi+|moin(?:\s*moin)?|servus(?:\s+auch)?|servas(?:\s+oida)?|"
     r"gr(?:ü|ue)(?:ss|ß)\s+(?:di|gott|dich|euch)|tach(?:chen)?|na(?:\s+du)?|"
+    r"n'?abend|"
     r"hola+|buenas|"
     r"ciao+|salve|"
     r"salut|bonjour|coucou|"
     r"ol(?:á|a))"
 )
+# d.1.1: allow up to 2 stacked greetings ("ey yo", "hi hello", "hey ho", etc.)
+# before the counter-Q.
+_GREETING_PREFIX = rf"(?:{_GREETING_TOKEN}(?:\s+{_GREETING_TOKEN})?)"
 
 # Counter-question phrases (DE/EN/ES/IT/FR)
 _COUNTER_Q_DE = (
