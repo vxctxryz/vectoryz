@@ -102,7 +102,12 @@ _COUNTER_Q_EN = (
     r"how\s+have\s+you\s+been|"
     r"how\s+goes\s+it|"
     r"what'?s\s+new|"
-    r"how\s+ya\s+doing"
+    r"how\s+ya\s+doing|"
+    # slang variants (d.1 2026-06-02) — "whazzup", "wassup", "sup", "wazzup"
+    r"wh?[ae][sz]+[au]p|"
+    r"sup|"
+    r"what\s+up|"
+    r"yo+\s+(?:bro|man|dude)"
     r")"
 )
 _COUNTER_Q_ES = r"(?:qu(?:é|e)\s+tal|c(?:ó|o)mo\s+est(?:á|a)s|qu(?:é|e)\s+pasa)"
@@ -130,27 +135,26 @@ def _add(pat: str, category: str, reply: str, lang: str) -> None:
 
 # ─── (1) Greeting + counter-Q  (lang-tagged from counter-Q phrase) ────
 
-# DE greeting + DE counter-Q
+# Cross-language greeting+counter-Q (d.1 2026-06-02): allow ANY greeting
+# prefix + ANY counter-Q. Reply language picks from counter-Q (since that's
+# the more recent active register — "ahoi whazzup" → EN reply).
+# Order: language-specific counter-Q determines reply language.
 _add(rf"{_GREETING_PREFIX}{_SEP}{_COUNTER_Q_DE}",
      "greeting_q",
      "Hi! Mir geht's gut, danke. Was kann ich für dich tun?",
      "de")
-# EN greeting + EN counter-Q
 _add(rf"{_GREETING_PREFIX}{_SEP}{_COUNTER_Q_EN}",
      "greeting_q",
      "Hey! Doing well, thanks. What's on your mind?",
      "en")
-# ES greeting + ES counter-Q
 _add(rf"{_GREETING_PREFIX}{_SEP}{_COUNTER_Q_ES}",
      "greeting_q",
      "¡Hola! Todo bien, gracias. ¿En qué te ayudo?",
      "es")
-# IT greeting + IT counter-Q
 _add(rf"{_GREETING_PREFIX}{_SEP}{_COUNTER_Q_IT}",
      "greeting_q",
      "Ciao! Tutto bene, grazie. Come posso aiutarti?",
      "it")
-# FR greeting + FR counter-Q
 _add(rf"{_GREETING_PREFIX}{_SEP}{_COUNTER_Q_FR}",
      "greeting_q",
      "Salut ! Ça va bien, merci. Comment puis-je t'aider ?",

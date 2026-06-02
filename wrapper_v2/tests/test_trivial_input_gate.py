@@ -240,6 +240,44 @@ def test_t10_replies_are_warm_and_short():
                    f"empty reply")
 
 
+def test_t12_slang_counter_q():
+    """d.1 2026-06-02: slang variants of "what's up" — whazzup, wassup,
+    sup, what up."""
+    print(f"\n{_BOLD}[T12]{_RESET} slang counter-Q variants → matched")
+    for msg in [
+        "whazzup?",
+        "wassup",
+        "wazzup?",
+        "sup?",
+        "what up",
+        "hi whazzup",      # greeting + slang
+        "ahoi whazzup?",   # cross-lang: DE greeting + EN slang
+        "hallo sup?",
+        "yo bro",
+    ]:
+        m = detect_trivial_input(msg)
+        _check(f"matched: {msg!r:30s}", m is not None,
+               f"got {m}")
+
+
+def test_t13_cross_language_greeting_plus_q():
+    """d.1 2026-06-02: greeting from one language + counter-Q from another.
+    Already supported via _GREETING_PREFIX (cross-lang); reply uses
+    counter-Q lang (the active register)."""
+    print(f"\n{_BOLD}[T13]{_RESET} cross-language greeting+counter-Q")
+    for msg, expected_lang in [
+        ("ahoi whazzup?",       "en"),    # DE greeting + EN counter-Q → EN reply
+        ("hi wie gehts?",       "de"),    # EN greeting + DE counter-Q → DE reply
+        ("hallo what's up?",    "en"),
+        ("hola, wie geht's?",   "de"),
+        ("ciao, how are you?",  "en"),
+    ]:
+        m = detect_trivial_input(msg)
+        ok = m is not None and m.lang_code == expected_lang
+        _check(f"{msg!r:25s} → lang={expected_lang}", ok,
+               f"got {m}")
+
+
 def test_t11_length_cap():
     """Anything over MAX_TRIVIAL_LEN (60 chars after stripping) must not
     match — even if it starts with a trivial pattern."""
@@ -266,6 +304,8 @@ def main() -> int:
     test_t9_empty_and_none()
     test_t10_replies_are_warm_and_short()
     test_t11_length_cap()
+    test_t12_slang_counter_q()
+    test_t13_cross_language_greeting_plus_q()
 
     print()
     print("=" * 75)
