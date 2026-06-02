@@ -149,6 +149,42 @@ def test_t4_response_pipeline_routes_math_to_witness():
                f"got tier={math_tags[0].splice_tier}")
 
 
+def test_t6_user_input_echo_skips_tribunal():
+    """Step (c.1): claim that echoes user_query → user_input_echo tag
+    (source=user_input_echo, tier=nullfact). No tribunal, no math_witness."""
+    print(f"\n{_BOLD}[T6]{_RESET} USER_INPUT echo claim → user_input_echo tag")
+    user_query = ("ein Zug fährt mit 80 km/h, ein anderer mit 120 km/h. "
+                  "Sie sind 500 km auseinander und fahren aufeinander zu.")
+    # Bot echoes part of user's question
+    response = ("Sie sind 500 km auseinander und fahren aufeinander zu. "
+                "Die Antwort ist 2,5 Stunden.")
+    tags = emit_factampel_tags_for_response(response, use_tribunal=True,
+                                            max_tribunals=3,
+                                            user_query=user_query)
+    _check(f"response yields ≥ 1 tag ({len(tags)} found)", len(tags) >= 1,
+           f"tags={[(t.source, t.splice_tier, t.claim_text[:40]) for t in tags]}")
+    echo_tags = [t for t in tags if t.source == "user_input_echo"]
+    _check("at least one user_input_echo tag", len(echo_tags) >= 1,
+           f"sources={[t.source for t in tags]}")
+    if echo_tags:
+        _check("user_input_echo tag is nullfact",
+               echo_tags[0].splice_tier == "nullfact",
+               f"got tier={echo_tags[0].splice_tier}")
+
+
+def test_t7_no_user_query_path_still_works():
+    """Backward-compat: emit_factampel_tags_for_response without user_query
+    must still work (no USER_INPUT detection, fall through to old behavior)."""
+    print(f"\n{_BOLD}[T7]{_RESET} backward-compat: no user_query → no USER_INPUT detection")
+    response = "Sie sind 500 km auseinander. 500 / 200 = 2,5 Stunden."
+    tags = emit_factampel_tags_for_response(response, use_tribunal=True,
+                                            max_tribunals=3)
+    echo_tags = [t for t in tags if t.source == "user_input_echo"]
+    _check("no user_input_echo tag (no user_query given)",
+           len(echo_tags) == 0,
+           f"unexpectedly got echo tags: {echo_tags}")
+
+
 def test_t5_response_pipeline_catches_wrong_math():
     """If the bot emitted wrong arithmetic, math_witness must refute it."""
     print(f"\n{_BOLD}[T5]{_RESET} wrong arithmetic in response → nonfact tag")
@@ -183,6 +219,8 @@ def main() -> int:
     test_t3_no_equation_returns_none()
     test_t4_response_pipeline_routes_math_to_witness()
     test_t5_response_pipeline_catches_wrong_math()
+    test_t6_user_input_echo_skips_tribunal()
+    test_t7_no_user_query_path_still_works()
 
     print()
     print("=" * 75)

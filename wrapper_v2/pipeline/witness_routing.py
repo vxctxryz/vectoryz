@@ -50,6 +50,55 @@ class WitnessClass(enum.Enum):
     GENERAL = "general"             # default — existing web-tribunal works
 
 
+# ─── USER_INPUT detection ───────────────────────────────────────────────
+
+
+# Default thresholds. Overridable via env if needed.
+USER_INPUT_RATIO_THRESHOLD = 0.6   # ≥60% of claim chars come from user_query
+USER_INPUT_MIN_MATCH_LEN = 8       # ignore matching substrings shorter than this
+                                   # (avoids "die", "der", "und" triggering)
+
+
+def _normalize_for_overlap(text: str) -> str:
+    """Lowercase + collapse whitespace; preserves chars for substring-match."""
+    if not text:
+        return ""
+    return re.sub(r"\s+", " ", text.lower()).strip()
+
+
+def user_input_echo_ratio(claim_text: str, user_query: str) -> float:
+    """Fraction of claim_text whose content comes from user_query.
+
+    Uses difflib.SequenceMatcher to find matching blocks ≥ USER_INPUT_MIN_MATCH_LEN
+    chars and sums their lengths. Ratio = matched / len(claim).
+
+    Returns 0.0 if either input is empty.
+
+    Example:
+      claim = "Die Züge sind 500 km auseinander."
+      user  = "Sie sind 500 km auseinander und fahren aufeinander zu."
+      → matches " sind 500 km auseinander" (~25 chars) of 33-char claim → ~0.76
+    """
+    from difflib import SequenceMatcher
+
+    c = _normalize_for_overlap(claim_text)
+    u = _normalize_for_overlap(user_query)
+    if not c or not u:
+        return 0.0
+
+    sm = SequenceMatcher(None, c, u, autojunk=False)
+    blocks = sm.get_matching_blocks()
+    matched = sum(b.size for b in blocks if b.size >= USER_INPUT_MIN_MATCH_LEN)
+    return matched / max(1, len(c))
+
+
+def _is_user_input_echo(claim_text: str, user_query: str) -> bool:
+    """True if claim_text is largely a parrot-back of user_query."""
+    if not user_query:
+        return False
+    return user_input_echo_ratio(claim_text, user_query) >= USER_INPUT_RATIO_THRESHOLD
+
+
 # ─── MATH detection ────────────────────────────────────────────────────
 
 
@@ -123,14 +172,34 @@ def _is_math_claim(claim_text: str) -> bool:
 # ─── Public entry ──────────────────────────────────────────────────────
 
 
-def classify_claim_class(claim_text: str) -> WitnessClass:
+def classify_claim_class(
+    claim_text: str,
+    user_query: str = "",
+) -> WitnessClass:
     """Route a claim to its appropriate witness-class.
 
-    Step #3.1: MATH detection only. Future steps add USER_INPUT,
-    AUTHORITATIVE detection. Anything unmatched → GENERAL.
+    Args:
+        claim_text: the claim to classify
+        user_query: (optional) the user's question/message; if provided,
+                    enables USER_INPUT detection (claim is largely a
+                    parrot-back of user's words → not verifiable via web).
+
+    Order of precedence:
+      1. USER_INPUT (if user_query given + echo-ratio ≥ threshold) —
+         bot is restating user, not making its own claim.
+      2. MATH — arithmetic/units, deterministically verifiable.
+      3. GENERAL — default, web-tribunal handles.
+
+    Step (c.0) added MATH. Step (c.1) adds USER_INPUT.
+    AUTHORITATIVE pending (future).
     """
     if not claim_text or not claim_text.strip():
         return WitnessClass.GENERAL
+
+    # USER_INPUT takes precedence — if bot is echoing the user, no witness
+    # (math or web) can verify "did the user say this".
+    if user_query and _is_user_input_echo(claim_text, user_query):
+        return WitnessClass.USER_INPUT
 
     if _is_math_claim(claim_text):
         return WitnessClass.MATH
@@ -141,4 +210,6 @@ def classify_claim_class(claim_text: str) -> WitnessClass:
 __all__ = [
     "WitnessClass",
     "classify_claim_class",
+    "user_input_echo_ratio",
+    "USER_INPUT_RATIO_THRESHOLD",
 ]

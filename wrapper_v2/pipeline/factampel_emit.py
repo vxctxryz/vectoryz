@@ -595,10 +595,43 @@ def is_conversational_chrome(claim_text: str) -> bool:
     return bool(_CONVERSATIONAL_CHROME_RX.match(text))
 
 
+def _emit_user_input_echo_tag(claim_text: str) -> "FactampelTag":
+    """Step (c.1): claim is largely a parrot-back of user_query → emit a
+    distinct tag indicating bot-echo, no tribunal grading.
+
+    Tier: nullfact (no truth-claim being made by the bot — it's restating
+    the user's words). source=user_input_echo so UI can render distinctly.
+
+    Doctrine: web-tribunal can't verify "did the user say this", and
+    math_witness wouldn't help either. The right response is "we recognized
+    this as echo, no grading required".
+    """
+    tooltip_de = None
+    tooltip_en = None
+    try:
+        legend = _load_legend()
+        tier_data = legend.get("truth_axis", {}).get("nullfact", {})
+        tooltip_de = tier_data.get("tooltip_de")
+        tooltip_en = tier_data.get("tooltip_en")
+    except Exception:
+        pass
+
+    return FactampelTag(
+        claim_text=claim_text,
+        splice_tier="nullfact",
+        confidence="medium",
+        tooltip_de=tooltip_de,
+        tooltip_en=tooltip_en,
+        source="user_input_echo",
+        witnesses=["user_input_echo"],
+    )
+
+
 def emit_factampel_tags_for_response(response_text: str,
                                      use_tribunal: bool = False,
                                      max_tribunals: int = 3,
-                                     tribunal_timeout_s: float = 12.0) -> list[FactampelTag]:
+                                     tribunal_timeout_s: float = 12.0,
+                                     user_query: str = "") -> list[FactampelTag]:
     """Process full response-text → list of per-claim factampel tags.
 
     Args:
@@ -609,6 +642,10 @@ def emit_factampel_tags_for_response(response_text: str,
                        heuristic. Default 3 = covers most response shapes
                        without blowing wall-clock budget.
         tribunal_timeout_s: per-tribunal-call timeout
+        user_query: the user's original question/message. Enables USER_INPUT
+                    detection (step c.1) — claims that are parrot-backs of
+                    user_query skip tribunal (bot isn't making a claim, it's
+                    restating). Optional; defaults to "" (no detection).
 
     Tribunal is applied to the FIRST N claims (sequentially in normal reading
     order). M3 may switch to importance-ranked-selection.
@@ -617,8 +654,8 @@ def emit_factampel_tags_for_response(response_text: str,
     is filtered BEFORE grading. See is_conversational_chrome().
 
     2026-06-02 (Phase-2 #3 step 2): witness-class routing — MATH-class
-    claims skip tribunal (web witnesses can't verify arithmetic; aggregating
-    "absent" evidence gives false quasinonfact). See witness_routing.
+    claims skip tribunal; (c.0) math_witness adds deterministic verdict;
+    (c.1) USER_INPUT claims skip tribunal as bot-echo. See witness_routing.
     """
     # Phase-2 #3 step 2: lazy-import witness_routing so factampel works
     # even if module missing (graceful degradation).
@@ -642,18 +679,20 @@ def emit_factampel_tags_for_response(response_text: str,
     tags = []
     tribunal_budget = max_tribunals
     for c in claims:
-        # Phase-2 #3 step 2: skip tribunal for MATH-class claims.
-        # Step (c.0): also try math_witness deterministic verification BEFORE
-        # falling back to heuristic — judex-non-calculat doctrine.
+        # Witness-class routing: USER_INPUT > MATH > GENERAL
         if _witness_routing_available:
             try:
-                if _classify_witness_class(c) == _WitnessClass.MATH:
-                    # First: try deterministic compute (math_witness)
+                wclass = _classify_witness_class(c, user_query=user_query)
+                # Step (c.1): USER_INPUT — bot is echoing user, no tribunal
+                if wclass == _WitnessClass.USER_INPUT:
+                    tags.append(_emit_user_input_echo_tag(c))
+                    continue
+                # Step (c.0): MATH — try deterministic verify, else heuristic
+                if wclass == _WitnessClass.MATH:
                     math_tag = _emit_math_witness_tag(c)
                     if math_tag is not None:
                         tags.append(math_tag)
                         continue
-                    # No extractable equation → heuristic-only (no tribunal)
                     tag = emit_factampel_tag(c, use_tribunal=False)
                     tags.append(tag)
                     continue

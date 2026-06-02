@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from wrapper_v2.pipeline.witness_routing import (
     WitnessClass,
     classify_claim_class,
+    user_input_echo_ratio,
 )
 
 
@@ -152,6 +153,77 @@ def test_t8_q5_real_claims():
                f"got {cls.value}")
 
 
+def test_t9_user_input_echo_detected():
+    """Step (c.1): claim is largely a parrot-back of user_query → USER_INPUT.
+
+    These claims are 'the user said X' — neither math nor web-tribunal can
+    verify them; they're the user's own words.
+    """
+    print(f"\n{_BOLD}[T9]{_RESET} claim ≈ user_query → USER_INPUT")
+    user_query = ("Berechne: ein Zug fährt mit 80 km/h, ein anderer mit "
+                  "120 km/h. Sie sind 500 km auseinander und fahren "
+                  "aufeinander zu. Wann treffen sie sich?")
+    echo_claims = [
+        # Direct verbatim phrases from the user_query
+        "Sie sind 500 km auseinander und fahren aufeinander zu.",
+        "ein Zug fährt mit 80 km/h, ein anderer mit 120 km/h.",
+        "Die Züge sind 500 km auseinander und fahren aufeinander zu.",
+    ]
+    for claim in echo_claims:
+        cls = classify_claim_class(claim, user_query=user_query)
+        ratio = user_input_echo_ratio(claim, user_query)
+        _check(f"USER_INPUT: {claim!r:55s} ratio={ratio:.2f}",
+               cls == WitnessClass.USER_INPUT,
+               f"got {cls.value}, ratio={ratio:.3f}")
+
+
+def test_t10_synthesis_is_not_user_input():
+    """Bot synthesis (combining + rephrasing user input) should NOT
+    trigger USER_INPUT — that's a real claim worth verifying."""
+    print(f"\n{_BOLD}[T10]{_RESET} bot synthesis (paraphrase + new content) → MATH or GENERAL")
+    user_query = ("Berechne: ein Zug fährt mit 80 km/h, ein anderer mit "
+                  "120 km/h. Sie sind 500 km auseinander. Wann treffen sie sich?")
+    for claim, expected_not in [
+        # Bot's conclusion — own claim, not echo
+        ("Die Züge treffen sich nach 2,5 Stunden.", WitnessClass.USER_INPUT),
+        # Bot's calculation step — own claim, math
+        ("500 km / 200 km/h = 2,5 Stunden", WitnessClass.USER_INPUT),
+        # Bot adds a fact not in query
+        ("Berlin liegt im Nordosten Deutschlands.", WitnessClass.USER_INPUT),
+    ]:
+        cls = classify_claim_class(claim, user_query=user_query)
+        ratio = user_input_echo_ratio(claim, user_query)
+        _check(f"NOT USER_INPUT: {claim!r:50s} ratio={ratio:.2f} → got {cls.value}",
+               cls != expected_not,
+               f"unexpectedly classified as {cls.value}")
+
+
+def test_t11_no_user_query_falls_through():
+    """When user_query is None or empty, USER_INPUT check is skipped —
+    classify proceeds as if it weren't given (MATH/GENERAL only)."""
+    print(f"\n{_BOLD}[T11]{_RESET} empty user_query → no USER_INPUT detection")
+    claim = "Sie sind 500 km auseinander und fahren aufeinander zu."
+    # Without user_query → GENERAL (no math markers)
+    for uq in ["", None]:
+        cls = classify_claim_class(claim, user_query=uq or "")
+        _check(f"no-user_query ({uq!r}): not USER_INPUT",
+               cls != WitnessClass.USER_INPUT,
+               f"got {cls.value} unexpectedly USER_INPUT")
+
+
+def test_t12_user_input_takes_precedence_over_math():
+    """If a math-like claim is also a user_query echo, USER_INPUT wins —
+    we don't need math_witness to verify the user's own input."""
+    print(f"\n{_BOLD}[T12]{_RESET} USER_INPUT precedence over MATH")
+    user_query = "Wir wissen: 500 / 200 = 2.5. Stimmt das?"
+    claim = "500 / 200 = 2.5"
+    cls = classify_claim_class(claim, user_query=user_query)
+    ratio = user_input_echo_ratio(claim, user_query)
+    _check(f"echo-of-math ratio={ratio:.2f} → USER_INPUT",
+           cls == WitnessClass.USER_INPUT,
+           f"got {cls.value}")
+
+
 def main() -> int:
     print(f"{_BOLD}witness_routing — Phase-2 fix #3 step 1 · falsifiable{_RESET}")
     print("=" * 75)
@@ -164,6 +236,10 @@ def main() -> int:
     test_t6_general_factual_is_general()
     test_t7_empty_handled()
     test_t8_q5_real_claims()
+    test_t9_user_input_echo_detected()
+    test_t10_synthesis_is_not_user_input()
+    test_t11_no_user_query_falls_through()
+    test_t12_user_input_takes_precedence_over_math()
 
     print()
     print("=" * 75)
