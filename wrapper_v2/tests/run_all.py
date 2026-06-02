@@ -50,6 +50,7 @@ SUITES = [
     ("test_store",             "store/ DB + sessions + chats + deploy_stamp"),
     ("test_sse_generation",    "sse/ events+emit + generation/ stream+bare_greeting+style_mirror"),
     ("test_d7_register",       "D7 register-dedup — consolidated tone + irony classifier"),
+    ("test_witness_routing",   "Phase-2 #3 witness-class routing (MATH detection)"),
     ("test_chrome_filter",     "factampel chrome-filter (greetings + Q-restate + closings)"),
     ("test_m9_basetouch",      "M9 BASETOUCH VERIFIED schiri-arbitration"),
 ]

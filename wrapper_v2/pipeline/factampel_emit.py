@@ -549,7 +549,24 @@ def emit_factampel_tags_for_response(response_text: str,
 
     2026-05-31: conversational chrome (greetings, Q-restatements, closings)
     is filtered BEFORE grading. See is_conversational_chrome().
+
+    2026-06-02 (Phase-2 #3 step 2): witness-class routing — MATH-class
+    claims skip tribunal (web witnesses can't verify arithmetic; aggregating
+    "absent" evidence gives false quasinonfact). See witness_routing.
     """
+    # Phase-2 #3 step 2: lazy-import witness_routing so factampel works
+    # even if module missing (graceful degradation).
+    try:
+        from wrapper_v2.pipeline.witness_routing import (
+            classify_claim_class as _classify_witness_class,
+            WitnessClass as _WitnessClass,
+        )
+        _witness_routing_available = True
+    except Exception:
+        _witness_routing_available = False
+        _WitnessClass = None
+        _classify_witness_class = None
+
     claims = split_into_claims(response_text)
     # Filter conversational chrome — not truth-apt, must not be graded
     claims = [c for c in claims if not is_conversational_chrome(c)]
@@ -559,6 +576,18 @@ def emit_factampel_tags_for_response(response_text: str,
     tags = []
     tribunal_budget = max_tribunals
     for c in claims:
+        # Phase-2 #3 step 2: skip tribunal for MATH-class claims
+        if _witness_routing_available:
+            try:
+                if _classify_witness_class(c) == _WitnessClass.MATH:
+                    # Math claims get heuristic-only — no false quasinonfact
+                    # from web-witnesses lacking arithmetic evidence
+                    tag = emit_factampel_tag(c, use_tribunal=False)
+                    tags.append(tag)
+                    continue
+            except Exception:
+                pass  # fall through to normal handling
+
         if tribunal_budget > 0:
             tag = emit_factampel_tag(c, use_tribunal=True,
                                      tribunal_timeout_s=tribunal_timeout_s)
