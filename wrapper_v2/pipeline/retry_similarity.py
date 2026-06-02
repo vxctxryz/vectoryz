@@ -27,16 +27,17 @@ import re
 from difflib import SequenceMatcher
 
 
-# Default threshold: if ≥70% of normalized content matches, treat as
-# "unproductive retry" and abort. Tuned 2026-06-01 from initial 0.85
-# based on production-observed cases:
-#   Q5: sim ≈ 1.00 (wörtlich-identical retries) — easy catch
-#   Q4: sim ≈ 0.65 (truncation paraphrase) — was missed at 0.85
-#   Q3 retry-restructure: sim ≈ 0.50 — legitimate variance, NOT abort
-#   Q3 retry-truncation:  sim ≈ 0.70 — was missed at 0.85
-# 0.70 catches truncation-paraphrase without over-aborting legitimate
-# restructures.
+# Default threshold for SYMMETRIC similarity (Ratcliff-Obershelp ratio).
+# Tuned 2026-06-01.
 DEFAULT_SIMILARITY_THRESHOLD = 0.70
+
+# Default threshold for ASYMMETRIC containment.
+# Detects: "is the new retry mostly already in the previous attempt?"
+# Catches the Q4-class pathology where initial = paragraphs + sources
+# (3638 chars) and retry = just paragraphs (1294 chars) — retry is 100%
+# contained in initial but Ratcliff-Obershelp gives only sim=0.529
+# (length-asymmetry bug). Containment gives 1.0 in that case.
+DEFAULT_CONTAINMENT_THRESHOLD = 0.85
 
 
 def _normalize(text: str) -> str:
@@ -58,11 +59,11 @@ def _normalize(text: str) -> str:
 
 
 def compute_similarity(text_a: str, text_b: str) -> float:
-    """Return similarity ratio 0.0-1.0 (1.0 = identical after normalization).
+    """SYMMETRIC similarity ratio 0.0-1.0 (1.0 = identical after normalization).
 
-    Whitespace + case + retry-header markers normalized. Uses difflib's
-    SequenceMatcher (Ratcliff/Obershelp algorithm, O(n²) but fine for
-    typical chat-response sizes 200-5000 chars).
+    Ratcliff/Obershelp algorithm via SequenceMatcher. Length-penalizing:
+    a fully-contained-but-shorter string gets a moderate ratio (~0.5-0.7)
+    not 1.0. Use compute_containment() instead when asking "is A in B?".
     """
     a = _normalize(text_a)
     b = _normalize(text_b)
@@ -73,31 +74,78 @@ def compute_similarity(text_a: str, text_b: str) -> float:
     return SequenceMatcher(None, a, b).ratio()
 
 
+def compute_containment(new_text: str, prev_text: str) -> float:
+    """ASYMMETRIC containment ratio 0.0-1.0.
+
+    Returns "what fraction of new_text is already present in prev_text?".
+    Unlike compute_similarity, this doesn't penalize length-difference:
+    a fully-contained shorter string gets 1.0 regardless of how much
+    extra content prev_text has.
+
+    Use to catch Q4-class pathology: retry-N regenerates the same
+    paragraphs as initial but drops the appended source-citations.
+    Symmetric similarity gives 0.5 (length-penalized); containment
+    gives 1.0 (correctly identifies "no new content").
+
+    Args:
+      new_text:  the current retry attempt's text
+      prev_text: the previous attempt's text (initial response or prior retry)
+
+    Returns:
+      fraction of new_text's characters that are matched in prev_text
+      (after normalization). Empty new_text → 1.0 (vacuously contained).
+    """
+    if not new_text:
+        return 1.0
+    if not prev_text:
+        return 0.0
+    a = _normalize(new_text)
+    b = _normalize(prev_text)
+    if not a:
+        return 1.0
+    if not b:
+        return 0.0
+    sm = SequenceMatcher(None, a, b)
+    matched = sum(triple.size for triple in sm.get_matching_blocks())
+    return matched / len(a)
+
+
 def is_retry_repetition(
     new_text: str,
     prev_text: str,
     threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
+    containment_threshold: float = DEFAULT_CONTAINMENT_THRESHOLD,
 ) -> bool:
-    """True if new_text ≈ prev_text (similarity ≥ threshold).
+    """True if new_text is unproductive-repetition of prev_text.
 
-    Use to short-circuit the retry-loop when the model is producing
-    identical/near-identical output across attempts — i.e. the corrective
-    isn't getting through.
+    Two-signal detection:
+      (1) SYMMETRIC similarity ≥ threshold → "they look the same"
+          Catches: wörtlich-identical retries (Q5), close paraphrases
+      (2) ASYMMETRIC containment ≥ containment_threshold → "new adds no content"
+          Catches: retry that's a strict subset of previous (Q4 where
+          retry drops the sources but keeps paragraphs identical)
+
+    EITHER signal triggers abort. Both default-thresholds tuned 2026-06-01.
 
     Args:
       new_text:  the output of the current retry attempt
-      prev_text: the output of the previous attempt (initial response, or
-                 prior retry)
-      threshold: similarity ratio above which we declare repetition
-                 (default 0.85 — see DEFAULT_SIMILARITY_THRESHOLD)
+      prev_text: the output of the previous attempt (initial or prior retry)
+      threshold: symmetric-similarity ratio (default 0.70)
+      containment_threshold: asymmetric containment ratio (default 0.85)
     """
     if not new_text or not prev_text:
         return False
-    return compute_similarity(new_text, prev_text) >= threshold
+    if compute_similarity(new_text, prev_text) >= threshold:
+        return True
+    if compute_containment(new_text, prev_text) >= containment_threshold:
+        return True
+    return False
 
 
 __all__ = [
     "DEFAULT_SIMILARITY_THRESHOLD",
+    "DEFAULT_CONTAINMENT_THRESHOLD",
     "compute_similarity",
+    "compute_containment",
     "is_retry_repetition",
 ]

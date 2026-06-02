@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from wrapper_v2.pipeline.retry_similarity import (
     compute_similarity,
+    compute_containment,
     is_retry_repetition,
 )
 
@@ -125,6 +126,69 @@ def test_t6_empty_safe():
            not is_retry_repetition("", ""))
 
 
+def test_t7b_containment_catches_q4_subset():
+    """Q4 case: retry-N = subset of initial (paragraphs without sources).
+    Symmetric similarity gives ~0.5 (length-penalized) → would miss.
+    Asymmetric containment gives 1.0 → catches abort correctly.
+
+    Production-observed 2026-06-01: retry_n=1 sim=0.529 retry_len=1294
+    prev_len=3638 — abort didn't fire at sim-only-threshold-0.70.
+    """
+    print(f"\n{_BOLD}[T7b]{_RESET} Q4 subset-pathology: retry contained in initial")
+    # Realistic Q4 fixture: paragraphs (1294 chars) + sources (~2344 chars).
+    # retry-1 = just paragraphs (1294 chars, 100% contained in initial).
+    paragraphs = (
+        "Im §201 der Philosophischen Untersuchungen geht es um das "
+        "Regelparadoxon. Wittgenstein stellt die Frage, wie eine Regel "
+        "überhaupt angewendet werden kann. Stattdessen ist es der Gebrauch "
+        "der Sprache und das soziale Umfeld, die den Sinn von Worten "
+        "festlegen. Die Kenntnis einer Regel zeigt sich in der korrekten "
+        "Anwendung. Damit plädiert Wittgenstein für einen pragmatischen "
+        "Umgang mit Regeln. Was heißt einer Regel folgen? — diese Frage "
+        "ist zentral für sein Spätwerk."
+    )
+    sources = (
+        "[1] Wikipedia Philosophische Untersuchungen - Daraus ergibt sich "
+        "die Regel die mit ihr kompatibel sind Paradox eine Regel könnte "
+        "keine Handlungsweise bestimmen. "
+        "[2] Wikipedia Regelfolgen - Die Bedeutung eines Wortes erschöpft "
+        "sich in seinem Gebrauch korrekte Wortverwendung Kriterium für "
+        "richtiges Verständnis Andrea Birk Historisches Wörterbuch. "
+        "[3] Grin Document Was heißt einer Regel folgen - kritische "
+        "Analyse Regelkenntnis Regelgebrauch Regelverstöße menschliches "
+        "Miteinander Grenzen der Exaktheit pragmatischer Umgang."
+    )
+    initial = paragraphs + "\n\n" + sources
+    retry = paragraphs
+
+    sim = compute_similarity(retry, initial)
+    cont = compute_containment(retry, initial)
+    print(f"      sim={sim:.3f}  containment={cont:.3f}")
+    print(f"      retry_len={len(retry)}  initial_len={len(initial)}")
+
+    _check(f"containment catches subset (got {cont:.3f}, expect ≥ 0.85)",
+           cont >= 0.85)
+    _check("is_retry_repetition fires (similarity- OR containment-path)",
+           is_retry_repetition(retry, initial))
+
+
+def test_t7c_containment_legitimate_rewrite():
+    """Legitimate rewrite: model writes NEW content. Containment is low,
+    no abort. Validates we don't over-abort on real improvements."""
+    print(f"\n{_BOLD}[T7c]{_RESET} legitimate rewrite: new content, low containment")
+    initial = "Berlin ist die Hauptstadt Deutschlands."
+    retry = ("Berlin hat etwa 3.7 Millionen Einwohner und ist die "
+             "bevölkerungsreichste Stadt Deutschlands. "
+             "Die Stadt liegt im Nordosten des Landes an der Spree.")
+    sim = compute_similarity(retry, initial)
+    cont = compute_containment(retry, initial)
+    print(f"      sim={sim:.3f}  containment={cont:.3f}")
+    _check("sim low", sim < 0.50)
+    _check("containment low (new content)", cont < 0.40)
+    _check("NOT repetition (legitimate improvement)",
+           not is_retry_repetition(retry, initial))
+
+
 def test_t7_threshold_boundaries():
     print(f"\n{_BOLD}[T7]{_RESET} threshold boundary behavior")
     # Construct text-pair with controlled similarity
@@ -151,6 +215,8 @@ def main() -> int:
     test_t4_retry_header_ignored()
     test_t5_threshold_band_behavior()
     test_t6_empty_safe()
+    test_t7b_containment_catches_q4_subset()
+    test_t7c_containment_legitimate_rewrite()
     test_t7_threshold_boundaries()
 
     print()
