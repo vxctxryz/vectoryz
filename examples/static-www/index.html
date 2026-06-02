@@ -421,7 +421,7 @@ body.chat-active .empty{display:none}
   display:block;
   user-select:none;
   /* same ondulating scheme as the original settings-btn rainbow + wave */
-  animation:b369rainbow 42s linear infinite, b369wave 9s ease-in-out infinite;
+  animation:b369rainbow 111s linear infinite, b369wave 42s ease-in-out infinite;
   /* shading — subtle depth without being heavy */
   text-shadow:0 1px 2px rgba(0,0,0,.18), 0 0 12px rgba(232,185,35,.12);
   /* cyan halo — ported back from .logo-helix img filter:drop-shadow */
@@ -1118,7 +1118,7 @@ body.chat-empty .newchat-btn{display:none}
 .nc-modal button.nc-secondary:hover,.nc-modal button.nc-secondary:focus{
   color:var(--fg);border-color:var(--gold-dim);outline:none;
 }
-/* === BRAND-SIGNAL :: 9·42 plex applied to settings-btn — ported from subpage
+/* === BRAND-SIGNAL :: 42·111 plex applied to settings-btn — ported from subpage
  * brandlink. Default state: ondulating across rainbow with 9s breath wave +
  * sparkles. Active state (aria-expanded=true after click): solid light-green-
  * subtle (the "I am active and waiting" visual). Hover stays gold. */
@@ -1128,7 +1128,7 @@ body.chat-empty .newchat-btn{display:none}
   font-family:inherit;font-size:.82rem;padding:.35rem 1rem;border-radius:5px;
   cursor:pointer;letter-spacing:.1em;font-weight:500;
   color:rgba(255,255,255,.42);
-  animation:b369rainbow 42s linear infinite, b369wave 9s ease-in-out infinite;
+  animation:b369rainbow 111s linear infinite, b369wave 42s ease-in-out infinite;
   transition:filter .3s ease, background .25s ease, border-color .2s, color .2s;
 }
 .settings-btn:hover{background:rgba(232,185,35,.08);filter:brightness(1.4) saturate(1.25);border-color:var(--gold-dim)}
