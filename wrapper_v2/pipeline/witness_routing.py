@@ -88,7 +88,10 @@ _MATH_SOFT = [
     re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:km|m|cm|mm)\b"),
     re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:Euro|EUR|€|CHF|USD|\$)\b"),
     re.compile(r"\b\d+(?:[.,]\d+)?\s*%"),
-    re.compile(r"\b(?:Distanz|Entfernung|Geschwindigkeit|Zeit|Dauer)\b", re.IGNORECASE),
+    # 2026-06-02: added Strecke (production Q5 fixture: "Die gesamte Strecke
+    # zwischen den Zügen beträgt 500 km" was 1-soft (just 500 km) → GENERAL →
+    # tribunal called + maybefact-mis-graded. With Strecke as soft, 2-soft → MATH).
+    re.compile(r"\b(?:Distanz|Entfernung|Strecke|Abstand|Geschwindigkeit|Zeit|Dauer)\b", re.IGNORECASE),
     re.compile(r"\b(?:Summe|Differenz|Produkt|Quotient)\b", re.IGNORECASE),
 ]
 

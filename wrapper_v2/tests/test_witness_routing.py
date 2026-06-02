@@ -88,6 +88,9 @@ def test_t4_soft_markers_pair_to_math():
         "Die Distanz von 500 km wird in 2 Stunden zurückgelegt.",
         "Die Entfernung beträgt 100 km, die Geschwindigkeit 50 km/h.",
         "Bei 80 Euro pro Stunde und 8 Stunden Arbeit.",
+        # 2026-06-02: Strecke + Abstand added
+        "Die gesamte Strecke zwischen den Zügen beträgt 500 km.",
+        "Der Abstand zwischen Berlin und Hamburg beträgt 280 km.",
     ]:
         cls = classify_claim_class(claim)
         _check(f"MATH (2+ soft): {claim!r:60s}",

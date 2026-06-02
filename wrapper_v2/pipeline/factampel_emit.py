@@ -268,6 +268,72 @@ def classify_claim_with_tribunal(claim_text: str, timeout_s: float = 12.0) -> tu
     return (tier, off_axis, conf, None)
 
 
+def _fmt_de_num(x: float) -> str:
+    """Format a number for German display (comma decimals, trim trailing 0)."""
+    s = f"{x:.4g}"
+    return s.replace(".", ",")
+
+
+def _emit_math_witness_tag(claim_text: str) -> Optional["FactampelTag"]:
+    """Phase-2 #3 step (c.0): judex-non-calculat deterministic verification.
+
+    For MATH-class claims containing explicit "X op Y = Z" patterns,
+    delegate to math_witness (sandboxed eval) instead of asking web-
+    witnesses. Returns:
+
+      - FactampelTag(factfact) when arithmetic is verified correct
+      - FactampelTag(nonfact, correction_text=...) when refuted
+      - None when no extractable equation (caller falls back to heuristic)
+
+    Doctrine: [[judex_non_calculat]] — the right witness for arithmetic
+    is a calculator, not consensus-search.
+    """
+    try:
+        from wrapper_v2.pipeline.math_witness import verify_arithmetic
+    except Exception:
+        return None
+
+    verdict = verify_arithmetic(claim_text)
+    if verdict is None:
+        return None
+
+    if verdict.matches:
+        tier = "factfact"
+        correction_text = None
+    else:
+        tier = "nonfact"
+        if verdict.mismatches:
+            lhs, computed, stated = verdict.mismatches[0]
+            correction_text = (
+                f"Arithmetik: {lhs} = {_fmt_de_num(computed)} "
+                f"(im Text: {_fmt_de_num(stated)})"
+            )
+        else:
+            correction_text = "Arithmetik widerlegt."
+
+    # Lookup tooltip from sealed legend (defensive — legend may be unavailable)
+    tooltip_de = None
+    tooltip_en = None
+    try:
+        legend = _load_legend()
+        tier_data = legend.get("truth_axis", {}).get(tier, {})
+        tooltip_de = tier_data.get("tooltip_de")
+        tooltip_en = tier_data.get("tooltip_en")
+    except Exception:
+        pass
+
+    return FactampelTag(
+        claim_text=claim_text,
+        splice_tier=tier,
+        confidence="high",   # deterministic compute is high-confidence
+        tooltip_de=tooltip_de,
+        tooltip_en=tooltip_en,
+        source="math_witness",
+        correction_text=correction_text,
+        witnesses=["math_witness"],
+    )
+
+
 def emit_factampel_tag(claim_text: str, use_tribunal: bool = False,
                        tribunal_timeout_s: float = 12.0) -> FactampelTag:
     """Per-claim emission. Classify + attach tooltip-content.
@@ -576,12 +642,18 @@ def emit_factampel_tags_for_response(response_text: str,
     tags = []
     tribunal_budget = max_tribunals
     for c in claims:
-        # Phase-2 #3 step 2: skip tribunal for MATH-class claims
+        # Phase-2 #3 step 2: skip tribunal for MATH-class claims.
+        # Step (c.0): also try math_witness deterministic verification BEFORE
+        # falling back to heuristic — judex-non-calculat doctrine.
         if _witness_routing_available:
             try:
                 if _classify_witness_class(c) == _WitnessClass.MATH:
-                    # Math claims get heuristic-only — no false quasinonfact
-                    # from web-witnesses lacking arithmetic evidence
+                    # First: try deterministic compute (math_witness)
+                    math_tag = _emit_math_witness_tag(c)
+                    if math_tag is not None:
+                        tags.append(math_tag)
+                        continue
+                    # No extractable equation → heuristic-only (no tribunal)
                     tag = emit_factampel_tag(c, use_tribunal=False)
                     tags.append(tag)
                     continue
