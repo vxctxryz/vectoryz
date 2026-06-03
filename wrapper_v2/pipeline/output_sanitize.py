@@ -35,26 +35,26 @@ from typing import Optional
 _META_PROMPT_PATTERNS = [
     # The "KURZANTWORT (User hat das oben gesehen, ...)" header + content
     re.compile(
-        r"^\s*KURZANTWORT\s*\(User hat das oben gesehen[^)]*\):\s*\n",
+        r"^\s*KURZANTWORT\s*\(User hat das oben gesehen[^)]*\):\s*(?:\n|\Z)",
         re.MULTILINE,
     ),
     # The expand-instruction lines
     re.compile(
-        r"^\s*Erweitere jetzt die Antwort:[^\n]*\n",
+        r"^\s*Erweitere jetzt die Antwort:[^\n]*(?:\n|\Z)",
         re.MULTILINE,
     ),
     re.compile(
-        r"^\s*Wiederhole die Kurzantwort NICHT[^\n]*\n",
+        r"^\s*Wiederhole die Kurzantwort NICHT[^\n]*(?:\n|\Z)",
         re.MULTILINE,
     ),
     re.compile(
-        r"^\s*Schreibe direkt mit der Erweiterung los[^\n]*\n",
+        r"^\s*Schreibe direkt mit der Erweiterung los[^\n]*(?:\n|\Z)",
         re.MULTILINE,
     ),
     # Whitespace-only "Kontext, Quellen." line if it leaks (continuation
     # of "Erweitere jetzt..." that may wrap)
     re.compile(
-        r"^\s*Kontext,\s*Quellen\.\s*\n",
+        r"^\s*Kontext,\s*Quellen\.\s*(?:\n|\Z)",
         re.MULTILINE,
     ),
 ]

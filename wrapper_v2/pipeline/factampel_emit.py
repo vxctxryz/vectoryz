@@ -595,6 +595,44 @@ def is_conversational_chrome(claim_text: str) -> bool:
     return bool(_CONVERSATIONAL_CHROME_RX.match(text))
 
 
+def _emit_ungrounded_url_tag(claim_text: str,
+                              ungrounded_urls: list) -> "FactampelTag":
+    """Phase-2 quality #172 L3: claim contains URL(s) not in search results.
+
+    Cap tier at nullfact — these URLs are model-generated from training
+    recall + high hallucination risk (the canonical #171 D-Ticket failure).
+    correction_text lists the ungrounded URLs so operator/UI can see why.
+    """
+    if ungrounded_urls:
+        shown = ", ".join(ungrounded_urls[:3])
+        if len(ungrounded_urls) > 3:
+            shown += f" (+{len(ungrounded_urls) - 3} weitere)"
+        correction_text = "URL nicht durch Web-Suche dieser Anfrage belegt: " + shown
+    else:
+        correction_text = "URL nicht durch Web-Suche belegt."
+
+    tooltip_de = None
+    tooltip_en = None
+    try:
+        legend = _load_legend()
+        tier_data = legend.get("truth_axis", {}).get("nullfact", {})
+        tooltip_de = tier_data.get("tooltip_de")
+        tooltip_en = tier_data.get("tooltip_en")
+    except Exception:
+        pass
+
+    return FactampelTag(
+        claim_text=claim_text,
+        splice_tier="nullfact",
+        confidence="medium",
+        tooltip_de=tooltip_de,
+        tooltip_en=tooltip_en,
+        source="url_witness",
+        correction_text=correction_text,
+        witnesses=["url_witness"],
+    )
+
+
 def _emit_user_input_echo_tag(claim_text: str) -> "FactampelTag":
     """Step (c.1): claim is largely a parrot-back of user_query → emit a
     distinct tag indicating bot-echo, no tribunal grading.
@@ -631,7 +669,8 @@ def emit_factampel_tags_for_response(response_text: str,
                                      use_tribunal: bool = False,
                                      max_tribunals: int = 3,
                                      tribunal_timeout_s: float = 12.0,
-                                     user_query: str = "") -> list[FactampelTag]:
+                                     user_query: str = "",
+                                     search_urls: list = None) -> list[FactampelTag]:
     """Process full response-text → list of per-claim factampel tags.
 
     Args:
@@ -673,12 +712,45 @@ def emit_factampel_tags_for_response(response_text: str,
     claims = split_into_claims(response_text)
     # Filter conversational chrome — not truth-apt, must not be graded
     claims = [c for c in claims if not is_conversational_chrome(c)]
+
+    # Phase-2 #172 L3: lazy-import url_witness for ungrounded-URL detection.
+    # Hoisted ABOVE the use_tribunal early-return so BOTH paths benefit.
+    try:
+        from wrapper_v2.pipeline.url_witness import classify_url_claim as _classify_url_claim
+        _url_witness_available = True
+    except Exception:
+        _url_witness_available = False
+
+    def _maybe_url_tag(claim_text):
+        """Returns url_witness tag if claim has ungrounded URL, else None."""
+        if _url_witness_available and search_urls is not None:
+            try:
+                _uv = _classify_url_claim(claim_text, search_urls or [])
+                if _uv.get("ungrounded"):
+                    return _emit_ungrounded_url_tag(claim_text, _uv["ungrounded"])
+            except Exception:
+                pass
+        return None
+
     if not use_tribunal:
-        return [emit_factampel_tag(c, use_tribunal=False) for c in claims]
+        out = []
+        for c in claims:
+            ut = _maybe_url_tag(c)
+            if ut is not None:
+                out.append(ut)
+                continue
+            out.append(emit_factampel_tag(c, use_tribunal=False))
+        return out
 
     tags = []
     tribunal_budget = max_tribunals
     for c in claims:
+        # Phase-2 #172 L3: URL-witness check BEFORE class-routing.
+        ut = _maybe_url_tag(c)
+        if ut is not None:
+            tags.append(ut)
+            continue
+
         # Witness-class routing: USER_INPUT > MATH > GENERAL
         if _witness_routing_available:
             try:

@@ -143,6 +143,45 @@ def test_t6_leading_separator_stripped():
     _check("content survives", "Eigentlicher Content" in out)
 
 
+def test_t7_meta_prompt_end_of_buffer():
+    """Phase-2 #3 #165 (2026-06-02): the operator's Q5 16:53 leak had
+    meta-prompt patterns at the END of the buffer with NO trailing newline.
+    Original regex `[^\\n]*\\n` couldn't match without trailing \\n.
+    Fixed regex uses `(?:\\n|\\Z)` to also match end-of-string."""
+    print(f"\n{_BOLD}[T7]{_RESET} meta-prompt at end-of-buffer (no trailing \\n)")
+    # Buffer that ends mid-meta-prompt (the exact failure shape from #165)
+    buf = (
+        "Die Züge treffen sich nach 2.5 Stunden. Da sie entgegenkommend "
+        "fahren, zusammen 200 km/h laufen.\n\n"
+        "Erweitere jetzt die Antwort: tiefer, mit Beispielen, Kontext, Quellen. "
+        "Wiederhole die Kurzantwort NICHT — bau auf ihr auf. "
+        "Schreibe direkt mit der Erweiterung los, keine erneute Vorrede."
+    )
+    out = strip_short_answer_echo(buf, None)
+    _check("'Erweitere jetzt' line stripped",
+           "Erweitere jetzt die Antwort" not in out)
+    _check("'Wiederhole die Kurzantwort' line stripped",
+           "Wiederhole die Kurzantwort" not in out)
+    _check("'Schreibe direkt' line stripped",
+           "Schreibe direkt mit der Erweiterung" not in out)
+    _check("legit response content survives",
+           "Die Züge treffen sich nach 2.5 Stunden" in out)
+
+
+def test_t8_kurzantwort_end_of_buffer():
+    """KURZANTWORT header at end-of-buffer without trailing newline."""
+    print(f"\n{_BOLD}[T8]{_RESET} KURZANTWORT header at end-of-buffer")
+    buf = (
+        "Hier kommt das Ergebnis.\n\n"
+        "KURZANTWORT (User hat das oben gesehen, NICHT WIEDERHOLEN):"
+    )
+    out = strip_short_answer_echo(buf, None)
+    _check("KURZANTWORT header stripped",
+           "KURZANTWORT" not in out)
+    _check("legit content survives",
+           "Hier kommt das Ergebnis" in out)
+
+
 def main() -> int:
     print(f"{_BOLD}output-sanitize — T2.d meta-prompt echo strip · falsifiable{_RESET}")
     print("=" * 75)
@@ -153,6 +192,8 @@ def main() -> int:
     test_t4_empty_input()
     test_t5_kurzantwort_header_stripped()
     test_t6_leading_separator_stripped()
+    test_t7_meta_prompt_end_of_buffer()
+    test_t8_kurzantwort_end_of_buffer()
 
     print()
     print("=" * 75)
