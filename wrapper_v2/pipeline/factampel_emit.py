@@ -633,6 +633,47 @@ def _emit_ungrounded_url_tag(claim_text: str,
     )
 
 
+def _emit_orphan_cite_tag(claim_text: str,
+                          ungrounded_cites: list,
+                          n_sources: int) -> "FactampelTag":
+    """Phase-2 quality fix #174-D: claim references [N] sources that don't
+    exist in the search context (e.g. claim cites [5] but only 3 sources
+    returned). Operator-recorded failure 2026-06-04 (ice-breaker query had
+    [1]-[5] tokens). Cap tier at nullfact.
+    """
+    if ungrounded_cites:
+        shown = ", ".join(f"[{n}]" for n in sorted(ungrounded_cites)[:5])
+        if len(ungrounded_cites) > 5:
+            shown += f" (+{len(ungrounded_cites) - 5} weitere)"
+        correction_text = (
+            f"Zitat-Marker ohne Belegquelle: {shown} "
+            f"(nur {n_sources} Quelle{'n' if n_sources != 1 else ''} verfügbar)"
+        )
+    else:
+        correction_text = "Zitat-Marker ohne Belegquelle."
+
+    tooltip_de = None
+    tooltip_en = None
+    try:
+        legend = _load_legend()
+        tier_data = legend.get("truth_axis", {}).get("nullfact", {})
+        tooltip_de = tier_data.get("tooltip_de")
+        tooltip_en = tier_data.get("tooltip_en")
+    except Exception:
+        pass
+
+    return FactampelTag(
+        claim_text=claim_text,
+        splice_tier="nullfact",
+        confidence="medium",
+        tooltip_de=tooltip_de,
+        tooltip_en=tooltip_en,
+        source="cite_witness",
+        correction_text=correction_text,
+        witnesses=["cite_witness"],
+    )
+
+
 def _emit_user_input_echo_tag(claim_text: str) -> "FactampelTag":
     """Step (c.1): claim is largely a parrot-back of user_query → emit a
     distinct tag indicating bot-echo, no tribunal grading.
@@ -713,10 +754,14 @@ def emit_factampel_tags_for_response(response_text: str,
     # Filter conversational chrome — not truth-apt, must not be graded
     claims = [c for c in claims if not is_conversational_chrome(c)]
 
-    # Phase-2 #172 L3: lazy-import url_witness for ungrounded-URL detection.
-    # Hoisted ABOVE the use_tribunal early-return so BOTH paths benefit.
+    # Phase-2 #172 L3 + #174-D: lazy-import url_witness for both ungrounded-URL
+    # detection AND orphan [N] cite-token detection. Hoisted ABOVE the
+    # use_tribunal early-return so BOTH paths benefit.
     try:
-        from wrapper_v2.pipeline.url_witness import classify_url_claim as _classify_url_claim
+        from wrapper_v2.pipeline.url_witness import (
+            classify_url_claim as _classify_url_claim,
+            classify_cite_tokens as _classify_cite_tokens,
+        )
         _url_witness_available = True
     except Exception:
         _url_witness_available = False
@@ -732,12 +777,31 @@ def emit_factampel_tags_for_response(response_text: str,
                 pass
         return None
 
+    def _maybe_cite_tag(claim_text):
+        """Phase-2 #174-D: orphan [N] citation marker detection. Returns
+        cite_witness tag if claim references nonexistent sources, else None.
+        """
+        if _url_witness_available and search_urls is not None:
+            try:
+                _cv = _classify_cite_tokens(claim_text, search_urls or [])
+                if _cv.get("ungrounded_cites"):
+                    return _emit_orphan_cite_tag(
+                        claim_text, _cv["ungrounded_cites"], _cv.get("n_sources", 0)
+                    )
+            except Exception:
+                pass
+        return None
+
     if not use_tribunal:
         out = []
         for c in claims:
             ut = _maybe_url_tag(c)
             if ut is not None:
                 out.append(ut)
+                continue
+            ct = _maybe_cite_tag(c)
+            if ct is not None:
+                out.append(ct)
                 continue
             out.append(emit_factampel_tag(c, use_tribunal=False))
         return out
@@ -749,6 +813,11 @@ def emit_factampel_tags_for_response(response_text: str,
         ut = _maybe_url_tag(c)
         if ut is not None:
             tags.append(ut)
+            continue
+        # Phase-2 #174-D: cite-witness check — orphan [N] markers.
+        ct = _maybe_cite_tag(c)
+        if ct is not None:
+            tags.append(ct)
             continue
 
         # Witness-class routing: USER_INPUT > MATH > GENERAL

@@ -147,9 +147,93 @@ def has_ungrounded_url(claim_text: str, search_urls: Optional[List[str]]) -> boo
     return bool(classify_url_claim(claim_text, search_urls)["ungrounded"])
 
 
+# ─── Cite-token detection (Issue D, 2026-06-04) ────────────────────────
+
+
+# Match [1] [2] [12] style citation markers. Common in RAG-style responses.
+_CITE_RX = re.compile(r"\[(\d{1,2})\]")
+
+
+def extract_cite_indices(text: str) -> List[int]:
+    """Find all [N] citation indices in text. Returns unique sorted list."""
+    if not text:
+        return []
+    seen = set()
+    for m in _CITE_RX.finditer(text):
+        try:
+            n = int(m.group(1))
+            seen.add(n)
+        except ValueError:
+            pass
+    return sorted(seen)
+
+
+def classify_cite_tokens(claim_text: str,
+                          search_urls: Optional[List[str]]) -> dict:
+    """Check whether [N] citation tokens in claim_text have backing sources.
+
+    A response that says "...as shown in [3]..." but only 2 search results
+    were returned has a fabricated citation index — model is hallucinating
+    references to sources that don't exist.
+
+    Args:
+        claim_text: a claim sentence/paragraph from LLM output
+        search_urls: search results list (URLs); count determines max valid N
+
+    Returns dict:
+        has_cites:           bool — claim contains at least one [N] marker
+        cite_indices:        list — sorted unique cite indices found
+        n_sources:           int  — number of available search sources
+        ungrounded_cites:    list — indices > n_sources OR < 1
+        suggested_tier_cap:  str | None — "nullfact" if any ungrounded
+        reason:              str
+    """
+    cites = extract_cite_indices(claim_text)
+    n_sources = len(search_urls or [])
+
+    if not cites:
+        return {
+            "has_cites": False,
+            "cite_indices": [],
+            "n_sources": n_sources,
+            "ungrounded_cites": [],
+            "suggested_tier_cap": None,
+            "reason": "no_cite_tokens",
+        }
+
+    ungrounded = [c for c in cites if c < 1 or c > n_sources]
+    if ungrounded:
+        return {
+            "has_cites": True,
+            "cite_indices": cites,
+            "n_sources": n_sources,
+            "ungrounded_cites": ungrounded,
+            "suggested_tier_cap": "nullfact",
+            "reason": (f"cite_index_exceeds_sources({n_sources})"
+                       if n_sources > 0 else "no_search_context_for_cites"),
+        }
+
+    return {
+        "has_cites": True,
+        "cite_indices": cites,
+        "n_sources": n_sources,
+        "ungrounded_cites": [],
+        "suggested_tier_cap": None,
+        "reason": "all_cites_grounded",
+    }
+
+
+def has_orphan_cite(claim_text: str, search_urls: Optional[List[str]]) -> bool:
+    """Convenience: True if claim has [N] tokens without backing sources."""
+    return bool(classify_cite_tokens(claim_text, search_urls)["ungrounded_cites"])
+
+
 __all__ = [
     "extract_urls",
     "normalize_url",
     "classify_url_claim",
     "has_ungrounded_url",
+    "extract_cite_indices",
+    "classify_cite_tokens",
+    "has_orphan_cite",
 ]

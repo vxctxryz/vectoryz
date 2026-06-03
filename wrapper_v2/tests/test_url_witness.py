@@ -177,8 +177,59 @@ def test_t9_has_ungrounded_url_convenience():
            has_ungrounded_url("Berlin ist Hauptstadt", []) is False)
 
 
+def test_tA_cite_token_extraction():
+    print(f"\n{_BOLD}[TA]{_RESET} extract_cite_indices - basic patterns")
+    from wrapper_v2.pipeline.url_witness import extract_cite_indices
+    _check("empty -> []", extract_cite_indices("") == [])
+    _check("no markers -> []",
+           extract_cite_indices("Berlin is the capital.") == [])
+    _check("[1] [2] [3] -> [1,2,3]",
+           extract_cite_indices("See [1] and [2] also [3].") == [1, 2, 3])
+    _check("duplicates dedup",
+           extract_cite_indices("[1] [1] [2]") == [1, 2])
+    _check("two-digit cites",
+           extract_cite_indices("see [12] and [3]") == [3, 12])
+    _check("ignored: [abc] [1.5] [N]",
+           extract_cite_indices("[abc] [1.5] [N] no cite") == [])
+
+
+def test_tB_orphan_cite_detection():
+    """Operator fixture (#174 D): ice-breaker response had [1]-[5] but
+    only N sources in search results."""
+    print(f"\n{_BOLD}[TB]{_RESET} orphan cite detection (Issue D)")
+    from wrapper_v2.pipeline.url_witness import classify_cite_tokens, has_orphan_cite
+
+    # Claim cites [3] but only 2 sources in search context
+    r = classify_cite_tokens("As shown in [3], this works.",
+                              ["https://a.com", "https://b.com"])
+    _check("has_cites True", r["has_cites"] is True)
+    _check("ungrounded [3] flagged", 3 in r["ungrounded_cites"])
+    _check("tier capped to nullfact", r["suggested_tier_cap"] == "nullfact")
+
+    # All cites grounded
+    r = classify_cite_tokens("See [1] and [2].",
+                              ["https://a.com", "https://b.com"])
+    _check("all grounded: no cap",
+           r["suggested_tier_cap"] is None and r["ungrounded_cites"] == [])
+
+    # No search context at all - any cite is ungrounded
+    r = classify_cite_tokens("See [1].", [])
+    _check("no search context: cite ungrounded",
+           r["suggested_tier_cap"] == "nullfact")
+
+    # No cites at all - no-op
+    r = classify_cite_tokens("Berlin is the capital.", ["https://a.com"])
+    _check("no cites: no_cite_tokens",
+           r["reason"] == "no_cite_tokens" and r["suggested_tier_cap"] is None)
+
+    # has_orphan_cite convenience
+    _check("has_orphan_cite True", has_orphan_cite("[5]", ["a"]))
+    _check("has_orphan_cite False (grounded)",
+           has_orphan_cite("[1]", ["a"]) is False)
+
+
 def main() -> int:
-    print(f"{_BOLD}url_witness - task #171 L3 ungrounded-URL detection . falsifiable{_RESET}")
+    print(f"{_BOLD}url_witness - task #171 L3 + #174 D - falsifiable{_RESET}")
     print("=" * 75)
 
     test_t1_extract_urls()
@@ -190,6 +241,8 @@ def main() -> int:
     test_t7_partial_grounding()
     test_t8_normalization_match()
     test_t9_has_ungrounded_url_convenience()
+    test_tA_cite_token_extraction()
+    test_tB_orphan_cite_detection()
 
     print()
     print("=" * 75)
