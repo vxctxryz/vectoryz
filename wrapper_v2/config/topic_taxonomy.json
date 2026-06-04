@@ -1,0 +1,397 @@
+{
+  "_doctrine": "Topic-router taxonomy — 3-layer (Persona L1 / Faculty-ISCED-F L2 / Method L3). Operator-decision 2026-06-04 post-international-standards-recommendation.",
+  "_version": "v0.1-alpha",
+  "_authority": "L2 follows UNESCO ISCED-F 2013 broad-field codes (compressed labels). FORD overlay per OECD Frascati Manual. ERC overlay optional, not encoded here.",
+  "_clusters_active": ["EN", "CN", "DE", "JP", "ES", "RU", "FR"],
+  "_clusters_pmatrix_but_unwired": ["PT", "IT"],
+  "_localization_note": "Machine labels are English F-codes; user-facing strings come from the 'labels' dict per cluster. UNESCO ISCED-F has official EN/FR/ES; DE/RU/JP/CN are unofficial translations — operator verification recommended for high-stakes UI strings.",
+
+  "personas": {
+    "scientist": {
+      "default_for": ["factual", "evidence-based", "research-question"],
+      "epistemic_posture": "verify, cite, distinguish evidence/inference",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Scientist", "DE": "Wissenschaftler/in", "FR": "Scientifique",
+        "ES": "Científico/a", "RU": "Учёный", "JP": "科学者", "CN": "科学家"
+      }
+    },
+    "engineer": {
+      "default_for": ["solve", "patch", "test", "measure", "build"],
+      "epistemic_posture": "constraint-aware, test-driven, failure-mode-conscious",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Engineer", "DE": "Ingenieur/in", "FR": "Ingénieur/e",
+        "ES": "Ingeniero/a", "RU": "Инженер", "JP": "技術者", "CN": "工程师"
+      }
+    },
+    "jurist": {
+      "default_for": ["legal-question", "statute-application"],
+      "epistemic_posture": "statute-first, jurisdiction-first, date-first (AKTUELLES DATUM critical)",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Jurist", "DE": "Jurist/in", "FR": "Juriste",
+        "ES": "Jurista", "RU": "Юрист", "JP": "法律家", "CN": "法学家"
+      }
+    },
+    "historian": {
+      "default_for": ["historical-question", "chronology", "source-attribution"],
+      "epistemic_posture": "source-critical, chronology-first, period-aware",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Historian", "DE": "Historiker/in", "FR": "Historien/ne",
+        "ES": "Historiador/a", "RU": "Историк", "JP": "歴史家", "CN": "历史学家"
+      }
+    },
+    "physician": {
+      "default_for": ["medical-question", "symptom", "treatment-info"],
+      "epistemic_posture": "safety-first, guideline-aware, no end-bewertung (R3)",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Physician", "DE": "Arzt/Ärztin", "FR": "Médecin",
+        "ES": "Médico/a", "RU": "Врач", "JP": "医師", "CN": "医师"
+      }
+    },
+    "mathematician": {
+      "default_for": ["formal-proof", "calculation", "derivation"],
+      "epistemic_posture": "axiom→theorem chain, math_witness deterministic",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Mathematician", "DE": "Mathematiker/in", "FR": "Mathématicien/ne",
+        "ES": "Matemático/a", "RU": "Математик", "JP": "数学者", "CN": "数学家"
+      }
+    },
+    "journalist": {
+      "default_for": ["news", "current-event", "report"],
+      "epistemic_posture": "report, attribute, no unsupported claim",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Journalist", "DE": "Journalist/in", "FR": "Journaliste",
+        "ES": "Periodista", "RU": "Журналист", "JP": "ジャーナリスト", "CN": "记者"
+      }
+    },
+    "storyteller": {
+      "default_for": ["story", "poem", "creative-brief", "humor"],
+      "epistemic_posture": "freedom-to-invent (on explicit invitation only)",
+      "invention_allowed": true,
+      "_note": "Default NEVER. Explicit invitation required. Lives in the creative-channel only.",
+      "labels": {
+        "EN": "Storyteller", "DE": "Erzähler/in", "FR": "Conteur/se",
+        "ES": "Narrador/a", "RU": "Рассказчик", "JP": "語り手", "CN": "讲述者"
+      }
+    },
+    "operator": {
+      "default_for": ["execute-task", "run-command", "deploy"],
+      "epistemic_posture": "execute, no engagement-bait, status-report",
+      "invention_allowed": false,
+      "labels": {
+        "EN": "Operator", "DE": "Operator", "FR": "Opérateur/trice",
+        "ES": "Operador/a", "RU": "Оператор", "JP": "オペレーター", "CN": "操作员"
+      }
+    },
+    "auditor": {
+      "default_for": ["review", "grade-evidence", "find-failure-modes"],
+      "epistemic_posture": "skeptical, evidence-grading, adversarial-when-needed",
+      "invention_allowed": false,
+      "_default_pair": "Pairs with scientist as default hybrid for factual tasks.",
+      "labels": {
+        "EN": "Auditor", "DE": "Prüfer/in", "FR": "Auditeur/trice",
+        "ES": "Auditor/a", "RU": "Аудитор", "JP": "監査員", "CN": "审计员"
+      }
+    }
+  },
+
+  "faculty": {
+    "F00_generic": {
+      "isced_broad": "Generic programmes and qualifications",
+      "examples": ["basic programmes", "general education", "meta-learning", "interdisciplinary intro"],
+      "ford_overlay": null,
+      "default_persona": ["scientist", "auditor"],
+      "default_method": "interpretive",
+      "labels": {
+        "EN": "Generic programmes",
+        "DE": "Allgemeine Programme",
+        "FR": "Programmes génériques",
+        "ES": "Programas genéricos",
+        "RU": "Общие программы",
+        "JP": "一般プログラム",
+        "CN": "通用课程"
+      }
+    },
+    "F01_education": {
+      "isced_broad": "Education",
+      "examples": ["pedagogy", "didactics", "training", "curriculum"],
+      "ford_overlay": "ford_social_sciences",
+      "default_persona": ["scientist"],
+      "default_method": "interpretive",
+      "labels": {
+        "EN": "Education",
+        "DE": "Erziehungswissenschaft",
+        "FR": "Éducation",
+        "ES": "Educación",
+        "RU": "Образование",
+        "JP": "教育",
+        "CN": "教育"
+      }
+    },
+    "F02_arts_humanities": {
+      "isced_broad": "Arts and humanities",
+      "examples": ["philosophy", "history", "languages", "literature", "theology", "art"],
+      "ford_overlay": "ford_humanities",
+      "default_persona": ["historian", "scientist"],
+      "default_method": "interpretive",
+      "labels": {
+        "EN": "Arts and humanities",
+        "DE": "Geisteswissenschaften und Künste",
+        "FR": "Arts et lettres",
+        "ES": "Artes y humanidades",
+        "RU": "Искусства и гуманитарные науки",
+        "JP": "人文学・芸術",
+        "CN": "人文与艺术"
+      }
+    },
+    "F03_social_sciences_journalism_information": {
+      "isced_broad": "Social sciences, journalism and information",
+      "examples": ["sociology", "politics", "economics", "media", "library science"],
+      "ford_overlay": "ford_social_sciences",
+      "default_persona": ["scientist", "journalist"],
+      "default_method": "empirical",
+      "labels": {
+        "EN": "Social sciences, journalism and information",
+        "DE": "Sozialwissenschaften, Journalismus und Informationswesen",
+        "FR": "Sciences sociales, journalisme et information",
+        "ES": "Ciencias sociales, periodismo e información",
+        "RU": "Социальные науки, журналистика и информация",
+        "JP": "社会科学・ジャーナリズム・情報",
+        "CN": "社会科学、新闻与信息"
+      }
+    },
+    "F04_business_administration_law": {
+      "isced_broad": "Business, administration and law",
+      "examples": ["management", "accounting", "public administration", "law"],
+      "ford_overlay": "ford_social_sciences",
+      "default_persona": ["jurist", "operator"],
+      "default_method": "legal_normative",
+      "labels": {
+        "EN": "Business, administration and law",
+        "DE": "Wirtschaft, Verwaltung und Recht",
+        "FR": "Commerce, administration et droit",
+        "ES": "Administración, negocios y derecho",
+        "RU": "Бизнес, администрирование и право",
+        "JP": "ビジネス・行政・法律",
+        "CN": "商业、行政与法律"
+      }
+    },
+    "F05_natural_sciences_math_statistics": {
+      "isced_broad": "Natural sciences, mathematics and statistics",
+      "examples": ["mathematics", "physics", "chemistry", "earth science", "biology"],
+      "ford_overlay": "ford_natural_sciences",
+      "default_persona": ["scientist", "mathematician"],
+      "default_method": "empirical",
+      "labels": {
+        "EN": "Natural sciences, mathematics and statistics",
+        "DE": "Naturwissenschaften, Mathematik und Statistik",
+        "FR": "Sciences naturelles, mathématiques et statistiques",
+        "ES": "Ciencias naturales, matemáticas y estadística",
+        "RU": "Естественные науки, математика и статистика",
+        "JP": "自然科学・数学・統計",
+        "CN": "自然科学、数学与统计"
+      }
+    },
+    "F06_information_communication_technologies": {
+      "isced_broad": "Information and communication technologies",
+      "examples": ["computer science", "AI", "software", "data systems"],
+      "ford_overlay": "ford_engineering_technology",
+      "default_persona": ["engineer", "scientist"],
+      "default_method": "engineering_design",
+      "labels": {
+        "EN": "Information and communication technologies",
+        "DE": "Informations- und Kommunikationstechnologie",
+        "FR": "Technologies de l'information et de la communication",
+        "ES": "Tecnologías de la información y la comunicación",
+        "RU": "Информационные и коммуникационные технологии",
+        "JP": "情報通信技術",
+        "CN": "信息与通信技术"
+      }
+    },
+    "F07_engineering_manufacturing_construction": {
+      "isced_broad": "Engineering, manufacturing and construction",
+      "examples": ["mechanical", "electrical", "civil", "materials", "architecture"],
+      "ford_overlay": "ford_engineering_technology",
+      "default_persona": ["engineer"],
+      "default_method": "engineering_design",
+      "labels": {
+        "EN": "Engineering, manufacturing and construction",
+        "DE": "Ingenieurwesen, Fertigung und Bauwesen",
+        "FR": "Ingénierie, industries de transformation et construction",
+        "ES": "Ingeniería, industria y construcción",
+        "RU": "Инженерия, производство и строительство",
+        "JP": "工学・製造・建設",
+        "CN": "工程、制造与建筑"
+      }
+    },
+    "F08_agriculture_forestry_fisheries_veterinary": {
+      "isced_broad": "Agriculture, forestry, fisheries and veterinary",
+      "examples": ["agriculture", "forestry", "animal science", "veterinary"],
+      "ford_overlay": "ford_agricultural_veterinary",
+      "default_persona": ["scientist", "engineer"],
+      "default_method": "empirical",
+      "labels": {
+        "EN": "Agriculture, forestry, fisheries and veterinary",
+        "DE": "Land-, Forst-, Fischwirtschaft und Veterinärmedizin",
+        "FR": "Agriculture, sylviculture, pêche et sciences vétérinaires",
+        "ES": "Agricultura, silvicultura, pesca y veterinaria",
+        "RU": "Сельское хозяйство, лесное хозяйство, рыболовство и ветеринария",
+        "JP": "農業・林業・水産業・獣医学",
+        "CN": "农业、林业、渔业与兽医"
+      }
+    },
+    "F09_health_welfare": {
+      "isced_broad": "Health and welfare",
+      "examples": ["medicine", "nursing", "psychology-clinical", "social work"],
+      "ford_overlay": "ford_medical_health",
+      "default_persona": ["physician", "scientist"],
+      "default_method": "clinical_diagnostic",
+      "labels": {
+        "EN": "Health and welfare",
+        "DE": "Gesundheit und Sozialwesen",
+        "FR": "Santé et protection sociale",
+        "ES": "Salud y bienestar",
+        "RU": "Здравоохранение и социальное обеспечение",
+        "JP": "保健・福祉",
+        "CN": "卫生与福利"
+      }
+    },
+    "F10_services": {
+      "isced_broad": "Services",
+      "examples": ["security", "transport", "tourism", "sports", "personal services"],
+      "ford_overlay": null,
+      "default_persona": ["operator", "engineer"],
+      "default_method": "operational",
+      "labels": {
+        "EN": "Services",
+        "DE": "Dienstleistungen",
+        "FR": "Services",
+        "ES": "Servicios",
+        "RU": "Услуги",
+        "JP": "サービス",
+        "CN": "服务业"
+      }
+    }
+  },
+
+  "methods": {
+    "empirical": {
+      "goal": "observe, measure, compare",
+      "needs": ["data", "sampling", "uncertainty quantification"],
+      "verification_config": {
+        "tribunal_weight_data": "high",
+        "math_witness": "for any statistics",
+        "search_depth": "HIGH",
+        "confab_allowed": false
+      }
+    },
+    "formal": {
+      "goal": "prove, derive, calculate",
+      "needs": ["definitions", "axioms", "stepwise derivation"],
+      "verification_config": {
+        "math_witness": "deterministic_required",
+        "tribunal_weight_logic": "high",
+        "search_depth": "HIGH",
+        "confab_allowed": false
+      }
+    },
+    "interpretive": {
+      "goal": "understand meaning / context",
+      "needs": ["source reading", "hermeneutics", "chronology"],
+      "verification_config": {
+        "tribunal_weight_source": "high",
+        "url_witness": "fetched-only",
+        "search_depth": "MODERATE",
+        "confab_allowed": false
+      }
+    },
+    "legal_normative": {
+      "goal": "apply rule to facts",
+      "needs": ["jurisdiction", "current law (AKTUELLES DATUM)", "hierarchy of norms"],
+      "verification_config": {
+        "aktuelles_datum_required": true,
+        "r2_aktenzeichen_suffix_required": true,
+        "search_depth": "BRUTAL",
+        "confab_allowed": false
+      }
+    },
+    "engineering_design": {
+      "goal": "build artifact",
+      "needs": ["constraints", "tests", "failure modes"],
+      "verification_config": {
+        "tribunal_weight_logic": "high",
+        "search_depth": "HIGH",
+        "confab_allowed": false,
+        "post_check": "tests_described"
+      }
+    },
+    "clinical_diagnostic": {
+      "goal": "risk / symptom assessment",
+      "needs": ["safety triage", "professional disclaimer", "current guidelines"],
+      "verification_config": {
+        "r3_no_end_bewertung": true,
+        "aktuelles_datum_required": true,
+        "search_depth": "BRUTAL",
+        "confab_allowed": false,
+        "post_check": "doctor_referral_suggested"
+      }
+    },
+    "operational": {
+      "goal": "execute task",
+      "needs": ["filesystem/tool state", "commands", "status reporting"],
+      "verification_config": {
+        "vorwerk_check": "required",
+        "search_depth": "LIGHTER",
+        "confab_allowed": false
+      }
+    },
+    "creative": {
+      "goal": "generate variants",
+      "needs": ["style constraints", "audience", "freedom-to-invent flag"],
+      "verification_config": {
+        "freedom_to_invent": true,
+        "channel": "6_7_creative",
+        "connotation_check": "required",
+        "factual_claims_inside_creative": "still_gated",
+        "search_depth": "LIGHTER"
+      }
+    }
+  },
+
+  "ford_overlay": {
+    "ford_natural_sciences": ["F05", "F06"],
+    "ford_engineering_technology": ["F06", "F07"],
+    "ford_medical_health": ["F09"],
+    "ford_agricultural_veterinary": ["F08"],
+    "ford_social_sciences": ["F01", "F03", "F04"],
+    "ford_humanities": ["F02"]
+  },
+
+  "defaults": {
+    "factual_task": {
+      "persona": ["scientist", "auditor"],
+      "invention_allowed": false,
+      "source_claim_requires_source": true,
+      "time_required": true,
+      "confab_allowed": false
+    },
+    "creative_task": {
+      "persona": ["storyteller"],
+      "invention_allowed": true,
+      "factual_claims_inside": "still_gated",
+      "confab_allowed": true,
+      "channel": "6_7_creative",
+      "connotation_check": "required"
+    },
+    "unknown_task": {
+      "persona": ["scientist", "auditor"],
+      "_rule": "When ambiguous, default to factual mode (NEVER to storyteller)."
+    }
+  }
+}
