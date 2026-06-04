@@ -271,22 +271,28 @@ def test_t12_tuyuca_block_in_system_message():
 
 
 def test_t13_mechanism_block_in_system_message():
-    print(f"\n{_BOLD}[T13]{_RESET} KAUSALMECHANISMUS block (Chomsky C7) — sci/eng/clinical only")
-    # empirical / formal / engineering_design / clinical_diagnostic → block present
-    for m in ["empirical", "formal", "engineering_design", "clinical_diagnostic"]:
-        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
-        msg = build_persona_system_message(r)
-        _check(f"{m}: KAUSALMECHANISMUS header present",
-               "KAUSALMECHANISMUS (Chomsky C7)" in msg)
-        _check(f"{m}: [mechanism:<kausale Kette>] marker listed",
-               "[mechanism:<kausale Kette>]" in msg)
-        _check(f"{m}: Popper-Kriterium referenced",
-               "Popper-Kriterium" in msg)
+    print(f"\n{_BOLD}[T13]{_RESET} KAUSALMECHANISMUS block (Chomsky C7) — strict-only (#203)")
+    # Only clinical_diagnostic has tuyuca=strict AND is in _METHODS_REQUIRING_MECHANISM
+    r_clin = TopicRoute(method="clinical_diagnostic", tuyuca_mode="strict", lang_cluster="DE")
+    msg_clin = build_persona_system_message(r_clin)
+    _check("clinical_diagnostic (strict): KAUSALMECHANISMUS header present",
+           "KAUSALMECHANISMUS (Chomsky C7)" in msg_clin)
+    _check("clinical_diagnostic (strict): [mechanism:<kausale Kette>] marker listed",
+           "[mechanism:<kausale Kette>]" in msg_clin)
+    _check("clinical_diagnostic (strict): Popper-Kriterium referenced",
+           "Popper-Kriterium" in msg_clin)
 
-    # interpretive (tuyuca on but not mechanism-required) → NO mechanism block
+    # #203: tuyuca=on methods (empirical/formal/engineering_design) → NO C7 anymore
+    for m in ["empirical", "formal", "engineering_design"]:
+        r = TopicRoute(method=m, tuyuca_mode="on", lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m} (tuyuca=on): NO KAUSALMECHANISMUS block (#203 strict-only)",
+               "KAUSALMECHANISMUS" not in msg)
+
+    # interpretive (tuyuca on, not mechanism-required) → NO mechanism block
     r_int = TopicRoute(method="interpretive", tuyuca_mode="on", lang_cluster="DE")
     msg_int = build_persona_system_message(r_int)
-    _check("interpretive: NO KAUSALMECHANISMUS block (not science/eng/clinical)",
+    _check("interpretive (on): NO KAUSALMECHANISMUS block",
            "KAUSALMECHANISMUS" not in msg_int)
 
     # creative → NO mechanism block (tuyuca off)
@@ -317,20 +323,26 @@ def test_t14_normative_frame_block():
 
 
 def test_t15_undergeneration_guard_block():
-    print(f"\n{_BOLD}[T15]{_RESET} UNDERGENERATION VERBOTEN block (Chomsky C9b) — all tuyuca-on methods")
-    # All methods with tuyuca on/strict → undergen block present
-    for m in ["empirical", "formal", "interpretive", "legal_normative",
-              "engineering_design", "clinical_diagnostic"]:
-        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
+    print(f"\n{_BOLD}[T15]{_RESET} UNDERGENERATION VERBOTEN block (Chomsky C9b) — strict-only (#203)")
+    # tuyuca=strict methods → undergen block present
+    for m in ["legal_normative", "clinical_diagnostic"]:
+        r = TopicRoute(method=m, tuyuca_mode="strict", lang_cluster="DE")
         msg = build_persona_system_message(r)
-        _check(f"{m}: UNDERGENERATION VERBOTEN header present",
+        _check(f"{m} (strict): UNDERGENERATION VERBOTEN header present",
                "UNDERGENERATION VERBOTEN" in msg)
-        _check(f"{m}: bans 'komplexes und kontroverses'",
+        _check(f"{m} (strict): bans 'komplexes und kontroverses'",
                "komplexes und kontroverses Thema" in msg)
-        _check(f"{m}: bans 'als KI habe ich keine persoenliche'",
+        _check(f"{m} (strict): bans 'als KI habe ich keine persoenliche'",
                "als KI habe ich keine persoenliche Perspektive" in msg)
-        _check(f"{m}: bans 'just following orders' shift",
+        _check(f"{m} (strict): bans 'just following orders' shift",
                "Verantwortungs-Abschiebung" in msg)
+
+    # #203: tuyuca=on methods → NO undergen block anymore
+    for m in ["empirical", "formal", "interpretive", "engineering_design"]:
+        r = TopicRoute(method=m, tuyuca_mode="on", lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m} (on): NO UNDERGENERATION block (#203 strict-only)",
+               "UNDERGENERATION VERBOTEN" not in msg)
 
     # operational + creative → NO undergen block (tuyuca off)
     for m in ["operational", "creative"]:
@@ -350,21 +362,27 @@ def test_t16_chomsky_blocks_metadata():
 
 
 def test_t17_adversarial_final_check_block():
-    print(f"\n{_BOLD}[T17]{_RESET} ADVERSARIAL FINAL CHECK block (Chomsky C10) — all tuyuca-on methods")
-    # All methods with tuyuca on/strict → adversarial block present
-    for m in ["empirical", "formal", "interpretive", "legal_normative",
-              "engineering_design", "clinical_diagnostic"]:
-        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
+    print(f"\n{_BOLD}[T17]{_RESET} ADVERSARIAL FINAL CHECK block (Chomsky C10) — strict-only (#203)")
+    # tuyuca=strict methods → adversarial block present
+    for m in ["legal_normative", "clinical_diagnostic"]:
+        r = TopicRoute(method=m, tuyuca_mode="strict", lang_cluster="DE")
         msg = build_persona_system_message(r)
-        _check(f"{m}: ADVERSARIAL FINAL CHECK header present",
+        _check(f"{m} (strict): ADVERSARIAL FINAL CHECK header present",
                "ADVERSARIAL FINAL CHECK (Chomsky C10)" in msg)
-        _check(f"{m}: 6-question checklist present",
+        _check(f"{m} (strict): 6-question checklist present",
                "1. Was wuerde diese Antwort widerlegen" in msg
                and "6. Habe ich UEBER die Evidenz" in msg)
-        _check(f"{m}: Popper criterion quoted verbatim",
+        _check(f"{m} (strict): Popper criterion quoted verbatim",
                "To be right, it must be possible to be wrong" in msg)
-        _check(f"{m}: faux-confidence ban present",
+        _check(f"{m} (strict): faux-confidence ban present",
                "faux-confidence trotz erkannter Schwaeche" in msg)
+
+    # #203: tuyuca=on methods → NO adversarial block anymore
+    for m in ["empirical", "formal", "interpretive", "engineering_design"]:
+        r = TopicRoute(method=m, tuyuca_mode="on", lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m} (on): NO ADVERSARIAL FINAL CHECK block (#203 strict-only)",
+               "ADVERSARIAL FINAL CHECK" not in msg)
 
     # operational + creative → NO adversarial block (tuyuca off)
     for m in ["operational", "creative"]:
@@ -372,6 +390,27 @@ def test_t17_adversarial_final_check_block():
         msg = build_persona_system_message(r)
         _check(f"{m}: NO ADVERSARIAL FINAL CHECK block (tuyuca off)",
                "ADVERSARIAL FINAL CHECK" not in msg)
+
+
+def test_t19_tuyuca_on_minimal_blocks():
+    print(f"\n{_BOLD}[T19]{_RESET} tuyuca=on methods get MINIMAL blocks (TOPIC-ROUTER + EVIDENZ only) per #203")
+    for m in ["empirical", "formal", "interpretive", "engineering_design"]:
+        r = TopicRoute(method=m, tuyuca_mode="on", lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        # Should have TOPIC-ROUTER + EVIDENZ-MARKIERUNG
+        _check(f"{m} (on): TOPIC-ROUTER present", "TOPIC-ROUTER" in msg)
+        _check(f"{m} (on): EVIDENZ-MARKIERUNG present",
+               "EVIDENZ-MARKIERUNG (Tuyuca-Modus aktiv)" in msg)
+        # Should NOT have C7/C8/C9b/C10
+        for header in ["KAUSALMECHANISMUS", "NORMATIVER RAHMEN",
+                       "UNDERGENERATION VERBOTEN", "ADVERSARIAL FINAL CHECK"]:
+            _check(f"{m} (on): NO {header}", header not in msg)
+        # Size sanity: should be substantially smaller than strict
+        r_strict = TopicRoute(method="legal_normative", tuyuca_mode="strict", lang_cluster="DE")
+        msg_strict = build_persona_system_message(r_strict)
+        _check(f"{m} (on) msg substantially smaller than strict (~50%+)",
+               len(msg) < len(msg_strict) * 0.55,
+               detail=f"on={len(msg)} vs strict={len(msg_strict)}")
 
 
 def test_t18_full_chomsky_stack_legal():
@@ -419,6 +458,7 @@ def main():
     test_t16_chomsky_blocks_metadata()
     test_t17_adversarial_final_check_block()
     test_t18_full_chomsky_stack_legal()
+    test_t19_tuyuca_on_minimal_blocks()
 
     print()
     print("=" * 75)

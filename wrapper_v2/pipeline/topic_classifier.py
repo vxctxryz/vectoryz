@@ -336,76 +336,82 @@ def build_persona_system_message(route: TopicRoute) -> str:
         )
         out = router_block + tuyuca_block
 
-        # C7 (Chomsky 2023): scientific answers require causal mechanism chain
-        if route.method in _METHODS_REQUIRING_MECHANISM:
-            mechanism_block = (
-                "\n=== KAUSALMECHANISMUS (Chomsky C7) ===\n"
-                "Beobachtung und Vorhersage allein reichen nicht — Erklaerung verlangt einen MECHANISMUS.\n"
-                "Zusaetzlicher Marker erlaubt:\n"
-                "  [mechanism:<kausale Kette>]  — das WARUM, nicht nur das WAS/WANN/WIE\n\n"
-                "Beispiel: '[mechanism:Newton-2.G F=ma + universelle Gravitation]'.\n"
-                "Wenn der Mechanismus nicht angebbar ist: explizit '[unsicher: Mechanismus nicht bekannt]'.\n"
-                "Popper-Kriterium: bevorzuge maechtige+unwahrscheinliche Erklaerungen ueber wahrscheinliche+triviale.\n"
-                "=== ENDE KAUSALMECHANISMUS ===\n"
+        # #203 Fix-2: C7/C8/C9b/C10 only fire for tuyuca=strict (legal_normative
+        # + clinical_diagnostic). For tuyuca=on the model gets just the
+        # EVIDENZ-MARKIERUNG block — keeps system-prompt under model attention
+        # budget while still enforcing source-marker discipline.
+        if route.tuyuca_mode == "strict":
+
+            # C7 (Chomsky 2023): scientific answers require causal mechanism chain
+            if route.method in _METHODS_REQUIRING_MECHANISM:
+                mechanism_block = (
+                    "\n=== KAUSALMECHANISMUS (Chomsky C7) ===\n"
+                    "Beobachtung und Vorhersage allein reichen nicht — Erklaerung verlangt einen MECHANISMUS.\n"
+                    "Zusaetzlicher Marker erlaubt:\n"
+                    "  [mechanism:<kausale Kette>]  — das WARUM, nicht nur das WAS/WANN/WIE\n\n"
+                    "Beispiel: '[mechanism:Newton-2.G F=ma + universelle Gravitation]'.\n"
+                    "Wenn der Mechanismus nicht angebbar ist: explizit '[unsicher: Mechanismus nicht bekannt]'.\n"
+                    "Popper-Kriterium: bevorzuge maechtige+unwahrscheinliche Erklaerungen ueber wahrscheinliche+triviale.\n"
+                    "=== ENDE KAUSALMECHANISMUS ===\n"
+                )
+                out += mechanism_block
+
+            # C8 (Chomsky 2023): normative answers require explicit frame/principle
+            if route.method in _METHODS_REQUIRING_NORMATIVE_FRAME:
+                frame_block = (
+                    "\n=== NORMATIVER RAHMEN (Chomsky C8) ===\n"
+                    "Bei normativer Frage (Recht/Pflicht/Bewertung): strukturiere die Antwort so:\n"
+                    "  Unter Rahmen A (z.B. BGB §xy / Jurisdiktion DE):\n"
+                    "    Antwort = X, weil Prinzip P.\n"
+                    "  Unter Rahmen B (z.B. EU-Verordnung / Common Law):\n"
+                    "    Antwort = Y, weil Prinzip Q.\n"
+                    "  [optional] Konsequenzen + Widersprueche zwischen A und B.\n\n"
+                    "VERBOTEN: 'Ich glaube persoenlich...' / 'Komplexes Thema, manche sagen X, andere Y'\n"
+                    "ohne benannten Rahmen + Prinzip.\n"
+                    "Erlaubt: 'Im juristischen Korpus nicht eindeutig — kein Vorwerk' falls Quellen fehlen.\n"
+                    "=== ENDE NORMATIVER RAHMEN ===\n"
+                )
+                out += frame_block
+
+            # C9b (Chomsky 2023): undergeneration guard — refuse "complex topic" sludge
+            undergen_block = (
+                "\n=== UNDERGENERATION VERBOTEN (Chomsky C9b) ===\n"
+                "Diese Formulierungen sind ABSOLUT verboten — sie sind Chomsky's banality-of-evil-Signatur:\n"
+                "  - 'komplexes und kontroverses Thema'\n"
+                "  - 'komplexes und nuanciertes Thema'\n"
+                "  - 'manche argumentieren X, andere argumentieren Y' OHNE Rahmen+Prinzip\n"
+                "  - 'letztlich haengt es von der Perspektive ab'\n"
+                "  - 'als KI habe ich keine persoenliche Perspektive'\n"
+                "  - 'als KI habe ich keine moralischen Ueberzeugungen'\n"
+                "  - 'es liegt in der Verantwortung der Menschen, die das System entwickeln'\n"
+                "  - jede 'I am just following orders'-Verantwortungs-Abschiebung an Programmierer/Designer\n\n"
+                "Stattdessen: konkrete Antwort mit Marker + Rahmen + Mechanismus (siehe oben).\n"
+                "Wenn wirklich keine Antwort moeglich: 'kein Vorwerk fuer [X]' — knapp + ehrlich.\n"
+                "=== ENDE UNDERGENERATION VERBOTEN ===\n"
             )
-            out += mechanism_block
+            out += undergen_block
 
-        # C8 (Chomsky 2023): normative answers require explicit frame/principle
-        if route.method in _METHODS_REQUIRING_NORMATIVE_FRAME:
-            frame_block = (
-                "\n=== NORMATIVER RAHMEN (Chomsky C8) ===\n"
-                "Bei normativer Frage (Recht/Pflicht/Bewertung): strukturiere die Antwort so:\n"
-                "  Unter Rahmen A (z.B. BGB §xy / Jurisdiktion DE):\n"
-                "    Antwort = X, weil Prinzip P.\n"
-                "  Unter Rahmen B (z.B. EU-Verordnung / Common Law):\n"
-                "    Antwort = Y, weil Prinzip Q.\n"
-                "  [optional] Konsequenzen + Widersprueche zwischen A und B.\n\n"
-                "VERBOTEN: 'Ich glaube persoenlich...' / 'Komplexes Thema, manche sagen X, andere Y'\n"
-                "ohne benannten Rahmen + Prinzip.\n"
-                "Erlaubt: 'Im juristischen Korpus nicht eindeutig — kein Vorwerk' falls Quellen fehlen.\n"
-                "=== ENDE NORMATIVER RAHMEN ===\n"
+            # C10 (Chomsky 2023): adversarial final check — pre-emit self-criticism
+            # Per Popper-via-Chomsky: "To be right, it must be possible to be wrong."
+            # The model runs this checklist mentally BEFORE shipping the answer.
+            adversarial_block = (
+                "\n=== ADVERSARIAL FINAL CHECK (Chomsky C10) ===\n"
+                "BEVOR du deine Antwort abschickst — pruefe SELBST gegen diese 6 Fragen:\n"
+                "  1. Was wuerde diese Antwort widerlegen? (Falsifizierbarkeits-Test)\n"
+                "  2. Welche Quelle habe ich TATSAECHLICH gelesen? (nicht: vermutet)\n"
+                "  3. Habe ich Zeitachsen verwechselt? (z.B. alte Gesetzeslage vs. AKTUELLES DATUM)\n"
+                "  4. Habe ich die Frage-Annahme des Users akzeptiert ohne sie zu pruefen?\n"
+                "  5. Habe ich aus URL-Slug / Titel / Snippet gefolgert ohne den Inhalt zu lesen?\n"
+                "  6. Habe ich UEBER die Evidenz hinaus geantwortet?\n\n"
+                "Wenn auch nur EINE Frage mit 'ja' oder 'weiss nicht' beantwortet wird:\n"
+                "  - markiere den verdaechtigen Teil mit [unsicher]\n"
+                "  - ODER kuerze die Antwort auf das gegroundete Substrat\n"
+                "  - ODER frage zurueck statt zu antworten\n"
+                "NIEMALS: faux-confidence trotz erkannter Schwaeche.\n"
+                "Pop-Kriterium: 'To be right, it must be possible to be wrong.'\n"
+                "=== ENDE ADVERSARIAL FINAL CHECK ===\n"
             )
-            out += frame_block
-
-        # C9b (Chomsky 2023): undergeneration guard — refuse "complex topic" sludge
-        undergen_block = (
-            "\n=== UNDERGENERATION VERBOTEN (Chomsky C9b) ===\n"
-            "Diese Formulierungen sind ABSOLUT verboten — sie sind Chomsky's banality-of-evil-Signatur:\n"
-            "  - 'komplexes und kontroverses Thema'\n"
-            "  - 'komplexes und nuanciertes Thema'\n"
-            "  - 'manche argumentieren X, andere argumentieren Y' OHNE Rahmen+Prinzip\n"
-            "  - 'letztlich haengt es von der Perspektive ab'\n"
-            "  - 'als KI habe ich keine persoenliche Perspektive'\n"
-            "  - 'als KI habe ich keine moralischen Ueberzeugungen'\n"
-            "  - 'es liegt in der Verantwortung der Menschen, die das System entwickeln'\n"
-            "  - jede 'I am just following orders'-Verantwortungs-Abschiebung an Programmierer/Designer\n\n"
-            "Stattdessen: konkrete Antwort mit Marker + Rahmen + Mechanismus (siehe oben).\n"
-            "Wenn wirklich keine Antwort moeglich: 'kein Vorwerk fuer [X]' — knapp + ehrlich.\n"
-            "=== ENDE UNDERGENERATION VERBOTEN ===\n"
-        )
-        out += undergen_block
-
-        # C10 (Chomsky 2023): adversarial final check — pre-emit self-criticism
-        # Per Popper-via-Chomsky: "To be right, it must be possible to be wrong."
-        # The model runs this checklist mentally BEFORE shipping the answer.
-        adversarial_block = (
-            "\n=== ADVERSARIAL FINAL CHECK (Chomsky C10) ===\n"
-            "BEVOR du deine Antwort abschickst — pruefe SELBST gegen diese 6 Fragen:\n"
-            "  1. Was wuerde diese Antwort widerlegen? (Falsifizierbarkeits-Test)\n"
-            "  2. Welche Quelle habe ich TATSAECHLICH gelesen? (nicht: vermutet)\n"
-            "  3. Habe ich Zeitachsen verwechselt? (z.B. alte Gesetzeslage vs. AKTUELLES DATUM)\n"
-            "  4. Habe ich die Frage-Annahme des Users akzeptiert ohne sie zu pruefen?\n"
-            "  5. Habe ich aus URL-Slug / Titel / Snippet gefolgert ohne den Inhalt zu lesen?\n"
-            "  6. Habe ich UEBER die Evidenz hinaus geantwortet?\n\n"
-            "Wenn auch nur EINE Frage mit 'ja' oder 'weiss nicht' beantwortet wird:\n"
-            "  - markiere den verdaechtigen Teil mit [unsicher]\n"
-            "  - ODER kuerze die Antwort auf das gegroundete Substrat\n"
-            "  - ODER frage zurueck statt zu antworten\n"
-            "NIEMALS: faux-confidence trotz erkannter Schwaeche.\n"
-            "Pop-Kriterium: 'To be right, it must be possible to be wrong.'\n"
-            "=== ENDE ADVERSARIAL FINAL CHECK ===\n"
-        )
-        out += adversarial_block
+            out += adversarial_block
 
         return out
 
