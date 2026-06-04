@@ -83,6 +83,7 @@ class TopicRoute:
     confidence: float = 0.0
     invention_allowed: bool = False
     confab_channel_67_allowed: bool = False
+    tuyuca_mode: str = "off"  # off / on / strict — drives pre-generation evidence-marker injection
     lang_cluster: str = "EN"
     raw_classifier_output: Optional[str] = None
     fallback_used: bool = False
@@ -101,6 +102,17 @@ def _load_taxonomy() -> dict:
     if _taxonomy_cache is None:
         _taxonomy_cache = json.loads(_TAXONOMY_PATH.read_text(encoding="utf-8"))
     return _taxonomy_cache
+
+
+_VALID_TUYUCA_MODES = {"off", "on", "strict"}
+
+
+def _tuyuca_mode_for_method(method: str) -> str:
+    """Return the tuyuca_mode declared in the taxonomy for this method.
+    Falls back to 'off' if missing or invalid."""
+    t = _load_taxonomy()
+    raw = t.get("methods", {}).get(method, {}).get("tuyuca_mode", "off")
+    return raw if raw in _VALID_TUYUCA_MODES else "off"
 
 
 def _ford_for(faculty: str) -> Optional[str]:
@@ -238,6 +250,7 @@ def classify_topic(text: str, lang_cluster: str = "EN") -> TopicRoute:
     depth = _METHOD_DEFAULT_DEPTH.get(method, "MODERATE")
     confab = method == "creative"
     invent = method == "creative" or "storyteller" in persona
+    tuyuca = _tuyuca_mode_for_method(method)
 
     return TopicRoute(
         persona=persona,
@@ -248,6 +261,7 @@ def classify_topic(text: str, lang_cluster: str = "EN") -> TopicRoute:
         confidence=confidence,
         invention_allowed=invent,
         confab_channel_67_allowed=confab,
+        tuyuca_mode=tuyuca,
         lang_cluster=lang_cluster,
         raw_classifier_output=json.dumps(raw_dict, ensure_ascii=False)[:500],
     )
@@ -274,7 +288,7 @@ def build_persona_system_message(route: TopicRoute) -> str:
         "every claim must trace to source."
     )
 
-    return (
+    router_block = (
         "=== TOPIC-ROUTER (wrapper-side) ===\n"
         f"Persona: {' + '.join(persona_labels)}\n"
         f"Faculty (ISCED-F): {faculty_label} [{route.faculty_isced}]\n"
@@ -282,10 +296,37 @@ def build_persona_system_message(route: TopicRoute) -> str:
         f"Search depth: {route.search_depth}\n"
         f"Invention allowed: {route.invention_allowed}\n"
         f"{confab_block}\n"
+        f"Tuyuca-Modus: {route.tuyuca_mode}\n"
         f"Classifier confidence: {route.confidence:.2f}"
         f"{' [FALLBACK USED — safe defaults applied]' if route.fallback_used else ''}\n"
         "=== END TOPIC-ROUTER ===\n"
     )
+
+    if route.tuyuca_mode in ("on", "strict"):
+        strict_clause = (
+            "STRENG: jede sachliche Behauptung MUSS einen Marker tragen — "
+            "fehlender Marker = Antwort wird zurueckgewiesen.\n"
+        ) if route.tuyuca_mode == "strict" else (
+            "Marker fuer alle sachlichen Behauptungen. Ohne Marker = keine Behauptung.\n"
+        )
+        tuyuca_block = (
+            "\n=== EVIDENZ-MARKIERUNG (Tuyuca-Modus aktiv) ===\n"
+            "Fuer jede sachliche Behauptung haenge inline einen Quellen-Marker an.\n"
+            "Erlaubte Marker:\n"
+            "  [verbatim:<source>]    — woertlich aus angefuehrter Quelle\n"
+            "  [paraphrase:<source>]  — sinngemaess aus angefuehrter Quelle\n"
+            "  [inferred:<premise>]   — aus Praemisse hergeleitet\n"
+            "  [hearsay:<source>]     — gelesen, Primaerquelle nicht direkt geprueft\n"
+            "  [training-knowledge]   — aus Training-Wissen, keine Quelle verifizierbar\n"
+            "  [unsicher]             — gesagt-mit-Unsicherheit, nicht-committed\n\n"
+            f"{strict_clause}"
+            "Persoenliche-Meinung, kreative-Bilder, Stilfiguren in Erzaehlung brauchen KEINEN Marker.\n"
+            "Bei Frage-Zurueckweisung (z.B. Vorwerk-fehlt): begruende ohne Marker.\n"
+            "=== ENDE EVIDENZ-MARKIERUNG ===\n"
+        )
+        return router_block + tuyuca_block
+
+    return router_block
 
 
 # ─── CLI for smoke-test ──────────────────────────────────────────────

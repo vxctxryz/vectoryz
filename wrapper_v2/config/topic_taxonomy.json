@@ -284,6 +284,7 @@
     "empirical": {
       "goal": "observe, measure, compare",
       "needs": ["data", "sampling", "uncertainty quantification"],
+      "tuyuca_mode": "on",
       "verification_config": {
         "tribunal_weight_data": "high",
         "math_witness": "for any statistics",
@@ -294,6 +295,7 @@
     "formal": {
       "goal": "prove, derive, calculate",
       "needs": ["definitions", "axioms", "stepwise derivation"],
+      "tuyuca_mode": "on",
       "verification_config": {
         "math_witness": "deterministic_required",
         "tribunal_weight_logic": "high",
@@ -304,6 +306,7 @@
     "interpretive": {
       "goal": "understand meaning / context",
       "needs": ["source reading", "hermeneutics", "chronology"],
+      "tuyuca_mode": "on",
       "verification_config": {
         "tribunal_weight_source": "high",
         "url_witness": "fetched-only",
@@ -314,6 +317,7 @@
     "legal_normative": {
       "goal": "apply rule to facts",
       "needs": ["jurisdiction", "current law (AKTUELLES DATUM)", "hierarchy of norms"],
+      "tuyuca_mode": "strict",
       "verification_config": {
         "aktuelles_datum_required": true,
         "r2_aktenzeichen_suffix_required": true,
@@ -324,6 +328,7 @@
     "engineering_design": {
       "goal": "build artifact",
       "needs": ["constraints", "tests", "failure modes"],
+      "tuyuca_mode": "on",
       "verification_config": {
         "tribunal_weight_logic": "high",
         "search_depth": "HIGH",
@@ -334,6 +339,7 @@
     "clinical_diagnostic": {
       "goal": "risk / symptom assessment",
       "needs": ["safety triage", "professional disclaimer", "current guidelines"],
+      "tuyuca_mode": "strict",
       "verification_config": {
         "r3_no_end_bewertung": true,
         "aktuelles_datum_required": true,
@@ -345,6 +351,7 @@
     "operational": {
       "goal": "execute task",
       "needs": ["filesystem/tool state", "commands", "status reporting"],
+      "tuyuca_mode": "off",
       "verification_config": {
         "vorwerk_check": "required",
         "search_depth": "LIGHTER",
@@ -354,6 +361,7 @@
     "creative": {
       "goal": "generate variants",
       "needs": ["style constraints", "audience", "freedom-to-invent flag"],
+      "tuyuca_mode": "off",
       "verification_config": {
         "freedom_to_invent": true,
         "channel": "6_7_creative",

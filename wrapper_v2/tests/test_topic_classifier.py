@@ -22,8 +22,10 @@ from wrapper_v2.pipeline.topic_classifier import (  # noqa: E402
     TopicRoute,
     _PERSONAS, _FACULTIES, _METHODS, _DEPTHS,
     _METHOD_DEFAULT_DEPTH,
+    _VALID_TUYUCA_MODES,
     _load_taxonomy,
     _ford_for,
+    _tuyuca_mode_for_method,
     _validate_persona_list, _validate_faculty, _validate_method,
     _validate_confidence,
     _apply_hard_default_rules,
@@ -196,8 +198,78 @@ def test_t9_persona_system_message():
            "ALLOWED" in cm)
 
 
+def test_t10_tuyuca_mode_per_method():
+    print(f"\n{_BOLD}[T10]{_RESET} tuyuca_mode activation table per #190")
+    # Per [[tuyuca_earlier_pipeline_integration]] activation table:
+    expected = {
+        "empirical": "on",
+        "formal": "on",
+        "interpretive": "on",
+        "legal_normative": "strict",
+        "engineering_design": "on",
+        "clinical_diagnostic": "strict",
+        "operational": "off",
+        "creative": "off",
+    }
+    for method, want in expected.items():
+        got = _tuyuca_mode_for_method(method)
+        _check(f"{method} → {want} (got {got})", got == want)
+    _check("unknown method falls back to off",
+           _tuyuca_mode_for_method("nonsense") == "off")
+    _check("all tuyuca_mode values are in valid set",
+           all(_tuyuca_mode_for_method(m) in _VALID_TUYUCA_MODES for m in _METHODS))
+
+
+def test_t11_tuyuca_topicroute_default():
+    print(f"\n{_BOLD}[T11]{_RESET} TopicRoute.tuyuca_mode defaults to 'off'")
+    r = TopicRoute()
+    _check("default tuyuca_mode == 'off'", r.tuyuca_mode == "off")
+
+
+def test_t12_tuyuca_block_in_system_message():
+    print(f"\n{_BOLD}[T12]{_RESET} build_persona_system_message includes/excludes EVIDENZ-MARKIERUNG block")
+    # tuyuca_mode='off' → no block
+    r_off = TopicRoute(
+        persona=["operator"], faculty_isced="F10_services",
+        method="operational", tuyuca_mode="off", lang_cluster="EN",
+    )
+    msg_off = build_persona_system_message(r_off)
+    _check("OFF: no EVIDENZ-MARKIERUNG header",
+           "EVIDENZ-MARKIERUNG" not in msg_off)
+    _check("OFF: TOPIC-ROUTER reports Tuyuca-Modus: off",
+           "Tuyuca-Modus: off" in msg_off)
+
+    # tuyuca_mode='on' → block present, NOT strict
+    r_on = TopicRoute(
+        persona=["scientist"], faculty_isced="F05_natural_sciences_math_statistics",
+        method="empirical", tuyuca_mode="on", lang_cluster="DE",
+    )
+    msg_on = build_persona_system_message(r_on)
+    _check("ON: EVIDENZ-MARKIERUNG header present",
+           "EVIDENZ-MARKIERUNG (Tuyuca-Modus aktiv)" in msg_on)
+    _check("ON: [verbatim:<source>] marker listed",
+           "[verbatim:<source>]" in msg_on)
+    _check("ON: [training-knowledge] marker listed",
+           "[training-knowledge]" in msg_on)
+    _check("ON: STRENG clause NOT present",
+           "STRENG" not in msg_on)
+
+    # tuyuca_mode='strict' → block present AND strict clause
+    r_strict = TopicRoute(
+        persona=["jurist"], faculty_isced="F04_business_administration_law",
+        method="legal_normative", tuyuca_mode="strict", lang_cluster="DE",
+    )
+    msg_strict = build_persona_system_message(r_strict)
+    _check("STRICT: EVIDENZ-MARKIERUNG header present",
+           "EVIDENZ-MARKIERUNG (Tuyuca-Modus aktiv)" in msg_strict)
+    _check("STRICT: STRENG clause present",
+           "STRENG: jede sachliche Behauptung MUSS" in msg_strict)
+    _check("STRICT: 'wird zurueckgewiesen' phrasing present",
+           "zurueckgewiesen" in msg_strict)
+
+
 def main():
-    print(f"{_BOLD}topic_classifier — falsifiable tests · #188{_RESET}")
+    print(f"{_BOLD}topic_classifier — falsifiable tests · #188 + #190{_RESET}")
     print("=" * 75)
     test_t1_taxonomy_loads()
     test_t2_persona_labels_in_all_7_clusters()
@@ -208,6 +280,9 @@ def main():
     test_t7_method_default_depth()
     test_t8_safe_default_topicroute()
     test_t9_persona_system_message()
+    test_t10_tuyuca_mode_per_method()
+    test_t11_tuyuca_topicroute_default()
+    test_t12_tuyuca_block_in_system_message()
 
     print()
     print("=" * 75)
