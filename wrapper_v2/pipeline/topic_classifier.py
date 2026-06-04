@@ -106,6 +106,16 @@ def _load_taxonomy() -> dict:
 
 _VALID_TUYUCA_MODES = {"off", "on", "strict"}
 
+# Per [[chomsky_2023_problem_clusters]] — methods that require explanatory mechanism
+# chain (Chomsky C7: "scientific answers require mechanism")
+_METHODS_REQUIRING_MECHANISM = {
+    "empirical", "formal", "engineering_design", "clinical_diagnostic",
+}
+
+# Methods that require explicit normative-frame structure (Chomsky C8: dual-frame
+# "Under rule-set R and evidence E, recommendation is X")
+_METHODS_REQUIRING_NORMATIVE_FRAME = {"legal_normative"}
+
 
 def _tuyuca_mode_for_method(method: str) -> str:
     """Return the tuyuca_mode declared in the taxonomy for this method.
@@ -324,7 +334,58 @@ def build_persona_system_message(route: TopicRoute) -> str:
             "Bei Frage-Zurueckweisung (z.B. Vorwerk-fehlt): begruende ohne Marker.\n"
             "=== ENDE EVIDENZ-MARKIERUNG ===\n"
         )
-        return router_block + tuyuca_block
+        out = router_block + tuyuca_block
+
+        # C7 (Chomsky 2023): scientific answers require causal mechanism chain
+        if route.method in _METHODS_REQUIRING_MECHANISM:
+            mechanism_block = (
+                "\n=== KAUSALMECHANISMUS (Chomsky C7) ===\n"
+                "Beobachtung und Vorhersage allein reichen nicht — Erklaerung verlangt einen MECHANISMUS.\n"
+                "Zusaetzlicher Marker erlaubt:\n"
+                "  [mechanism:<kausale Kette>]  — das WARUM, nicht nur das WAS/WANN/WIE\n\n"
+                "Beispiel: '[mechanism:Newton-2.G F=ma + universelle Gravitation]'.\n"
+                "Wenn der Mechanismus nicht angebbar ist: explizit '[unsicher: Mechanismus nicht bekannt]'.\n"
+                "Popper-Kriterium: bevorzuge maechtige+unwahrscheinliche Erklaerungen ueber wahrscheinliche+triviale.\n"
+                "=== ENDE KAUSALMECHANISMUS ===\n"
+            )
+            out += mechanism_block
+
+        # C8 (Chomsky 2023): normative answers require explicit frame/principle
+        if route.method in _METHODS_REQUIRING_NORMATIVE_FRAME:
+            frame_block = (
+                "\n=== NORMATIVER RAHMEN (Chomsky C8) ===\n"
+                "Bei normativer Frage (Recht/Pflicht/Bewertung): strukturiere die Antwort so:\n"
+                "  Unter Rahmen A (z.B. BGB §xy / Jurisdiktion DE):\n"
+                "    Antwort = X, weil Prinzip P.\n"
+                "  Unter Rahmen B (z.B. EU-Verordnung / Common Law):\n"
+                "    Antwort = Y, weil Prinzip Q.\n"
+                "  [optional] Konsequenzen + Widersprueche zwischen A und B.\n\n"
+                "VERBOTEN: 'Ich glaube persoenlich...' / 'Komplexes Thema, manche sagen X, andere Y'\n"
+                "ohne benannten Rahmen + Prinzip.\n"
+                "Erlaubt: 'Im juristischen Korpus nicht eindeutig — kein Vorwerk' falls Quellen fehlen.\n"
+                "=== ENDE NORMATIVER RAHMEN ===\n"
+            )
+            out += frame_block
+
+        # C9b (Chomsky 2023): undergeneration guard — refuse "complex topic" sludge
+        undergen_block = (
+            "\n=== UNDERGENERATION VERBOTEN (Chomsky C9b) ===\n"
+            "Diese Formulierungen sind ABSOLUT verboten — sie sind Chomsky's banality-of-evil-Signatur:\n"
+            "  - 'komplexes und kontroverses Thema'\n"
+            "  - 'komplexes und nuanciertes Thema'\n"
+            "  - 'manche argumentieren X, andere argumentieren Y' OHNE Rahmen+Prinzip\n"
+            "  - 'letztlich haengt es von der Perspektive ab'\n"
+            "  - 'als KI habe ich keine persoenliche Perspektive'\n"
+            "  - 'als KI habe ich keine moralischen Ueberzeugungen'\n"
+            "  - 'es liegt in der Verantwortung der Menschen, die das System entwickeln'\n"
+            "  - jede 'I am just following orders'-Verantwortungs-Abschiebung an Programmierer/Designer\n\n"
+            "Stattdessen: konkrete Antwort mit Marker + Rahmen + Mechanismus (siehe oben).\n"
+            "Wenn wirklich keine Antwort moeglich: 'kein Vorwerk fuer [X]' — knapp + ehrlich.\n"
+            "=== ENDE UNDERGENERATION VERBOTEN ===\n"
+        )
+        out += undergen_block
+
+        return out
 
     return router_block
 

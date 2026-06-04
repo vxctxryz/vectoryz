@@ -23,6 +23,8 @@ from wrapper_v2.pipeline.topic_classifier import (  # noqa: E402
     _PERSONAS, _FACULTIES, _METHODS, _DEPTHS,
     _METHOD_DEFAULT_DEPTH,
     _VALID_TUYUCA_MODES,
+    _METHODS_REQUIRING_MECHANISM,
+    _METHODS_REQUIRING_NORMATIVE_FRAME,
     _load_taxonomy,
     _ford_for,
     _tuyuca_mode_for_method,
@@ -268,8 +270,87 @@ def test_t12_tuyuca_block_in_system_message():
            "zurueckgewiesen" in msg_strict)
 
 
+def test_t13_mechanism_block_in_system_message():
+    print(f"\n{_BOLD}[T13]{_RESET} KAUSALMECHANISMUS block (Chomsky C7) — sci/eng/clinical only")
+    # empirical / formal / engineering_design / clinical_diagnostic → block present
+    for m in ["empirical", "formal", "engineering_design", "clinical_diagnostic"]:
+        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m}: KAUSALMECHANISMUS header present",
+               "KAUSALMECHANISMUS (Chomsky C7)" in msg)
+        _check(f"{m}: [mechanism:<kausale Kette>] marker listed",
+               "[mechanism:<kausale Kette>]" in msg)
+        _check(f"{m}: Popper-Kriterium referenced",
+               "Popper-Kriterium" in msg)
+
+    # interpretive (tuyuca on but not mechanism-required) → NO mechanism block
+    r_int = TopicRoute(method="interpretive", tuyuca_mode="on", lang_cluster="DE")
+    msg_int = build_persona_system_message(r_int)
+    _check("interpretive: NO KAUSALMECHANISMUS block (not science/eng/clinical)",
+           "KAUSALMECHANISMUS" not in msg_int)
+
+    # creative → NO mechanism block (tuyuca off)
+    r_cr = TopicRoute(method="creative", tuyuca_mode="off", lang_cluster="DE")
+    msg_cr = build_persona_system_message(r_cr)
+    _check("creative: NO KAUSALMECHANISMUS block (tuyuca off)",
+           "KAUSALMECHANISMUS" not in msg_cr)
+
+
+def test_t14_normative_frame_block():
+    print(f"\n{_BOLD}[T14]{_RESET} NORMATIVER RAHMEN block (Chomsky C8) — legal_normative only")
+    r_legal = TopicRoute(method="legal_normative", tuyuca_mode="strict", lang_cluster="DE")
+    msg_legal = build_persona_system_message(r_legal)
+    _check("legal_normative: NORMATIVER RAHMEN header present",
+           "NORMATIVER RAHMEN (Chomsky C8)" in msg_legal)
+    _check("legal_normative: dual-frame structure described",
+           "Unter Rahmen A" in msg_legal and "Unter Rahmen B" in msg_legal)
+    _check("legal_normative: forbids 'Ich glaube persoenlich'",
+           "Ich glaube persoenlich" in msg_legal)
+
+    # All other methods → no normative frame block
+    for m in ["empirical", "formal", "interpretive", "engineering_design",
+              "clinical_diagnostic", "operational", "creative"]:
+        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m}: NO NORMATIVER RAHMEN block",
+               "NORMATIVER RAHMEN" not in msg)
+
+
+def test_t15_undergeneration_guard_block():
+    print(f"\n{_BOLD}[T15]{_RESET} UNDERGENERATION VERBOTEN block (Chomsky C9b) — all tuyuca-on methods")
+    # All methods with tuyuca on/strict → undergen block present
+    for m in ["empirical", "formal", "interpretive", "legal_normative",
+              "engineering_design", "clinical_diagnostic"]:
+        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m}: UNDERGENERATION VERBOTEN header present",
+               "UNDERGENERATION VERBOTEN" in msg)
+        _check(f"{m}: bans 'komplexes und kontroverses'",
+               "komplexes und kontroverses Thema" in msg)
+        _check(f"{m}: bans 'als KI habe ich keine persoenliche'",
+               "als KI habe ich keine persoenliche Perspektive" in msg)
+        _check(f"{m}: bans 'just following orders' shift",
+               "Verantwortungs-Abschiebung" in msg)
+
+    # operational + creative → NO undergen block (tuyuca off)
+    for m in ["operational", "creative"]:
+        r = TopicRoute(method=m, tuyuca_mode="off", lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m}: NO UNDERGENERATION block (tuyuca off)",
+               "UNDERGENERATION VERBOTEN" not in msg)
+
+
+def test_t16_chomsky_blocks_metadata():
+    print(f"\n{_BOLD}[T16]{_RESET} method-set constants for Chomsky gates")
+    _check("_METHODS_REQUIRING_MECHANISM has empirical/formal/eng/clinical",
+           _METHODS_REQUIRING_MECHANISM == {"empirical", "formal",
+                                            "engineering_design", "clinical_diagnostic"})
+    _check("_METHODS_REQUIRING_NORMATIVE_FRAME is just legal_normative",
+           _METHODS_REQUIRING_NORMATIVE_FRAME == {"legal_normative"})
+
+
 def main():
-    print(f"{_BOLD}topic_classifier — falsifiable tests · #188 + #190{_RESET}")
+    print(f"{_BOLD}topic_classifier — falsifiable tests · #188 + #190 + #191{_RESET}")
     print("=" * 75)
     test_t1_taxonomy_loads()
     test_t2_persona_labels_in_all_7_clusters()
@@ -283,6 +364,10 @@ def main():
     test_t10_tuyuca_mode_per_method()
     test_t11_tuyuca_topicroute_default()
     test_t12_tuyuca_block_in_system_message()
+    test_t13_mechanism_block_in_system_message()
+    test_t14_normative_frame_block()
+    test_t15_undergeneration_guard_block()
+    test_t16_chomsky_blocks_metadata()
 
     print()
     print("=" * 75)
