@@ -385,6 +385,28 @@ def build_persona_system_message(route: TopicRoute) -> str:
         )
         out += undergen_block
 
+        # C10 (Chomsky 2023): adversarial final check — pre-emit self-criticism
+        # Per Popper-via-Chomsky: "To be right, it must be possible to be wrong."
+        # The model runs this checklist mentally BEFORE shipping the answer.
+        adversarial_block = (
+            "\n=== ADVERSARIAL FINAL CHECK (Chomsky C10) ===\n"
+            "BEVOR du deine Antwort abschickst — pruefe SELBST gegen diese 6 Fragen:\n"
+            "  1. Was wuerde diese Antwort widerlegen? (Falsifizierbarkeits-Test)\n"
+            "  2. Welche Quelle habe ich TATSAECHLICH gelesen? (nicht: vermutet)\n"
+            "  3. Habe ich Zeitachsen verwechselt? (z.B. alte Gesetzeslage vs. AKTUELLES DATUM)\n"
+            "  4. Habe ich die Frage-Annahme des Users akzeptiert ohne sie zu pruefen?\n"
+            "  5. Habe ich aus URL-Slug / Titel / Snippet gefolgert ohne den Inhalt zu lesen?\n"
+            "  6. Habe ich UEBER die Evidenz hinaus geantwortet?\n\n"
+            "Wenn auch nur EINE Frage mit 'ja' oder 'weiss nicht' beantwortet wird:\n"
+            "  - markiere den verdaechtigen Teil mit [unsicher]\n"
+            "  - ODER kuerze die Antwort auf das gegroundete Substrat\n"
+            "  - ODER frage zurueck statt zu antworten\n"
+            "NIEMALS: faux-confidence trotz erkannter Schwaeche.\n"
+            "Pop-Kriterium: 'To be right, it must be possible to be wrong.'\n"
+            "=== ENDE ADVERSARIAL FINAL CHECK ===\n"
+        )
+        out += adversarial_block
+
         return out
 
     return router_block

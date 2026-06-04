@@ -349,6 +349,55 @@ def test_t16_chomsky_blocks_metadata():
            _METHODS_REQUIRING_NORMATIVE_FRAME == {"legal_normative"})
 
 
+def test_t17_adversarial_final_check_block():
+    print(f"\n{_BOLD}[T17]{_RESET} ADVERSARIAL FINAL CHECK block (Chomsky C10) — all tuyuca-on methods")
+    # All methods with tuyuca on/strict → adversarial block present
+    for m in ["empirical", "formal", "interpretive", "legal_normative",
+              "engineering_design", "clinical_diagnostic"]:
+        r = TopicRoute(method=m, tuyuca_mode=_tuyuca_mode_for_method(m), lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m}: ADVERSARIAL FINAL CHECK header present",
+               "ADVERSARIAL FINAL CHECK (Chomsky C10)" in msg)
+        _check(f"{m}: 6-question checklist present",
+               "1. Was wuerde diese Antwort widerlegen" in msg
+               and "6. Habe ich UEBER die Evidenz" in msg)
+        _check(f"{m}: Popper criterion quoted verbatim",
+               "To be right, it must be possible to be wrong" in msg)
+        _check(f"{m}: faux-confidence ban present",
+               "faux-confidence trotz erkannter Schwaeche" in msg)
+
+    # operational + creative → NO adversarial block (tuyuca off)
+    for m in ["operational", "creative"]:
+        r = TopicRoute(method=m, tuyuca_mode="off", lang_cluster="DE")
+        msg = build_persona_system_message(r)
+        _check(f"{m}: NO ADVERSARIAL FINAL CHECK block (tuyuca off)",
+               "ADVERSARIAL FINAL CHECK" not in msg)
+
+
+def test_t18_full_chomsky_stack_legal():
+    print(f"\n{_BOLD}[T18]{_RESET} full Chomsky stack — legal_normative shows ALL blocks")
+    r = TopicRoute(
+        persona=["jurist", "auditor"],
+        faculty_isced="F04_business_administration_law",
+        method="legal_normative",
+        tuyuca_mode="strict",
+        lang_cluster="DE",
+    )
+    msg = build_persona_system_message(r)
+    expected_headers = [
+        "TOPIC-ROUTER",
+        "EVIDENZ-MARKIERUNG (Tuyuca-Modus aktiv)",
+        "NORMATIVER RAHMEN (Chomsky C8)",
+        "UNDERGENERATION VERBOTEN (Chomsky C9b)",
+        "ADVERSARIAL FINAL CHECK (Chomsky C10)",
+    ]
+    for h in expected_headers:
+        _check(f"{h} present in legal_normative output", h in msg)
+    # KAUSALMECHANISMUS should NOT be present for legal
+    _check("KAUSALMECHANISMUS NOT in legal output (sci/eng/clinical-only)",
+           "KAUSALMECHANISMUS" not in msg)
+
+
 def main():
     print(f"{_BOLD}topic_classifier — falsifiable tests · #188 + #190 + #191{_RESET}")
     print("=" * 75)
@@ -368,6 +417,8 @@ def main():
     test_t14_normative_frame_block()
     test_t15_undergeneration_guard_block()
     test_t16_chomsky_blocks_metadata()
+    test_t17_adversarial_final_check_block()
+    test_t18_full_chomsky_stack_legal()
 
     print()
     print("=" * 75)
