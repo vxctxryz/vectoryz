@@ -96,3 +96,4 @@ Desktop.ini
 operator_memory/
 private/
 local_notes/
+wrapper_v2/canonical_evals/*.Modelfile
