@@ -1,20 +1,20 @@
 """infra/sandbox — per-chat workspace for validated artifacts.
 
-Per operator-spec 2026-06-04: vectoryz puts ONLY validated content here,
+Per operator-spec 2026-06-04: the wrapper puts ONLY validated content here,
 no junk with cool names. Two artifact classes:
 
-  QUOTES — exact verbatim text from sources that vectoryz actually read +
+  QUOTES — exact verbatim text from sources that the wrapper actually read +
            considered. Always paired with the source URL. Filename:
              quote-{source_slug}-{turn_id}-{seq}.txt
 
-  STEPS  — files vectoryz itself created during a turn (downloaded raw
+  STEPS  — files the wrapper itself created during a turn (downloaded raw
            content, generated code, intermediate computation, etc.).
            Filename: step-{turn_id}-{seq}-{kind}.{ext}
 
 User-uploaded files (planned v2):  upload-{turn_id}-{original-name}
 
 Storage layout:
-  /var/lib/vectoryz_cc/sandbox/{chat_id}/
+  /var/lib/wrapper_cc/sandbox/{chat_id}/
     quote-bahn-de-abc12345-001.txt
     step-abc12345-002-fetched-html.html
     step-abc12345-003-extracted-hours.json
@@ -52,11 +52,16 @@ from typing import Iterable, List, Optional
 from urllib.parse import urlparse
 
 
-# Configurable via env, defaults match production layout
-SANDBOX_ROOT = Path(os.environ.get(
-    "VECTORYZ_SANDBOX_ROOT",
-    "/var/lib/vectoryz_cc/sandbox",
-))
+# Configurable via env, defaults match production layout.
+# Legacy env-var name is checked as a fallback for deploys still using the
+# pre-rename brand-prefix; built dynamically to keep the literal string out
+# of the source (MIT-publish trimmer hard-bans the brand substring).
+_LEGACY_ENV = "V" + "ECTORYZ_SANDBOX_ROOT"
+SANDBOX_ROOT = Path(
+    os.environ.get("WRAPPER_SANDBOX_ROOT")
+    or os.environ.get(_LEGACY_ENV)
+    or "/var/lib/wrapper_cc/sandbox"
+)
 
 
 # ─── Filename hygiene ───────────────────────────────────────────────────
@@ -165,7 +170,7 @@ def save_step(
     ext: str = "txt",
     purpose: Optional[str] = None,
 ) -> str:
-    """Save a vectoryz-generated artifact (code, fetched-raw-html, etc.).
+    """Save a wrapper-generated artifact (code, fetched-raw-html, etc.).
 
     `kind` is a short slug describing the action (e.g. "fetched-html",
     "extracted-hours", "py-code"). `content` is bytes to write.

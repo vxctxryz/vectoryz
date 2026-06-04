@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Point to a temp dir BEFORE importing the module
 _tmp = tempfile.mkdtemp(prefix="sandbox_test_")
-os.environ["VECTORYZ_SANDBOX_ROOT"] = _tmp
+os.environ["WRAPPER_SANDBOX_ROOT"] = _tmp
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -113,7 +113,7 @@ def test_t3_save_quote_rejects_empty():
 
 
 def test_t4_save_step():
-    print(f"\n{_BOLD}[T4]{_RESET} save_step — vectoryz artifact with naming")
+    print(f"\n{_BOLD}[T4]{_RESET} save_step — wrapper artifact with naming")
     fname = save_step(
         chat_id="testchat_t4",
         turn_id="def67890",
